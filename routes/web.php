@@ -320,6 +320,9 @@ ROUTE::GROUP(['' => ''], function (){
 
         ROUTE::get('/AddNewUser', 'UserAccountsController@addnewuserview')
         ->NAME('AddNewUser');   
+
+        ROUTE::post('/AddNewUserOfficial', 'UserAccountsController@addnewuser')
+        ->NAME('AddNewUserOfficial');   
          
 });
 ROUTE::GROUP(['' => ''], function (){

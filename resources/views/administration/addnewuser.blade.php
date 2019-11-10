@@ -103,17 +103,17 @@
         rules:{
           rbi_firstname: {
               required: true,
-              nowhitespace: true,
+              
               lettersonly: true
           },
           rbi_middlename: {
 
-              nowhitespace: true,
+              
               lettersonly: true
           },
           rbi_lastname: {
               required: true,
-              nowhitespace: true,
+              
               lettersonly: true
           },
 
@@ -123,8 +123,8 @@
           },
           rbi_placeofbirth: {
               required: true,
-              nowhitespace: true,
-              lettersonly: true
+              
+              
           },
           rbi_citizenship: {
             required: true,
@@ -134,8 +134,8 @@
 
           rbi_houseno: {
             required: true,
-            nowhitespace: true,
-            lettersonly: true
+            
+            
           },
 
           rbi_hstreet_no: {
@@ -193,7 +193,96 @@
 
 });
   }
+  var status = "";
+   $(document).on('change','.rbi_dateofbirth', function(){
+        var dtest = new Date();
+        var ndate = dtest.toJSON().slice(0, 10); 
+        $('#rbi_dateofbirth').val() > ndate ? $('#rbi_dateofbirth').val(ndate) : $('#rbi_dateofbirth').val()
+        validatedate();
+    
+    });
 
+   function validatedate() {
+
+
+    var dateofbirth = $('#rbi_dateofbirth').val();
+    var cdate = new Date(Date.now());
+    var rgdate = new Date(dateofbirth);
+    var ryear = parseInt(rgdate.getFullYear());
+    var rmont = parseInt(String(rgdate.getMonth() + 1).padStart(2, '0')) ;
+    var rday = parseInt(String(rgdate.getDate()).padStart(2, '0') ) ;
+    var cyear = parseInt(cdate.getFullYear());
+    var cmon = parseInt(cdate.getMonth() + 1);
+    var cday = parseInt(String(cdate.getDate()).padStart(2, '0'));
+
+    var age = cyear - ryear;
+
+    if (rday >= 32){
+        rday = 1;
+    }
+    if (rmont >= 13){
+        rmont = 1;
+    }
+    var current_year = new Date(cyear,cmon,cday);
+    var dob_year = new Date(ryear,rmont,rday); 
+    var days = DaysBetween(dob_year,current_year);
+    console.log(age)
+    
+        if (age >= 1 ) {
+            age == 1 ? $("#rbi_age").val(age + " year old") : $("#rbi_age").val(age + " year's old")
+        }
+        else if ( age < 1 ){
+            days <= 1 ? $("#rbi_age").val(days + " day old") : $("#rbi_age").val(days + " day's old")
+        }
+
+        if (age==0 || age<0) {
+
+
+                if ( days <= 28 && days >= 0 ) {
+
+                    status = "newborn";
+                    
+                    
+                }
+                else if ( days >= 29 ) {
+
+                    status = "infant";
+                    
+                    
+                }
+            }
+            else if (age >= 1 && age <= 10) {
+                
+                
+                status = "child";
+                
+                
+            }
+            else if (age >= 11 && age <= 19) {
+                
+                
+                var status = "adolescent";
+                
+                
+            }
+            else if ( age >= 60 ) {
+                
+                
+                status = "elderly";
+                
+                
+            }
+            
+       console.log(status)
+    }
+
+     function DaysBetween(DateofBirth, CurrentYear) {
+
+            const oneDay = 1000 * 60 * 60 * 24; 
+            const start = Date.UTC(CurrentYear.getFullYear(), CurrentYear.getMonth(), CurrentYear.getDate()); 
+            const end = Date.UTC(DateofBirth.getFullYear(), DateofBirth.getMonth(), DateofBirth.getDate()); 
+            return Math.round(Math.abs((start - end ) / oneDay));
+        }
   $(document).on('change','.rbi_homeownership',function() { 
         if($(this).find('option:selected').val() != 'Owned') {
            $('#reltohead').show();
@@ -229,9 +318,10 @@
         var rbi_eterm = $('#aEndTermTxt').val(); 
         var rbi_position_id = $('#aBarangayPositionTxt').children(":selected").attr("id");
         var rbi_employee_no = $('#aEmpNum').val();
-        var rbi_reltohead = $('#rbi_RelationToHead').val();
+        var rbi_reltohead = $('#rbi_RelationToHead').children(":selected").attr("value");
 
         data = {
+
           rbi_firstname: rbi_firstname,
           rbi_middlename: rbi_middlename, 
           rbi_lastname: rbi_lastname, 
@@ -250,7 +340,31 @@
           rbi_hunitno: rbi_hunitno,
           rbi_hsubdivision: rbi_hsubdivision,
           rbi_citizenship: rbi_citizenship,
+
+          rbi_email: rbi_email,
+          rbi_sterm: rbi_sterm,
+          rbi_eterm: rbi_eterm,
+          rbi_position_id: rbi_position_id,
+          rbi_employee_no: rbi_employee_no,
+          rbi_reltohead: rbi_reltohead,
+          _token: "{{csrf_token()}}"
+        
         }
+
+        $.ajax({
+          url:"{{route('AddNewUserOfficial')}}",
+          type:'post',
+          data:data,
+          success:function()
+          {
+            console.log(data)
+          },
+          error:function()
+          {
+            console.log(data)
+          }
+
+        })
         
     }
     
@@ -459,10 +573,34 @@ label.error {
                                 </div>
                                 <!-- end form-group -->
 
-                                <div class="form-group row m-b-10 rbi-RelToHead-show" style="display: none" id="reltohead">
+                                <div class="form-group row m-b-10 rbi-RelToHead-show" id="reltohead">
                                     <label class="col-md-3 col-form-label text-md-right">Relationship to Household Head<span class="text-danger">*</span></label>
                                     <div class="col-md-6">
-                                        <input type="text" id="rbi_RelationToHead" name="rbi_RelationToHead" placeholder="Indicate Household Head if so" class="form-control rbi_RelationToHead" style="text-transform: capitalize;"/>
+                                      <select id="rbi_RelationToHead" name="rbi_RelationToHead" class="form-control">&nbsp\n'
+                                        <option value="Spouse">Spouse </option>
+                                        <option value="Daughter">Daughter </option>
+                                        <option value="Stepson">Stepson</option>
+                                        <option value="Stepdaughter">Stepdaughter </option>
+                                        <option value="Son-in-law>Son-in-law">Son-in-law>Son-in-law</option>
+                                        <option value="Daughter-in-law">Daughter-in-law"></option>
+
+                                        <option value="Grandson">Grandson </option>\
+                                        <option value="Granddaughter">Granddaughter </option>
+                                        <option value="Father">Father </option>
+                                        <option value="Mother">Mother </option>
+                                        <option value="Brother">Brother </option>
+                                        <option value="Sister">Sister </option>
+                                        <option value="Uncle">Uncle </option>
+                                        <option value="Aunt">Aunt </option>
+                                        <option value="Nephew">Nephew </option>
+                                        <option value="Niece">Niece </option>
+                                        <option value="Other relative">Other relative</option>
+                                        <option value="Nonrelative">Nonrelative </option>
+                                        <option value="Boarder">Boarder </option>
+                                        <option value="Domestic helper">Domestic helper </option>
+
+                                      </select>&nbsp
+                                       
                                     </div>
                                 </div>
 

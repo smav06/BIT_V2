@@ -351,28 +351,28 @@ class UserAccountsController extends Controller
     {
 
         $resident_id = db::table('T_RESIDENT_BASIC_INFO')
-        ->insert([
+        ->insertgetid([
 
-                    'LASTNAME' => strtoupper(request('')),
-                    'MIDDLENAME' => strtoupper(request('')),
-                    'FIRSTNAME' => strtoupper(request('')),
-                    'ADDRESS_HOUSE_NO' => request(''),
-                    'ADDRESS_STREET_NO' => request(''),
-                    'ADDRESS_STREET' => request(''),
+                    'LASTNAME' => strtoupper(request('rbi_firstname')),
+                    'MIDDLENAME' => strtoupper(request('rbi_middlename')),
+                    'FIRSTNAME' => strtoupper(request('rbi_lastname')),
+                    'ADDRESS_HOUSE_NO' => request('rbi_house_no'),
+                    'ADDRESS_STREET_NO' => request('rbi_street_no'),
+                    'ADDRESS_STREET' => request('rbi_street'),
                     //'ADDRESS_PHASE' => $multi_rbi_hphase[0],
-                    'ADDRESS_BUILDING' => request(''),
-                    'ADDRESS_UNIT_NO' => request(''),
-                    'ADDRESS_SUBDIVISION' => request(''),
+                    'ADDRESS_BUILDING' => request('rbi_building'),
+                    'ADDRESS_UNIT_NO' => request('rbi_hunitno'),
+                    'ADDRESS_SUBDIVISION' => request('rbi_hsubdivision'),
 
-                    'QUALIFIER' => request(''),
-                    'DATE_OF_BIRTH' => request(''),
-                    'PLACE_OF_BIRTH' => request(''),
-                    'SEX' => request(''),
-                    'CIVIL_STATUS' => request(''),
-                    'OCCUPATION' => request(''),
-                    'CITIZENSHIP' => request(''),
-                    'IS_RBI_COMPLETE' => request(''),
-                    'RELATION_TO_HOUSEHOLD_HEAD' => irequest(''),                 
+                    'QUALIFIER' => request('rbi_qualifier'),
+                    'DATE_OF_BIRTH' => request('rbi_dob'),
+                    'PLACE_OF_BIRTH' => request('rbi_placeofb'),
+                    'SEX' => request('rbi_gender'),
+                    'CIVIL_STATUS' => request('rbi_civilstat'),
+                    'OCCUPATION' => request('rbi_occu'),
+                    'CITIZENSHIP' => request('rbi_citizenship'),
+                    'IS_RBI_COMPLETE' => 0,
+                    'RELATION_TO_HOUSEHOLD_HEAD' => request('rbi_reltohead'),                 
                     'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
                     'ACTIVE_FLAG' => 1
         ]);
@@ -380,43 +380,45 @@ class UserAccountsController extends Controller
         $brgy_id = session('session_brgy_id');
 
         
-        $start_term = request('rbi_sterm');
-        $end_term = request('rbi_eterm');
-        $pos_id = request('rbi_position_id');
-        $email = request('rbi_email');
-        $employee_number = request('rbi_employee_no');
-        //$username = request('duname');
-        //$password = request('dpass');
+        // $start_term = request('rbi_sterm');
+        // $end_term = request('rbi_eterm');
+        // $pos_id = request('rbi_position_id');
+        // $email = request('rbi_email');
+        // $employee_number = request('rbi_employee_no');
+        // //$username = request('duname');
+        // //$password = request('dpass');
 
 
 
-        $get_name = DB::table('T_RESIDENT_BASIC_INFO')
-                        ->select(DB::raw("LTRIM(RTRIM((CONCAT(REPLACE(FIRSTNAME, ' ', '') ,'.', LASTNAME)))) AS USERNAME"))
-                        ->where('RESIDENT_ID',$resident_id)
-                        ->value('USERNAME');
+        // $get_name = DB::table('T_RESIDENT_BASIC_INFO')
+        //                 ->select(DB::raw("LTRIM(RTRIM((CONCAT(REPLACE(FIRSTNAME, ' ', '') ,'.', LASTNAME)))) AS USERNAME"))
+        //                 ->where('RESIDENT_ID', $resident_id)
+        //                 ->value('USERNAME');
 
-        $BarangayOfficialID = db::table('T_BARANGAY_OFFICIAL')->insertgetid(
-            [
-                'RESIDENT_ID'=> $resident_id,
-                'BARANGAY_ID'=> $brgy_id,
-                'START_TERM'=> $start_term,
-                'END_TERM'=> $end_term,
-                'EMPLOYEE_NUMBER' => $employee_number,
-                'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
-                'ACTIVE_FLAG' => 1
-            ]);
+        // $BarangayOfficialID = db::table('T_BARANGAY_OFFICIAL')->insertgetid(
+        //     [
+        //         'RESIDENT_ID'=> $resident_id,
+        //         'BARANGAY_ID'=> $brgy_id,
+        //         'START_TERM'=> $start_term,
+        //         'END_TERM'=> $end_term,
+        //         'EMPLOYEE_NUMBER' => $employee_number,
+        //         'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
+        //         'ACTIVE_FLAG' => 1
+        //     ]);
 
-        DB::TABLE('T_USERS')
-        ->INSERT(
-            [
-                'BARANGAY_OFFICIAL_ID' => $BarangayOfficialID,
-                'POSITION_ID' => $pos_id,
-                'USERNAME' => $get_name,
-                'EMAIL' => $email,
-                'PASSWORD' =>  bcrypt($employee_number),
-                'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
-                'ACTIVE_FLAG' => 1
-            ]);
+        // DB::TABLE('T_USERS')
+        // ->INSERT(
+        //     [
+        //         'BARANGAY_OFFICIAL_ID' => $BarangayOfficialID,
+        //         'POSITION_ID' => $pos_id,
+        //         'USERNAME' => $get_name,
+        //         'EMAIL' => $email,
+        //         'PASSWORD' =>  bcrypt($employee_number),
+        //         'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
+        //         'ACTIVE_FLAG' => 1
+        //     ]);
+
+        echo $resident_id;
     }
     
     public function addnewuserview()
