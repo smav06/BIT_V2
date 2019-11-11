@@ -16,15 +16,10 @@ class ResidentsController extends Controller
     public function index(Request $request)
     {
         
-        $resident_type = DB::TABLE('R_RESIDENT_TYPE AS RT')
-                        ->PLUCK('RT.TYPE_NAME','RT.TYPE_ID');
-        return view('resident.basicinfo', compact('resident_type'));
-        // return view('resident.residents');
-
-        //  return response()->json($DisplayTable);
-        //dd($issuance_no);
-        
-        
+        // $resident_type = DB::TABLE('R_RESIDENT_TYPE AS RT')
+        //                 ->PLUCK('RT.TYPE_NAME','RT.TYPE_ID');
+        // return view('resident.basicinfo', compact('resident_type'));  
+        return view('queriesreports.rbi_report');
     }
 
     public function searchresident()
@@ -219,7 +214,8 @@ class ResidentsController extends Controller
             }
             else 
             if ( $multi_rbi_status[$i] == "child" ) {
-                DB::TABLE('T_HS_CHILD')->INSERT(['RESIDENT_ID' => $res_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+                 DB::TABLE('T_HS_CHILD')->INSERT(['RESIDENT_ID' => $res_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+                DB::TABLE('T_CHILDREN_PROFILE')->INSERT(['RESIDENT_ID' => $res_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
             }
             else 
             if ( $multi_rbi_status[$i] == "adolescent" ) {
@@ -378,6 +374,7 @@ class ResidentsController extends Controller
                                  
                     if ( $status == "child" ) {
                         DB::TABLE('T_HS_CHILD')->INSERT(['RESIDENT_ID' => $res_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+                        DB::TABLE('T_CHILDREN_PROFILE')->INSERT(['RESIDENT_ID' => $res_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
                     }
                            
                     if ( $status == "adolescent" ) {
@@ -460,6 +457,7 @@ class ResidentsController extends Controller
                                  
                     if ( $multistatus[$i] == "child" ) {
                         DB::TABLE('T_HS_CHILD')->INSERT(['RESIDENT_ID' => $res_multi_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+                        DB::TABLE('T_CHILDREN_PROFILE')->INSERT(['RESIDENT_ID' => $res_multi_last_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
                     }
                            
                     if ( $multistatus[$i] == "adolescent" ) {

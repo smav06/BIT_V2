@@ -403,45 +403,68 @@ class UserAccountsController extends Controller
         $brgy_id = session('session_brgy_id');
 
         
-        // $start_term = request('rbi_sterm');
-        // $end_term = request('rbi_eterm');
-        // $pos_id = request('rbi_position_id');
-        // $email = request('rbi_email');
-        // $employee_number = request('rbi_employee_no');
-        // //$username = request('duname');
-        // //$password = request('dpass');
+        $start_term = request('rbi_sterm');
+        $end_term = request('rbi_eterm');
+        $pos_id = request('rbi_position_id');
+        $email = request('rbi_email');
+        $employee_number = request('rbi_employee_no');
+        $status = request('status');
+        //$username = request('duname');
+        //$password = request('dpass');
 
 
 
-        // $get_name = DB::table('T_RESIDENT_BASIC_INFO')
-        //                 ->select(DB::raw("LTRIM(RTRIM((CONCAT(REPLACE(FIRSTNAME, ' ', '') ,'.', LASTNAME)))) AS USERNAME"))
-        //                 ->where('RESIDENT_ID', $resident_id)
-        //                 ->value('USERNAME');
+        $get_name = DB::table('T_RESIDENT_BASIC_INFO')
+                        ->select(DB::raw("LTRIM(RTRIM((CONCAT(REPLACE(FIRSTNAME, ' ', '') ,'.', LASTNAME)))) AS USERNAME"))
+                        ->where('RESIDENT_ID', $resident_id)
+                        ->value('USERNAME');
 
-        // $BarangayOfficialID = db::table('T_BARANGAY_OFFICIAL')->insertgetid(
-        //     [
-        //         'RESIDENT_ID'=> $resident_id,
-        //         'BARANGAY_ID'=> $brgy_id,
-        //         'START_TERM'=> $start_term,
-        //         'END_TERM'=> $end_term,
-        //         'EMPLOYEE_NUMBER' => $employee_number,
-        //         'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
-        //         'ACTIVE_FLAG' => 1
-        //     ]);
+        $BarangayOfficialID = db::table('T_BARANGAY_OFFICIAL')->insertgetid(
+            [
+                'RESIDENT_ID'=> $resident_id,
+                'BARANGAY_ID'=> $brgy_id,
+                'START_TERM'=> $start_term,
+                'END_TERM'=> $end_term,
+                'EMPLOYEE_NUMBER' => $employee_number,
+                'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
+                'ACTIVE_FLAG' => 1
+            ]);
 
-        // DB::TABLE('T_USERS')
-        // ->INSERT(
-        //     [
-        //         'BARANGAY_OFFICIAL_ID' => $BarangayOfficialID,
-        //         'POSITION_ID' => $pos_id,
-        //         'USERNAME' => $get_name,
-        //         'EMAIL' => $email,
-        //         'PASSWORD' =>  bcrypt($employee_number),
-        //         'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
-        //         'ACTIVE_FLAG' => 1
-        //     ]);
+        DB::TABLE('T_USERS')
+        ->INSERT(
+            [
+                'BARANGAY_OFFICIAL_ID' => $BarangayOfficialID,
+                'POSITION_ID' => $pos_id,
+                'USERNAME' => $get_name,
+                'EMAIL' => $email,
+                'PASSWORD' =>  bcrypt($employee_number),
+                'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP'),
+                'ACTIVE_FLAG' => 1
+            ]);
 
-        echo $resident_id;
+
+            if ( $status == "newborn" ) {
+                DB::TABLE('T_HS_NEWBORN')->INSERT(['RESIDENT_ID' => $resident_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+            }
+            else 
+            if ( $status == "infant" ) {
+                DB::TABLE('T_HS_INFANT')->INSERT(['RESIDENT_ID' => $resident_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+            }
+            else 
+            if ( $status == "child" ) {
+                DB::TABLE('T_HS_CHILD')->INSERT(['RESIDENT_ID' => $resident_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+                DB::TABLE('T_CHILDREN_PROFILE')->INSERT(['RESIDENT_ID' => $resident_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+            }
+            else 
+            if ( $status == "adolescent" ) {
+                DB::TABLE('T_HS_ADOLESCENT')->INSERT(['RESIDENT_ID' => $resident_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+            }
+            else 
+            if ( $status == "elderly" ) {
+                DB::TABLE('T_HS_ELDERLY')->INSERT(['RESIDENT_ID' => $resident_id, 'CREATED_AT' => DB::RAW('CURRENT_TIMESTAMP')]);
+            }
+
+        echo "good";
     }
     
     public function addnewuserview()
@@ -500,9 +523,7 @@ class UserAccountsController extends Controller
                                  session(['session_permis_user_accounts' => $value->PERMIS_USER_ACCOUNTS]);
                                  session(['session_permis_barangay_config' => $value->PERMIS_BARANGAY_CONFIG]);
                                  session(['session_permis_business_approval' => $value->PERMIS_BUSINESS_APPROVAL]);
-                                 session(['session_permis_barangay_application_form' => $value->PERMIS_APPLICATION_FORM]);
                                  
-                                 session(['session_permis_barangay_application_evaluation' => $value->PERMIS_APPLICATION_FORM_EVALUATION]);
                             }
 
                             $getbrgychair = \DB::TABLE('v_realbarangayofficialsaccount')
