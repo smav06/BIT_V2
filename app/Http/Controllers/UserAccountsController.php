@@ -244,7 +244,18 @@ class UserAccountsController extends Controller
                     $BarangayOfficial->PERMIS_BUSINESS_APPROVAL=1;
                     $BarangayOfficial->save();
                 }
-                
+                else if(request('PermissionName')=='AF')
+                {
+                    $BarangayOfficial = TUSER::where('BARANGAY_OFFICIAL_ID',request('BarangayOfficialID'))->first();
+                    $BarangayOfficial->PERMIS_APPLICATION_FORM=1;
+                    $BarangayOfficial->save();
+                }
+                else if(request('PermissionName')=='AE')
+                {
+                    $BarangayOfficial = TUSER::where('BARANGAY_OFFICIAL_ID',request('BarangayOfficialID'))->first();
+                    $BarangayOfficial->PERMIS_APPLICATION_FORM_EVALUATION=1;
+                    $BarangayOfficial->save();
+                }
 
             }
             else
@@ -337,6 +348,18 @@ class UserAccountsController extends Controller
                 {
                     $BarangayOfficial = TUSER::where('BARANGAY_OFFICIAL_ID',request('BarangayOfficialID'))->first();
                     $BarangayOfficial->PERMIS_BUSINESS_APPROVAL=0;
+                    $BarangayOfficial->save();
+                }
+                else if(request('PermissionName')=='AF')
+                {
+                    $BarangayOfficial = TUSER::where('BARANGAY_OFFICIAL_ID',request('BarangayOfficialID'))->first();
+                    $BarangayOfficial->PERMIS_APPLICATION_FORM=0;
+                    $BarangayOfficial->save();
+                }
+                else if(request('PermissionName')=='AE')
+                {
+                    $BarangayOfficial = TUSER::where('BARANGAY_OFFICIAL_ID',request('BarangayOfficialID'))->first();
+                    $BarangayOfficial->PERMIS_APPLICATION_FORM_EVALUATION=0;
                     $BarangayOfficial->save();
                 }
             }
@@ -477,7 +500,9 @@ class UserAccountsController extends Controller
                                  session(['session_permis_user_accounts' => $value->PERMIS_USER_ACCOUNTS]);
                                  session(['session_permis_barangay_config' => $value->PERMIS_BARANGAY_CONFIG]);
                                  session(['session_permis_business_approval' => $value->PERMIS_BUSINESS_APPROVAL]);
+                                 session(['session_permis_barangay_application_form' => $value->PERMIS_APPLICATION_FORM]);
                                  
+                                 session(['session_permis_barangay_application_evaluation' => $value->PERMIS_APPLICATION_FORM_EVALUATION]);
                             }
 
                             $getbrgychair = \DB::TABLE('v_realbarangayofficialsaccount')

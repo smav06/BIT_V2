@@ -25,12 +25,12 @@
 	<!-- begin breadcrumb -->
 	<ol class="breadcrumb pull-right">
 		<li class="breadcrumb-item"><a href="javascript:;">Business</a></li>
-		<li class="breadcrumb-item"><a href="javascript:;">Business Application</a></li>
+		<li class="breadcrumb-item"><a href="javascript:;">Business Registration</a></li>
 		{{-- <li class="breadcrumb-item active">Wizards + Validation</li> --}}
 	</ol>
 	<!-- end breadcrumb -->
 	<!-- begin page-header -->
-	<h1 class="page-header">Business Application <small></small></h1>
+	<h1 class="page-header">Business Registration<small></small></h1>
 	<!-- end page-header -->
 
 	<ul class="nav nav-pills">

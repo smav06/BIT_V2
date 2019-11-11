@@ -1181,7 +1181,7 @@
                     </div>
                     <!-- end alert -->
                     <!-- begin panel-body -->
-                    <div class="panel-body "  style="overflow-x:auto">
+                    <div class="panel-body "  style="overflow-x:auto;">
 
                        <!-- PERMISSION TABLE -->
                        <table id="permision" class="table table-striped" cellspacing="0" width="100%" >
@@ -1198,8 +1198,8 @@
                                 <th align="center">Family Profile </th>
                                 {{--<th align="center">Community Profile </th>
                                 <th align="center">Barangay Officials </th>--}}
-                                <th align="center">Businesses </th>
-                                <th align="center">Issuance of Forms </th>
+                                
+                                
                                 <th align="center">Ordinances</th>
                                 <th align="center">Blotter</th>
                                 <th align="center">Patawag </th>
@@ -1208,8 +1208,12 @@
                                
                                 <th align="center">Data Migration</th>
                                 
-                                <th align="center">Business Approval </th>
-
+                                
+                                <th align="center">Businesses Registration</th>
+                                <th align="center">Businesses Approval</th>
+                                <th align="center">Permit / Certification / Clearance</th>
+                                <th align="center">PCC Evaluation</th>
+                                
                             </tr>
                         </thead>
 
@@ -1236,7 +1240,7 @@
                                         <input type="checkbox" id="FamilyProfileCkbox{{$Item->BARANGAY_OFFICIAL_ID}}" value="FP"  
                                         {{$Item->PERMIS_FAMILY_PROFILE==1? 'checked':''}} />
                                         <label for="FamilyProfileCkbox{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
-                                    </div>
+                                    </div>  
                                 </td>
                                 {{--<td >
                                     <div class="checkbox checkbox-css">
@@ -1253,20 +1257,6 @@
                                         <label for="BarangayOfficials{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
                                     </div>
                                 </td> --}}
-                                <td >
-                                    <div class="checkbox checkbox-css">
-                                        <input type="checkbox" id="Businessess{{$Item->BARANGAY_OFFICIAL_ID}}" value="B"
-                                        {{$Item->PERMIS_BUSINESSES==1? 'checked':''}}  />
-                                        <label for="Businessess{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
-                                    </div>
-                                </td> 
-                                <td >
-                                    <div class="checkbox checkbox-css">
-                                        <input type="checkbox" id="Issuance{{$Item->BARANGAY_OFFICIAL_ID}}" value="I" 
-                                        {{$Item->PERMIS_ISSUANCE_OF_FORMS==1? 'checked':''}} />
-                                        <label for="Issuance{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
-                                    </div>
-                                </td> 
                                 <td >
                                     <div class="checkbox checkbox-css">
                                         <input type="checkbox" id="Ordinances{{$Item->BARANGAY_OFFICIAL_ID}}" value="O"
@@ -1323,13 +1313,39 @@
                                         <label for="BarangayConfig{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
                                     </div>
                                 </td> --}}
+
                                 <td >
+                                    <div class="checkbox checkbox-css">
+                                        <input type="checkbox" id="Businessess{{$Item->BARANGAY_OFFICIAL_ID}}" value="B"
+                                        {{$Item->PERMIS_BUSINESSES==1? 'checked':''}}  />
+                                        <label for="Businessess{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
+                                    </div>
+                                </td> 
+
+                                <td>
                                     <div class="checkbox checkbox-css">
                                         <input type="checkbox" id="BusinessApproval{{$Item->BARANGAY_OFFICIAL_ID}}"  value="BA"  
                                         {{$Item->PERMIS_BUSINESS_APPROVAL==1? 'checked':''}}  />
                                         <label for="BusinessApproval{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
                                     </div>
+                                </td>
+
+                                <td >
+                                    <div class="checkbox checkbox-css">
+                                        <input type="checkbox" id="ApplicationForm{{$Item->BARANGAY_OFFICIAL_ID}}" value="AF"
+                                        {{$Item->PERMIS_APPLICATION_FORM == 1 ? 'checked':''}}  />
+                                        <label for="ApplicationForm{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
+                                    </div>
                                 </td> 
+
+                                <td>
+                                    <div class="checkbox checkbox-css">
+                                        <input type="checkbox" id="ApplicationEvaluation{{$Item->BARANGAY_OFFICIAL_ID}}"  value="AE"  
+                                        {{$Item->PERMIS_APPLICATION_FORM_EVALUATION == 1 ? 'checked':''}}  />
+                                        <label for="ApplicationEvaluation{{$Item->BARANGAY_OFFICIAL_ID}}"></label>
+                                    </div>
+                                </td>
+
                             </tr>
 
                             @endif

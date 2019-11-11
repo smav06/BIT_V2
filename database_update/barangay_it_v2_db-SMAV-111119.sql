@@ -1,11 +1,11 @@
 -- phpMyAdmin SQL Dump
--- version 4.9.0.1
+-- version 4.8.5
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Nov 11, 2019 at 08:00 AM
--- Server version: 10.4.6-MariaDB
--- PHP Version: 7.3.9
+-- Generation Time: Nov 11, 2019 at 10:29 AM
+-- Server version: 10.1.38-MariaDB
+-- PHP Version: 7.3.4
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET AUTOCOMMIT = 0;
@@ -27,39 +27,16 @@ DELIMITER $$
 -- Procedures
 --
 CREATE DEFINER=`root`@`localhost` PROCEDURE `search_resident` (IN `search_val` VARCHAR(255))  BEGIN
-	SELECT T.RESIDENT_ID
+	SELECT RESIDENT_ID
 	, CONCAT(FIRSTNAME,' ', LASTNAME) AS FULLNAME
 	, CONCAT(MONTHNAME(DATE_OF_BIRTH),' ',DAY(DATE_OF_BIRTH),', ',YEAR(DATE_OF_BIRTH)) AS DATE_OF_BIRTH
 	, PLACE_OF_BIRTH
 	, CONCAT(ADDRESS_HOUSE_NO,' ',ADDRESS_STREET_NO, ' ',ADDRESS_STREET) AS FULL_ADDRESS
 	, PROFILE_PICTURE
-	FROM t_resident_basic_info AS T
-	INNER JOIN t_barangay_official AS BO
-	ON T.RESIDENT_ID = BO.RESIDENT_ID
-	
-	WHERE CONCAT(FIRSTNAME,' ', LASTNAME) LIKE CONCAT('%',search_val, '%')
+	FROM t_resident_basic_info
+	WHERE RESIDENT_ID NOT IN (SELECT RESIDENT_ID FROM t_barangay_official) 
+	AND CONCAT(FIRSTNAME,' ', LASTNAME) LIKE CONCAT('%',search_val, '%')
 	AND FIRSTNAME LIKE CONCAT('%',search_val, '%') OR LASTNAME  LIKE CONCAT('%',search_val, '%');
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_gethousehold_mebers` (IN `header_id` INT)  BEGIN
-	SELECT TB.FAMILY_HEADER_ID
-		, CONCAT(T.LASTNAME, ' ', T.FIRSTNAME, ' ', T.MIDDLENAME) AS FULLNAME
-		, T.RELATION_TO_HOUSEHOLD_HEAD, T.CIVIL_STATUS
-FROM T_RESIDENT_BASIC_INFO AS T
-INNER JOIN T_HOUSEHOLD_INFORMATION AS HI 
-ON T.HOUSEHOLD_ID = HI.HOUSEHOLD_ID
-INNER JOIN T_HOUSEHOLD_MEMBERS AS TH 
-ON T.RESIDENT_ID = TH.RESIDENT_ID
-INNER JOIN T_HOUSEHOLD_BATCH AS TB
-ON TH.FAMILY_HEADER_ID = TB.FAMILY_HEADER_ID
-WHERE TB.FAMILY_HEADER_ID = header_id;
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_lastnames` (IN `searhval` VARCHAR(100))  BEGIN
-SELECT LASTNAME FROM t_resident_basic_info AS T 
-									LEFT JOIN t_household_members AS HM
-									ON T.RESIDENT_ID = HM.RESIDENT_ID
-									WHERE LASTNAME LIKE CONCAT('%',searhval,'%') GROUP BY LASTNAME;
 END$$
 
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_permissions` ()  BEGIN
@@ -82,6 +59,8 @@ CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_get_permissions` ()  BEGIN
 	,`u`.`PERMIS_USER_ACCOUNTS` AS `PERMIS_USER_ACCOUNTS`
 	,`u`.`PERMIS_BARANGAY_CONFIG` AS `PERMIS_BARANGAY_CONFIG`
 	,`u`.`PERMIS_BUSINESS_APPROVAL` AS `PERMIS_BUSINESS_APPROVAL`
+	,`u`.`PERMIS_APPLICATION_FORM` AS `PERMIS_APPLICATION_FORM`
+	,`u`.`PERMIS_APPLICATION_FORM_EVALUATION` AS `PERMIS_APPLICATION_FORM_EVALUATION`
 	
 FROM
 	(
@@ -106,36 +85,6 @@ END$$
 CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_residents_not_official` ()  BEGIN
 	SELECT RESIDENT_ID, CONCAT(FIRSTNAME,' ',LASTNAME) AS FULLNAME FROM t_resident_basic_info
 	WHERE RESIDENT_ID NOT IN (SELECT RESIDENT_ID FROM t_barangay_official);
-END$$
-
-CREATE DEFINER=`root`@`localhost` PROCEDURE `sp_search_resident_foradding_member` (IN `search_val` VARCHAR(255))  BEGIN
-	SELECT T.RESIDENT_ID
-	, CONCAT(FIRSTNAME,' ', LASTNAME) AS FULLNAME
-	, CONCAT(MONTHNAME(DATE_OF_BIRTH),' ',DAY(DATE_OF_BIRTH),', ',YEAR(DATE_OF_BIRTH)) AS DATE_OF_BIRTH
-	, PLACE_OF_BIRTH
-	, CONCAT(ADDRESS_HOUSE_NO,' ',ADDRESS_STREET_NO, ' ',ADDRESS_STREET) AS FULL_ADDRESS
-	, PROFILE_PICTURE
-	FROM t_resident_basic_info AS T
-	LEFT JOIN t_household_members AS HM
-	ON T.RESIDENT_ID = HM.RESIDENT_ID
-	WHERE T.RESIDENT_ID NOT IN (SELECT RESIDENT_ID FROM t_household_members)
-	AND
-	 LASTNAME LIKE CONCAT((SELECT LASTNAME FROM t_resident_basic_info AS T 
-									LEFT JOIN t_household_members AS HM
-									ON T.RESIDENT_ID = HM.RESIDENT_ID
-									WHERE LASTNAME LIKE CONCAT(search_val,'%') GROUP BY LASTNAME),'%');
---  OR FIRSTNAME LIKE CONCAT('%',(SELECT FIRSTNAME FROM t_resident_basic_info AS T 
--- 									LEFT JOIN t_household_members AS HM
--- 									ON T.RESIDENT_ID = HM.RESIDENT_ID
--- 									WHERE FIRSTNAME LIKE CONCAT('%',search_val,'%') GROUP BY FIRSTNAME),'%')
---  OR CONCAT(FIRSTNAME,' ',LASTNAME) LIKE CONCAT('%',(SELECT CONCAT(FIRSTNAME,' ',LASTNAME) AS FULLNAME FROM t_resident_basic_info AS T 
--- 									LEFT JOIN t_household_members AS HM
--- 									ON T.RESIDENT_ID = HM.RESIDENT_ID
--- 									WHERE CONCAT(FIRSTNAME,' ',LASTNAME) LIKE CONCAT('%',search_val,'%') GROUP BY FULLNAME),'%')
---  OR CONCAT(LASTNAME,' ',FIRSTNAME) LIKE CONCAT('%',(SELECT CONCAT(LASTNAME,' ',FIRSTNAME) AS FULLNAME FROM t_resident_basic_info AS T 
--- 									LEFT JOIN t_household_members AS HM
--- 									ON T.RESIDENT_ID = HM.RESIDENT_ID
--- 									WHERE CONCAT(LASTNAME,' ',FIRSTNAME) LIKE CONCAT('%',search_val,'%') GROUP BY FULLNAME),'%');
 END$$
 
 DELIMITER ;
@@ -163,9 +112,9 @@ CREATE TABLE `r_barangay_information` (
   `BARANGAY_NAME` varchar(255) DEFAULT NULL,
   `BARANGAY_SEAL` varchar(150) DEFAULT NULL,
   `LAND_AREA` double(255,0) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime DEFAULT current_timestamp(),
-  `ACTIVE_FLAG` int(11) DEFAULT 1,
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `ACTIVE_FLAG` int(11) DEFAULT '1',
   `USER_ID` int(11) DEFAULT NULL,
   `MUNICIPAL_ID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
@@ -198,9 +147,9 @@ CREATE TABLE `r_barangay_zone` (
   `BARANGAY_ZONE_NAME` varchar(250) DEFAULT NULL,
   `BARANGAY_ZONE_DESC` varchar(250) DEFAULT NULL,
   `BARANGAY_ID` int(11) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime DEFAULT current_timestamp(),
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -285,9 +234,9 @@ CREATE TABLE `r_business_nature` (
   `BUSINESS_NATURE_ID` int(11) NOT NULL,
   `BUSINESS_NATURE_NAME` varchar(100) DEFAULT NULL,
   `BUSINESS_NATURE_DESCRIPTION` varchar(250) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime DEFAULT current_timestamp(),
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -318,8 +267,8 @@ CREATE TABLE `r_municipal_information` (
   `MUNICIPAL_NAME` varchar(50) NOT NULL,
   `PROVINCE_NAME` varchar(50) NOT NULL,
   `MUNICIPAL_SEAL` varchar(50) NOT NULL,
-  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp()
+  `CREATED_AT` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
 
 --
@@ -363,9 +312,9 @@ CREATE TABLE `r_paper_type` (
   `PAPER_TYPE_NAME` varchar(100) NOT NULL,
   `PAPER_TYPE_CATEGORY` varchar(100) NOT NULL,
   `PAPER_TYPE_DECRIPTION` varchar(250) DEFAULT NULL,
-  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  `CREATED_AT` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) NOT NULL DEFAULT 1,
+  `ACTIVE_FLAG` tinyint(4) NOT NULL DEFAULT '1',
   `PAPER_TYPE_CODE` varchar(50) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -414,7 +363,7 @@ CREATE TABLE `r_position` (
   `POSITION_NAME` varchar(50) DEFAULT NULL,
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -460,7 +409,7 @@ INSERT INTO `r_resident_type` (`TYPE_ID`, `TYPE_NAME`, `CREATED_AT`, `UPDATED_AT
 
 CREATE TABLE `t_application_form` (
   `FORM_ID` int(11) NOT NULL,
-  `FORM_DATE` datetime DEFAULT current_timestamp(),
+  `FORM_DATE` datetime DEFAULT CURRENT_TIMESTAMP,
   `FORM_TIME` time DEFAULT NULL,
   `TIME_RECEIVED` time DEFAULT NULL,
   `RECEIVED_BY` varchar(250) DEFAULT NULL,
@@ -471,9 +420,9 @@ CREATE TABLE `t_application_form` (
   `BUSINESS_ID` int(11) DEFAULT NULL,
   `RESIDENT_ID` int(11) DEFAULT NULL,
   `APPLICANT_NAME` varchar(250) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -506,14 +455,7 @@ INSERT INTO `t_application_form` (`FORM_ID`, `FORM_DATE`, `FORM_TIME`, `TIME_REC
 (42, '2019-10-30 21:42:53', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 16, 'Approved', 81, NULL, NULL, '2019-10-30 21:42:53', NULL, 1),
 (43, '2019-10-31 13:44:09', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 1, 14, 'Approved', 82, NULL, NULL, '2019-10-31 13:44:09', NULL, 1),
 (44, '2019-10-31 13:48:37', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 16, 'Approved', 82, NULL, NULL, '2019-10-31 13:48:37', NULL, 1),
-(45, '2019-11-03 17:00:27', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 3, 22, 'Pending', NULL, 3823, NULL, '2019-11-03 17:00:27', NULL, 1),
-(46, '2019-11-03 17:01:10', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 3, 24, 'Approved', NULL, 3818, NULL, '2019-11-03 17:01:10', NULL, 1),
-(47, '2019-11-03 17:02:23', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 15, 'Pending', 62, NULL, NULL, '2019-11-03 17:02:23', NULL, 1),
-(48, '2019-11-03 17:02:31', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 15, 'Pending', 62, NULL, NULL, '2019-11-03 17:02:31', NULL, 1),
-(49, '2019-11-03 17:02:50', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 15, 'Pending', 62, NULL, NULL, '2019-11-03 17:02:50', NULL, 1),
-(50, '2019-11-03 17:02:56', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 15, 'Pending', 62, NULL, NULL, '2019-11-03 17:02:56', NULL, 1),
-(51, '2019-11-03 17:03:04', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 2, 15, 'Pending', 62, NULL, NULL, '2019-11-03 17:03:04', NULL, 1),
-(52, '2019-11-03 17:09:51', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 1, 14, 'Approved', 79, NULL, NULL, '2019-11-03 17:09:51', NULL, 1);
+(45, '2019-11-06 17:19:35', NULL, NULL, 'Shiela Mae A. Velga', 'XXXX-XXX', 1, 14, 'Pending', 63, NULL, NULL, '2019-11-06 17:19:35', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -525,12 +467,12 @@ CREATE TABLE `t_application_form_evaluation` (
   `AF_EVALUATION_ID` int(11) NOT NULL,
   `FORM_ID` int(11) DEFAULT NULL,
   `EVALUATED_BY` varchar(250) DEFAULT NULL,
-  `DATE_EVALUATED` datetime DEFAULT current_timestamp(),
+  `DATE_EVALUATED` datetime DEFAULT CURRENT_TIMESTAMP,
   `EVALUATION_STATUS` varchar(50) DEFAULT NULL,
   `REMARKS` varchar(500) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) DEFAULT 1
+  `ACTIVE_FLAG` tinyint(4) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -563,9 +505,7 @@ INSERT INTO `t_application_form_evaluation` (`AF_EVALUATION_ID`, `FORM_ID`, `EVA
 (28, 41, NULL, '2019-10-30 00:00:00', 'Declined', NULL, '2019-10-30 21:42:03', NULL, 1),
 (29, 42, 'Sebio D. Roberto', '2019-10-30 00:00:00', 'Approved', 'For Printing', '2019-10-30 21:44:46', NULL, 1),
 (30, 43, 'Sebio D. Roberto', '2019-10-31 00:00:00', 'Approved', 'No Issue', '2019-10-31 13:45:36', NULL, 1),
-(31, 44, 'Sebio D. Roberto', '2019-10-31 00:00:00', 'Approved', 'Ok', '2019-10-31 13:49:41', NULL, 1),
-(32, 46, 'Shiela Mae Velga', '2019-11-03 00:00:00', 'Approved', 'ok', '2019-11-03 17:01:33', NULL, 1),
-(33, 52, 'Shiela Mae Velga', '2019-11-03 00:00:00', 'Approved', '999', '2019-11-03 17:10:51', NULL, 1);
+(31, 44, 'Sebio D. Roberto', '2019-10-31 00:00:00', 'Approved', 'Ok', '2019-10-31 13:49:41', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -593,7 +533,8 @@ INSERT INTO `t_barangay_official` (`BARANGAY_OFFICIAL_ID`, `RESIDENT_ID`, `BARAN
 (37, 3788, 1, '2019-10-16', '2022-10-16', '27-002312', '2019-10-11 17:24:45', NULL, 1),
 (39, 3786, 1, '2019-10-10', '2022-10-10', '26-2312345', '2019-10-11 19:59:17', NULL, 1),
 (40, 3797, 1, '2019-10-08', '2022-10-08', '23-1231234', '2019-10-16 18:22:13', NULL, 1),
-(41, 3794, 1, '2019-10-14', '2022-10-14', '23-0012344', '2019-10-16 19:05:48', NULL, 1);
+(41, 3794, 1, '2019-10-14', '2022-10-14', '23-0012344', '2019-10-16 19:05:48', NULL, 1),
+(42, 3838, 1, '2019-10-06', '2022-10-06', '23-0023123', '2019-10-26 02:58:16', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -611,9 +552,9 @@ CREATE TABLE `t_bf_barangay_certification` (
   `CATEGORY_SINGLE_PARENT` varchar(100) DEFAULT NULL,
   `PURPOSE` varchar(500) DEFAULT NULL,
   `FORM_ID` int(11) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `UPDATE_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) DEFAULT 1
+  `ACTIVE_FLAG` tinyint(4) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -627,9 +568,7 @@ INSERT INTO `t_bf_barangay_certification` (`BARANGAY_CERTIFICATION_ID`, `REQUEST
 (5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 29, '2019-10-24 00:14:21', NULL, 1),
 (6, 'Shiela', NULL, NULL, NULL, NULL, 'Widowed Parent', NULL, 33, '2019-10-24 00:19:59', NULL, 1),
 (7, NULL, NULL, NULL, NULL, NULL, NULL, 'Scholarship application', 34, '2019-10-24 00:21:05', NULL, 1),
-(8, NULL, NULL, NULL, NULL, NULL, NULL, 'Scholarship application', 37, '2019-10-26 20:46:13', NULL, 1),
-(9, NULL, NULL, NULL, NULL, NULL, NULL, 'fdas', 45, '2019-11-03 17:00:28', NULL, 1),
-(10, NULL, '98765432', 'Typhoon', '2019-11-05', 'Japan', NULL, NULL, 46, '2019-11-03 17:01:10', NULL, 1);
+(8, NULL, NULL, NULL, NULL, NULL, NULL, 'Scholarship application', 37, '2019-10-26 20:46:13', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -661,9 +600,9 @@ CREATE TABLE `t_bf_barangay_clearance` (
   `D_CR_NO` varchar(50) DEFAULT NULL,
   `D_OR_NO` varchar(50) DEFAULT NULL,
   `FORM_ID` int(11) NOT NULL,
-  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
+  `CREATED_AT` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) NOT NULL DEFAULT 1
+  `ACTIVE_FLAG` tinyint(4) NOT NULL DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -682,8 +621,7 @@ INSERT INTO `t_bf_barangay_clearance` (`BARANGAY_CLEARANCE_ID`, `REGISTERED_NAME
 (10, NULL, 'Elah Aureus Andrada', NULL, 'Andrada 167 Unit 13 Commownealth Ave. Ext Lagro fas', '0987654321', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '0987654321', '0987654321', '300', '0987654321', 'AKEA Upholstery', NULL, NULL, NULL, NULL, 36, '2019-10-25 18:28:30', NULL, 1),
 (11, 'Daiso Japan Surplus', NULL, NULL, 'Molave Building 3 Unit 109 Don Chino', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 41, '2019-10-30 21:39:46', NULL, 1),
 (12, 'Simplicity Retail Store', NULL, NULL, 'Narra Building 7 Unit 90 Cuanso', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 42, '2019-10-30 21:42:53', NULL, 1),
-(13, 'Bisekleta and Motorsiklo', NULL, NULL, 'Acasia Building 10 Unit 4 Molave Street', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 44, '2019-10-31 13:48:37', NULL, 1),
-(14, NULL, 'Irish Bolante Ricarte', NULL, 'Shawshaw 15 Unit 1603 Shaw Blvd N / A fa', 'Shawshaw 15 Unit 1603 Shaw Blvd N / A fa', 5, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 51, '2019-11-03 17:03:04', NULL, 1);
+(13, 'Bisekleta and Motorsiklo', NULL, NULL, 'Acasia Building 10 Unit 4 Molave Street', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 44, '2019-10-31 13:48:37', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -722,7 +660,9 @@ INSERT INTO `t_bf_business_activity` (`BUSINESS_ACTIVITY_ID`, `LINE_OF_BUSINESS_
 (17, 16, '2', '34321', NULL, NULL, 80),
 (18, 16, '2', NULL, '49000', '1000', 81),
 (19, 16, '1', '100000', NULL, NULL, 82),
-(20, 5, '1', 'sdfa', NULL, NULL, 83);
+(24, 5, '2', '543', NULL, NULL, 87),
+(25, 16, '1', NULL, '54325', '43235', 88),
+(26, 15, '1', NULL, '54325', '43235', 89);
 
 -- --------------------------------------------------------
 
@@ -744,9 +684,9 @@ CREATE TABLE `t_bf_business_permit` (
   `SIGNBOARD` varchar(50) DEFAULT NULL,
   `CTC` varchar(50) DEFAULT NULL,
   `FORM_ID` int(11) NOT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) DEFAULT 1
+  `ACTIVE_FLAG` tinyint(4) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -760,7 +700,7 @@ INSERT INTO `t_bf_business_permit` (`BUSINESS_PERMIT_ID`, `AMENDMENT_FROM`, `AME
 (9, NULL, NULL, NULL, NULL, '2019', NULL, NULL, NULL, NULL, NULL, NULL, 39, '2019-10-29 23:52:28', NULL, 1),
 (10, NULL, NULL, NULL, NULL, '2019', '999', '999', '999', '500', '999', '999', 40, '2019-10-30 21:23:46', NULL, 1),
 (11, NULL, NULL, NULL, NULL, '2019', '500', '500', '500', '500', '500', '500', 43, '2019-10-31 13:44:09', NULL, 1),
-(12, NULL, NULL, NULL, NULL, '2019', '654', '65', '654', '876', '6543', '654', 52, '2019-11-03 17:09:52', NULL, 1);
+(12, NULL, NULL, NULL, NULL, '2019', NULL, NULL, NULL, NULL, NULL, NULL, 45, '2019-11-06 17:19:36', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -780,8 +720,7 @@ CREATE TABLE `t_bf_scope_of_work` (
 
 INSERT INTO `t_bf_scope_of_work` (`SCOPE_OF_WORK_ID`, `SCOPE_OF_WORK_NAME`, `SCOPE_OF_WORK_SPECIFY`) VALUES
 (3, 'Repair', 'Painting and no wordings'),
-(4, 'Installation', 'Operating System'),
-(5, 'Repair', 'fdasfdsa');
+(4, 'Installation', 'Operating System');
 
 -- --------------------------------------------------------
 
@@ -806,7 +745,7 @@ CREATE TABLE `t_blotter` (
   `STATUS` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
   `RESPONDENT` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
   `BLOTTER_SUBJECT` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) NOT NULL DEFAULT 1,
+  `ACTIVE_FLAG` int(11) NOT NULL DEFAULT '1',
   `CREATED_AT` timestamp NULL DEFAULT NULL,
   `UPDATED_AT` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
@@ -853,7 +792,9 @@ INSERT INTO `t_business_approval` (`APPROVAL_ID`, `BUSINESS_ID`, `STATUS`, `APPR
 (72, 80, 'Evaluated', 'Shiela Mae Velga', '2019-10-30 00:00:00'),
 (73, 81, 'Evaluated', 'Shiela Mae Velga', '2019-10-30 00:00:00'),
 (74, 82, 'Evaluated', 'Shiela Mae Velga', '2019-10-31 00:00:00'),
-(75, 65, 'Evaluated', NULL, '2019-11-03 00:00:00');
+(75, 65, 'Evaluated', NULL, '2019-11-06 00:00:00'),
+(76, 87, 'Evaluated', 'RYAN AUREUS', '2019-11-07 00:00:00'),
+(77, 88, 'Evaluated', 'RYAN AUREUS', '2019-11-07 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -923,7 +864,7 @@ INSERT INTO `t_business_information` (`BUSINESS_ID`, `BUSINESS_NAME`, `TRADE_NAM
 (61, 'SMAV Restaurant', 'SMAV', 1, 'Shiela Mae', 'Aureus', 'Velga', '4/F Narra Building 2276 Pasong Tamo ExtensionBrgy. Magallanes 1231', '4/F', 'Narra Building', '2276', 'Pasong Tamo Ext.', 'Magallanes', 'fa', '2019432232', '2019-10-01', NULL, '88888-8888-8888', '4324341', 'Partnership', '1000', 'smav@gmail.com', '4389294', '09237187238', '4/F Narra Building2276 Pasong Tamo ExtensionBrgy. Magallanes 1231', '1000', '', '037828', '09321987990', 'Albert Kobe A. Andrada', '09328723871', 'kobe@gmail.com', '350', 10, 1, NULL, NULL, '54235', '0987654325', '0987654323123', '09876541234', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Approved', 'New'),
 (62, 'WBB Toy Shop', 'We Bare Bears', 10, 'Irish', 'Bolante', 'Ricarte', '15 Shaw Blvd., Brgy. San Antonio,  N / A 1603', '15', 'Shawshaw', '1603', 'Shaw Blvd', 'N / A', 'fa', '2019023803', '2019-01-01', NULL, '77777-7777-7777', '4320943', 'Partnership', '2009', 'wbb@gmail.com', '4923948', '09327812738', '15 Shaw Blvd., Brgy. San Antonio,  N / A 1603', '2009', 'irish@gmail.com', '984399', '09378277212', 'Joven C. Bolante', '08382787392', 'joven@gmail.com', '475', 3, 2, 'Liezl Vargas', '15 Shaw Blvd., Brgy. San Antonio,  N / A 1603', '5345', '0948392849', '76346534', '909877632', 'liezl@gmail.com', '25,000.00', NULL, NULL, NULL, NULL, NULL, 'Approved', 'New'),
 (63, 'AUE Daycare Center', 'Andrada Uston Engr', 6, 'Ofelia', 'Cantillana', 'Aureus', 'Unit 509 Mf Tiaoqui Building, Plaza Sta Cruz, Sta. Cruz', '12', 'Tiaoqui', '509', 'Plaza Sta Cruz ', 'Sta. Cruz', 'fa', '2019090024', '2019-05-05', NULL, '66666-6666-6666', '4320092', 'Single', '2010', 'uae@gmail.com', '9473920', '09273846757', 'Unit 509 Mf Tiaoqui Building, Plaza Sta Cruz, Sta. Cruz', '2010', 'ofelia@gmail.com', '9739240', '091783837423', 'Leovigildo D. Aureus', '09367393942', 'leovigildo@gmail.com', '500', 7, 7, 'Angel Grace Hernandez', 'Pasong Putik, Zone 1 Seventh Sabath', '534', '6363726', '2332132', '09348731432', 'shiela@gmail.com', '54343', NULL, NULL, '2019-10-14 00:00:00', NULL, NULL, 'Approved', 'New'),
-(65, 'fasfdsa', 'fdas', 3, 'fdasf', NULL, 'sdafsa', NULL, NULL, 'fdsa', NULL, 'fdas', 'fdsa', 'fas', 'fdas', NULL, NULL, NULL, NULL, 'Partnership', 'fdasfdas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '9876', NULL, NULL, NULL, NULL, '5423542', NULL, '54352532', '0987645431', NULL, NULL, NULL, NULL, '2019-10-21 00:00:00', NULL, NULL, 'Approved', 'New'),
+(65, 'fasfdsa', 'fdas', 3, 'fdasf', NULL, 'sdafsa', NULL, NULL, 'fdsa', NULL, 'fdas', 'fdsa', 'fas', 'fdas', NULL, NULL, NULL, NULL, 'Partnership', 'fdasfdas', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '9876', NULL, NULL, NULL, NULL, '5423542', NULL, '54352532', '0987645431', NULL, NULL, NULL, NULL, '2019-10-21 00:00:00', NULL, NULL, 'Declined', 'New'),
 (66, 'GFSD', 'GFSD', 3, 'GS', NULL, 'GSD', NULL, '136', 'Andrada', '13', 'Commonwealth Ave. Ext.', 'Lagro', '', 'GDFSG', NULL, NULL, NULL, NULL, 'Partnership', 'fdsa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '5432', NULL, NULL, 'dsaf', NULL, '5423', NULL, '876743', '098765421', NULL, NULL, NULL, NULL, '2019-10-21 00:00:00', NULL, NULL, 'Approved', 'New'),
 (71, 'AKEA Upholstery', 'AKEA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'XXXXX-XXXXX', NULL, NULL, '43124', '431431', 'Corporation', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '545', NULL, NULL, NULL, NULL, '5423', NULL, '09875654143', '0978634', NULL, NULL, NULL, 60, '2019-10-28 00:00:00', NULL, NULL, 'Pending', 'Renew'),
 (73, 'AKEA Upholstery', 'AKEA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Corporation', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '5423', NULL, '98675625', '987562', NULL, NULL, NULL, 71, NULL, NULL, NULL, NULL, 'Renew'),
@@ -936,7 +877,9 @@ INSERT INTO `t_business_information` (`BUSINESS_ID`, `BUSINESS_NAME`, `TRADE_NAM
 (80, 'Simplicity Retail Store', 'Simplicity', 1, 'Francisco', 'Jocson', 'Basan', NULL, '7', 'Narra Building', '90', 'Cuanso', NULL, NULL, '100040-009', '2019-10-09', NULL, 'P56693835', '157427610', 'Single', '2201', 'wviolet@chammy.info', '09399033244', '09399033244', 'GGB Building, Pascor Drive', '1118', 'r_aureus@yahoo.com', '09399033244', '09399033244', 'Artura Maegan Mangurun Galleros', '852-7354to46/852-7328', 'r_aureus@yahoo.com', '432', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-30 00:00:00', NULL, NULL, 'Approved', 'New'),
 (81, 'Simplicity Retail Store', 'Simplicity', NULL, 'Francisco', 'Jocson', 'Basan', NULL, '7', 'Narra Building', '90', 'Cuanso', NULL, NULL, '100040-009', NULL, NULL, 'P56693835', '157427610', 'Single', '2201', 'wviolet@chammy.info', '09399033244', '09399033244', 'GGB Building, Pascor Drive', '1118', 'r_aureus@yahoo.com', '09399033244', '09399033244', 'Artura Maegan Mangurun Galleros', '852-7354to46/852-7328', 'r_aureus@yahoo.com', '432', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 80, '2019-10-30 00:00:00', NULL, NULL, 'Approved', 'Renew'),
 (82, 'Bisekleta and Motorsiklo', 'Bisekleta and Motorsiklo Inc', NULL, 'Bisekleta and Motorsiklo', NULL, ', Inc', NULL, '10', 'Acasia Building', '4', 'Molave Street', NULL, NULL, '98765-4532', '2019-10-31', NULL, '14866339', '134265562', 'Corporation', '1118', 'bisekletamortorsiklo@gmail.com', '8673456', '09843256543', '1540 San Marcelino Street Malate 1000', '1001', 'marianoaona@gmail.com', '9891234', '09867652345', 'Joselito Korey Maglikian Ouano', '09876546534', 'joselito@gmail.com', '300', 5, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-31 00:00:00', NULL, NULL, 'Approved', 'New'),
-(83, 'fdsa', 'fdsa', 1, 'fdas', NULL, 'fdsa', NULL, 'fdas', 'fdsa', 'fdsa', 'adfa', 'fds', 'fdsa', 'fsf', '2019-11-07', NULL, NULL, NULL, 'Single', 'fdsa', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-11-03 00:00:00', NULL, NULL, 'Pending', 'New');
+(87, 'Safe and Sound', 'Safe and Sound', 4, 'RYAN', NULL, 'AUREUS', NULL, NULL, NULL, NULL, NULL, NULL, NULL, '65344', NULL, NULL, '987653', '9876542', 'Corporation', '1118', 'r_aureus@yahoo.com', '09399033244', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-11-07 00:00:00', NULL, NULL, 'Approved', 'New'),
+(88, 'Bisekleta and Motorsiklo', 'Bisekleta and Motorsiklo Inc', NULL, 'Bisekleta and Motorsiklo', NULL, ', Inc', NULL, '10', 'Acasia Building', '4', 'Molave Street', NULL, NULL, '98765-4532', NULL, NULL, '14866339', '134265562', 'Corporation', '1118', 'bisekletamortorsiklo@gmail.com', '8673456', '09843256543', '1540 San Marcelino Street Malate 1000', '1001', 'marianoaona@gmail.com', '9891234', '09867652345', 'Joselito Korey Maglikian Ouano', '09876546534', 'joselito@gmail.com', '300', 5, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 82, '2019-11-07 00:00:00', NULL, NULL, 'Approved', 'Renew'),
+(89, 'WBB Toy Shop', 'We Bare Bears', NULL, 'Irish', 'Bolante', 'Ricarte', NULL, '15', 'Shawshaw', '1603', 'Shaw Blvd', 'N / A', 'fa', '2019023803', NULL, NULL, '77777-7777-7777', '4320943', 'Partnership', '2009', 'wbb@gmail.com', '4923948', '09327812738', '15 Shaw Blvd., Brgy. San Antonio,  N / A 1603', '2009', 'irish@gmail.com', '984399', '09378277212', 'Joven C. Bolante', '08382787392', 'joven@gmail.com', '475', 3, 2, 'Liezl Vargas', '15 Shaw Blvd., Brgy. San Antonio,  N / A 1603', NULL, '76346534', NULL, NULL, 'liezl@gmail.com', '25,000.00', NULL, 62, '2019-11-11 00:00:00', NULL, NULL, 'Pending', 'Renew');
 
 -- --------------------------------------------------------
 
@@ -1019,9 +962,9 @@ CREATE TABLE `t_clearance_certification` (
   `OR_AMOUNT` varchar(50) DEFAULT NULL,
   `FORM_ID` int(11) DEFAULT NULL,
   `PAPER_TYPE_ID` int(11) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) DEFAULT 1
+  `ACTIVE_FLAG` tinyint(4) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
@@ -1047,9 +990,54 @@ INSERT INTO `t_clearance_certification` (`CLEARANCE_CERTIFICATION_ID`, `CONTROL_
 (19, 'XXXX-XXX', '2019-10-30 00:00:00', '008301', '2019-10-30 00:00:00', '1500', 40, 14, '2019-10-30 21:25:52', NULL, 1),
 (20, 'XXXX-XXX', '2019-10-30 00:00:00', '0008109', '2019-10-30 00:00:00', '1500', 42, 16, '2019-10-30 21:44:46', NULL, 1),
 (21, 'XXXX-XXX', '2019-10-31 00:00:00', '00128', '2019-10-31 00:00:00', '500', 43, 14, '2019-10-31 13:45:36', NULL, 1),
-(22, 'XXXX-XXX', '2019-10-31 00:00:00', '000231', '2019-10-31 00:00:00', '500', 44, 16, '2019-10-31 13:49:41', NULL, 1),
-(23, 'XXXX-XXX', '2019-11-03 00:00:00', '8765', '2019-11-03 00:00:00', '76', 46, 24, '2019-11-03 17:01:34', NULL, 1),
-(24, 'XXXX-XXX', '2019-11-03 00:00:00', '9999', '2019-11-03 00:00:00', '999', 52, 14, '2019-11-03 17:10:51', NULL, 1);
+(22, 'XXXX-XXX', '2019-10-31 00:00:00', '000231', '2019-10-31 00:00:00', '500', 44, 16, '2019-10-31 13:49:41', NULL, 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_family_header`
+--
+
+CREATE TABLE `t_family_header` (
+  `FAMILY_HEADER_ID` int(11) NOT NULL,
+  `CREATED_AT` datetime DEFAULT NULL,
+  `UPDATED_AT` datetime DEFAULT NULL,
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `t_family_header`
+--
+
+INSERT INTO `t_family_header` (`FAMILY_HEADER_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
+(853, '2019-10-26 03:19:52', '2019-10-26 03:19:52', 1),
+(854, '2019-11-08 22:57:40', '2019-11-08 22:57:40', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `t_family_information`
+--
+
+CREATE TABLE `t_family_information` (
+  `FAMILY_INFORMATION_ID` int(11) NOT NULL,
+  `FAMILY_HEADER_ID` int(11) DEFAULT NULL,
+  `RESIDENT_ID` int(11) DEFAULT NULL,
+  `CREATED_AT` datetime DEFAULT NULL,
+  `UPDATED_AT` datetime DEFAULT NULL,
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
+) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
+
+--
+-- Dumping data for table `t_family_information`
+--
+
+INSERT INTO `t_family_information` (`FAMILY_INFORMATION_ID`, `FAMILY_HEADER_ID`, `RESIDENT_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
+(942, 853, 3857, '2019-10-26 03:19:52', NULL, 1),
+(943, 853, 3858, '2019-10-26 03:19:52', NULL, 1),
+(944, 853, 3859, '2019-10-26 03:19:52', NULL, 1),
+(945, 854, 3861, '2019-11-08 22:57:40', NULL, 1),
+(946, 854, 3862, '2019-11-08 22:57:40', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1067,15 +1055,6 @@ CREATE TABLE `t_fathers_profile` (
   `UPDATED_AT` datetime DEFAULT NULL,
   `ACTIVE_FLAG` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
-
---
--- Dumping data for table `t_fathers_profile`
---
-
-INSERT INTO `t_fathers_profile` (`FATHERS_ID`, `FATHER_MOTHER_TONGUE`, `FATHER_OTHER_DIALECTS`, `FATHER_EDUCATIONAL_ATTAINMENT`, `RESIDENT_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
-(3, 'Tagalog', 'Visayan', 'Masteral/Unit Degree', 3912, '2019-11-04 16:49:38', NULL, NULL),
-(4, 'Iloco', 'Ilongo', 'Elementary School Graduate', 3914, '2019-11-04 16:57:37', NULL, NULL),
-(5, 'Visayan', 'asd', 'Technical/Vocation Graduate', 3916, '2019-11-04 17:09:08', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1103,28 +1082,6 @@ CREATE TABLE `t_food_eaten` (
   `UPDATED_AT` datetime DEFAULT NULL,
   `ACTIVE_FLAG` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
-
--- --------------------------------------------------------
-
---
--- Table structure for table `t_household_batch`
---
-
-CREATE TABLE `t_household_batch` (
-  `FAMILY_HEADER_ID` int(11) NOT NULL,
-  `CREATED_AT` datetime DEFAULT NULL,
-  `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `t_household_batch`
---
-
-INSERT INTO `t_household_batch` (`FAMILY_HEADER_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
-(881, '2019-11-04 16:49:38', '2019-11-04 16:49:38', 1),
-(882, '2019-11-04 16:57:37', '2019-11-04 16:57:37', 1),
-(883, '2019-11-04 17:09:08', '2019-11-04 17:09:08', 1);
 
 -- --------------------------------------------------------
 
@@ -1234,65 +1191,7 @@ INSERT INTO `t_household_information` (`HOUSEHOLD_ID`, `HOME_OWNERSHIP`, `PERSON
 (1264, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-10-26 03:17:42', NULL, 1),
 (1265, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-10-26 03:19:52', NULL, 1),
 (1266, NULL, 'Parents', NULL, NULL, NULL, NULL, 1, 1, 1, 1, 1, 0, 0, 1, 1, 1, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 1, '2019-10-26 17:27:26', NULL, 1),
-(1267, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-03 17:32:02', NULL, 1),
-(1268, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-03 17:34:31', NULL, 1),
-(1269, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-03 17:39:35', NULL, 1),
-(1270, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-03 17:42:25', NULL, 1),
-(1271, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-03 17:43:02', NULL, 1),
-(1272, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-03 17:46:11', NULL, 1),
-(1273, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 1, 0, 0, 1, '2019-11-03 18:26:42', NULL, 1),
-(1274, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:32:52', NULL, 1),
-(1275, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:33:56', NULL, 1),
-(1276, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:36:27', NULL, 1),
-(1277, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:39:14', NULL, 1),
-(1278, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:40:10', NULL, 1),
-(1279, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:42:41', NULL, 1),
-(1280, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:54:55', NULL, 1),
-(1281, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 18:59:14', NULL, 1),
-(1282, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 19:08:43', NULL, 1),
-(1283, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 19:10:32', NULL, 1),
-(1284, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 19:15:29', NULL, 1),
-(1285, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 19:54:13', NULL, 1),
-(1286, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 19:59:41', NULL, 1),
-(1287, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 20:05:43', NULL, 1),
-(1288, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 20:09:49', NULL, 1),
-(1289, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 4, 1, 1, 1, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 1, '2019-11-03 20:12:13', '2019-11-05 13:08:12', 1),
-(1290, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 20:17:38', NULL, 1),
-(1291, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 20:22:17', NULL, 1),
-(1292, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 20:22:48', NULL, 1),
-(1293, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-03 20:23:28', NULL, 1),
-(1294, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-04 16:29:32', NULL, 1),
-(1295, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-04 16:30:04', NULL, 1),
-(1296, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, '2019-11-04 16:49:38', '2019-11-05 14:57:33', 1),
-(1297, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-04 16:57:37', NULL, 1),
-(1298, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '2019-11-04 17:09:07', NULL, 1);
-
--- --------------------------------------------------------
-
---
--- Table structure for table `t_household_members`
---
-
-CREATE TABLE `t_household_members` (
-  `FAMILY_INFORMATION_ID` int(11) NOT NULL,
-  `FAMILY_HEADER_ID` int(11) DEFAULT NULL,
-  `RESIDENT_ID` int(11) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT NULL,
-  `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1
-) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=DYNAMIC;
-
---
--- Dumping data for table `t_household_members`
---
-
-INSERT INTO `t_household_members` (`FAMILY_INFORMATION_ID`, `FAMILY_HEADER_ID`, `RESIDENT_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
-(994, 881, 3912, '2019-11-04 16:49:38', NULL, 1),
-(995, 881, 3913, '2019-11-04 16:49:38', NULL, 1),
-(996, 882, 3914, '2019-11-04 16:57:37', NULL, 1),
-(997, 882, 3915, '2019-11-04 16:57:38', NULL, 1),
-(998, 883, 3916, '2019-11-04 17:09:08', NULL, 1),
-(999, 883, 3917, '2019-11-04 17:09:08', NULL, 1);
+(1267, 'Owned', 'Parents', 'Concrete', NULL, NULL, NULL, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 0, 1, 1, 1, 1, 1, 1, 1, 1, '2019-11-08 22:57:40', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1313,8 +1212,29 @@ CREATE TABLE `t_hs_adolescent` (
   `CS_BUKOL` int(11) DEFAULT NULL,
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
+
+--
+-- Dumping data for table `t_hs_adolescent`
+--
+
+INSERT INTO `t_hs_adolescent` (`ADOLESCENT_ID`, `RESIDENT_ID`, `MMRTD_DATE`, `IS_REFERRED`, `DATE_OF_VISIT`, `REMARKS`, `CS_DIABETIC`, `CS_MATAAS_PRESYON`, `CS_CANCER`, `CS_BUKOL`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
+(3, 3837, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-12 21:09:50', NULL, 1),
+(4, 3840, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:10:10', NULL, 1),
+(5, 3842, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:11:35', NULL, 1),
+(6, 3844, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:11:43', NULL, 1),
+(7, 3846, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:13:49', NULL, 1),
+(8, 3847, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:13:49', NULL, 1),
+(9, 3849, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:15:13', NULL, 1),
+(10, 3850, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:15:13', NULL, 1),
+(11, 3852, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:15:54', NULL, 1),
+(12, 3853, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:15:54', NULL, 1),
+(13, 3855, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:17:42', NULL, 1),
+(14, 3856, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:17:42', NULL, 1),
+(15, 3858, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:19:52', NULL, 1),
+(16, 3859, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-10-26 03:19:52', NULL, 1),
+(17, 3862, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-11-08 22:57:40', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1335,14 +1255,14 @@ CREATE TABLE `t_hs_child` (
   `OPT_HEIGHT` varchar(25) DEFAULT NULL,
   `GP_APRIL_DEWORMING` int(11) DEFAULT NULL,
   `GP_OCTOBER_DEWORMING` int(11) DEFAULT NULL,
-  `DO_A` int(11) DEFAULT 0,
-  `DO_B` int(11) DEFAULT 0,
-  `DO_C` int(11) DEFAULT 0,
+  `DO_A` int(11) DEFAULT '0',
+  `DO_B` int(11) DEFAULT '0',
+  `DO_C` int(11) DEFAULT '0',
   `RESIDENT_ID` int(11) DEFAULT NULL,
   `INFANT_ID` int(11) DEFAULT NULL,
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -1350,7 +1270,9 @@ CREATE TABLE `t_hs_child` (
 --
 
 INSERT INTO `t_hs_child` (`CHILD_ID`, `TYPE_OF_HOME_RECORD`, `DANGERS_OBSERVED`, `SOURCE_OF_SERVICE_RESERVED`, `HAD_DEWORMING`, `HAD_MMR_12_15_MO`, `HAD_VITAMIN_A_12_59_MO`, `OPT_DATE`, `OPT_WEIGHT`, `OPT_HEIGHT`, `GP_APRIL_DEWORMING`, `GP_OCTOBER_DEWORMING`, `DO_A`, `DO_B`, `DO_C`, `RESIDENT_ID`, `INFANT_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
-(23, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 3906, NULL, '2019-11-03 20:23:28', NULL, 1);
+(18, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 3117, NULL, '2019-10-04 00:07:49', NULL, 1),
+(19, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 3730, NULL, '2019-10-07 18:01:25', NULL, 1),
+(20, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 3731, NULL, '2019-10-10 15:27:30', NULL, 1);
 
 -- --------------------------------------------------------
 
@@ -1397,11 +1319,11 @@ CREATE TABLE `t_hs_chronic_disease` (
 CREATE TABLE `t_hs_elderly` (
   `ELDERLY_ID` int(11) NOT NULL,
   `RESIDENT_ID` int(10) DEFAULT NULL,
-  `HAD_FLUE_VACCINE` int(11) DEFAULT 0,
-  `HAD_PNEUMOCCOCAL` int(11) DEFAULT 0,
+  `HAD_FLUE_VACCINE` int(11) DEFAULT '0',
+  `HAD_PNEUMOCCOCAL` int(11) DEFAULT '0',
   `REMARKS` varchar(500) COLLATE utf8mb4_unicode_ci DEFAULT NULL,
-  `CREATED_AT` datetime NOT NULL DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE current_timestamp()
+  `CREATED_AT` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime NOT NULL DEFAULT '0000-00-00 00:00:00' ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
 
 -- --------------------------------------------------------
@@ -1468,14 +1390,14 @@ CREATE TABLE `t_hs_infant` (
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
   `ACTIVE_FLAG` int(11) DEFAULT NULL,
-  `DO_A` tinyint(4) DEFAULT 0,
-  `DO_B` tinyint(4) DEFAULT 0,
-  `DO_C` tinyint(4) DEFAULT 0,
-  `DO_D` tinyint(4) DEFAULT 0,
-  `DO_E` tinyint(4) DEFAULT 0,
-  `DO_F` tinyint(4) DEFAULT 0,
-  `DO_G` tinyint(4) DEFAULT 0,
-  `DO_H` tinyint(4) DEFAULT 0
+  `DO_A` tinyint(4) DEFAULT '0',
+  `DO_B` tinyint(4) DEFAULT '0',
+  `DO_C` tinyint(4) DEFAULT '0',
+  `DO_D` tinyint(4) DEFAULT '0',
+  `DO_E` tinyint(4) DEFAULT '0',
+  `DO_F` tinyint(4) DEFAULT '0',
+  `DO_G` tinyint(4) DEFAULT '0',
+  `DO_H` tinyint(4) DEFAULT '0'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 -- --------------------------------------------------------
@@ -1495,30 +1417,18 @@ CREATE TABLE `t_hs_newborn` (
   `HAD_NEWBORN_SCREENING` int(11) DEFAULT NULL,
   `HAD_BREASTFEED` int(11) DEFAULT NULL,
   `DANGERS_OBSERVED` varchar(25) DEFAULT NULL,
-  `DO_A` tinyint(4) DEFAULT 0,
-  `DO_B` tinyint(4) DEFAULT 0,
-  `DO_C` tinyint(4) DEFAULT 0,
-  `DO_D` tinyint(4) DEFAULT 0,
-  `DO_E` tinyint(4) DEFAULT 0,
-  `DO_F` tinyint(4) DEFAULT 0,
+  `DO_A` tinyint(4) DEFAULT '0',
+  `DO_B` tinyint(4) DEFAULT '0',
+  `DO_C` tinyint(4) DEFAULT '0',
+  `DO_D` tinyint(4) DEFAULT '0',
+  `DO_E` tinyint(4) DEFAULT '0',
+  `DO_F` tinyint(4) DEFAULT '0',
   `SOURCE_OF_SERVICE_RESERVED` varchar(100) DEFAULT NULL,
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` int(11) DEFAULT 1,
+  `ACTIVE_FLAG` int(11) DEFAULT '1',
   `NONRESIDENT_ID` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
-
---
--- Dumping data for table `t_hs_newborn`
---
-
-INSERT INTO `t_hs_newborn` (`NEWBORN_ID`, `RESIDENT_ID`, `TYPE_OF_HOME_RECORD`, `BIRTH_WEIGHT`, `BIRTH_LENGTH`, `HAD_BCG`, `HAD_HEPA_B`, `HAD_NEWBORN_SCREENING`, `HAD_BREASTFEED`, `DANGERS_OBSERVED`, `DO_A`, `DO_B`, `DO_C`, `DO_D`, `DO_E`, `DO_F`, `SOURCE_OF_SERVICE_RESERVED`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`, `NONRESIDENT_ID`) VALUES
-(80, 3907, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, '2019-11-03 20:23:28', NULL, 1, NULL),
-(81, 3909, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, '2019-11-04 16:29:32', NULL, 1, NULL),
-(82, 3911, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, '2019-11-04 16:30:04', NULL, 1, NULL),
-(83, 3913, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, '2019-11-04 16:49:38', NULL, 1, NULL),
-(84, 3915, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, '2019-11-04 16:57:38', NULL, 1, NULL),
-(85, 3917, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 0, 0, 0, 0, NULL, '2019-11-04 17:09:08', NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -1594,13 +1504,13 @@ CREATE TABLE `t_hs_pregnant` (
   `PRENATAL_CHECKUP_1TRI` int(11) DEFAULT NULL,
   `PRENATAL_CHECKUP_2TRI` int(11) DEFAULT NULL,
   `PRENATAL_CHECKUP_3TRI` int(11) DEFAULT NULL,
-  `DO_A` tinyint(4) DEFAULT 0,
-  `DO_B` tinyint(4) DEFAULT 0,
-  `DO_C` tinyint(4) DEFAULT 0,
-  `DO_D` tinyint(4) DEFAULT 0,
-  `DO_E` tinyint(4) DEFAULT 0,
-  `DO_F` tinyint(4) DEFAULT 0,
-  `DO_G` tinyint(4) DEFAULT 0,
+  `DO_A` tinyint(4) DEFAULT '0',
+  `DO_B` tinyint(4) DEFAULT '0',
+  `DO_C` tinyint(4) DEFAULT '0',
+  `DO_D` tinyint(4) DEFAULT '0',
+  `DO_E` tinyint(4) DEFAULT '0',
+  `DO_F` tinyint(4) DEFAULT '0',
+  `DO_G` tinyint(4) DEFAULT '0',
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
   `ACTIVE_FLAG` int(11) DEFAULT NULL
@@ -1641,8 +1551,8 @@ CREATE TABLE `t_issuance` (
   `RECEIVED_BY` varchar(255) DEFAULT NULL,
   `STATUS` varchar(50) DEFAULT NULL,
   `REMARKS` varchar(150) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `ACTIVE_FLAG` int(11) DEFAULT NULL,
   `OR_NUMBER` varchar(50) DEFAULT NULL,
   `OR_AMOUNT` varchar(50) DEFAULT NULL
@@ -1675,15 +1585,6 @@ CREATE TABLE `t_mothers_profile` (
   `ACTIVE_FLAG` int(11) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
---
--- Dumping data for table `t_mothers_profile`
---
-
-INSERT INTO `t_mothers_profile` (`MOTHERS_ID`, `IS_PREGNANT`, `MOTHER_MOTHER_TONGUE`, `MOTHER_OTHER_DIALECTS`, `MOTHER_EDUCATIONAL_ATTAINMENT`, `RESIDENT_ID`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
-(4, 1, 'Iloco', 'Bicolnon', 'Technical/Vocation Graduate', 3913, '2019-11-04 16:49:38', '2019-11-05 12:20:27', NULL),
-(5, NULL, NULL, NULL, 'Elementary School Graduate', 3915, '2019-11-04 16:57:38', NULL, NULL),
-(6, 1, 'Visayan', 'sa', 'College Graduate', 3917, '2019-11-04 17:09:08', '2019-11-04 09:16:51', 1);
-
 -- --------------------------------------------------------
 
 --
@@ -1715,9 +1616,9 @@ CREATE TABLE `t_ordinance` (
   `ORDINANCE_SANCTION` varchar(50) DEFAULT NULL,
   `ORDINANCE_AUTHOR` varchar(50) DEFAULT NULL,
   `FILE_NAME` varchar(50) NOT NULL DEFAULT 'NONE',
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime DEFAULT NULL ON UPDATE current_timestamp(),
-  `ACTIVE_FLAG` int(11) DEFAULT 1
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime DEFAULT NULL ON UPDATE CURRENT_TIMESTAMP,
+  `ACTIVE_FLAG` int(11) DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -1749,7 +1650,7 @@ CREATE TABLE `t_patawag` (
   `PATAWAG_SCHED_DATETIME` datetime NOT NULL,
   `PATAWAG_SCHED_PLACE` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL,
   `STATUS` varchar(50) COLLATE utf8mb4_unicode_ci NOT NULL DEFAULT 'Pending',
-  `ACTIVE_FLAG` int(11) NOT NULL DEFAULT 1,
+  `ACTIVE_FLAG` int(11) NOT NULL DEFAULT '1',
   `CREATED_AT` timestamp NULL DEFAULT NULL,
   `UPDATED_AT` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci ROW_FORMAT=COMPACT;
@@ -1809,12 +1710,12 @@ CREATE TABLE `t_resident_basic_info` (
   `ISSUED_DATE` date DEFAULT NULL,
   `WHERE_DOCUMENT_ISSUED` varchar(255) CHARACTER SET latin7 DEFAULT NULL,
   `SKILLS_DEVELOPMENT_TRAINING` varchar(255) DEFAULT NULL,
-  `IS_RBI_COMPLETE` int(11) DEFAULT 0,
-  `IS_MIC_COMPLETE` int(11) DEFAULT 0,
+  `IS_RBI_COMPLETE` int(11) DEFAULT '0',
+  `IS_MIC_COMPLETE` int(11) DEFAULT '0',
   `PROFILE_PICTURE` varchar(255) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
-  `UPDATED_AT` datetime DEFAULT current_timestamp(),
-  `ACTIVE_FLAG` int(11) UNSIGNED DEFAULT 1
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `UPDATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
+  `ACTIVE_FLAG` int(11) UNSIGNED DEFAULT '1'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1 ROW_FORMAT=COMPACT;
 
 --
@@ -1822,12 +1723,12 @@ CREATE TABLE `t_resident_basic_info` (
 --
 
 INSERT INTO `t_resident_basic_info` (`RESIDENT_ID`, `HOUSEHOLD_ID`, `LASTNAME`, `MIDDLENAME`, `FIRSTNAME`, `ADDRESS_UNIT_NO`, `ADDRESS_PHASE`, `ADDRESS_BLOCK_NO`, `ADDRESS_HOUSE_NO`, `ADDRESS_STREET_NO`, `ADDRESS_STREET`, `ADDRESS_SUBDIVISION`, `ADDRESS_BUILDING`, `QUALIFIER`, `DATE_OF_BIRTH`, `PLACE_OF_BIRTH`, `SEX`, `CIVIL_STATUS`, `IS_OFW`, `OCCUPATION`, `WORK_STATUS`, `DATE_STARTED_WORKING`, `CITIZENSHIP`, `RELATION_TO_HOUSEHOLD_HEAD`, `DATE_OF_ARRIVAL`, `ARRIVAL_STATUS`, `IS_INDIGENOUS`, `CONTACT_NUMBER`, `TIN_NO`, `SSS_NO`, `GSIS_NO`, `EMAIL_ADDRESS`, `IS_REGISTERED_VOTER`, `EDUCATIONAL_ATTAINMENT`, `PERSONS STAYING IN THE HOUSHOLD`, `FROM_WHAT_COUNTRY`, `PLACE_OF_DELIVERY`, `BIRTH_ATTENDANT`, `FAMILY_VISITED`, `REASONFOR_VISIT`, `DISABILITY`, `PLACE_OF_SCHOOL`, `RELIGION`, `LOT_OWNERSHIP`, `TYPE_OF_DOCUMENT`, `ISSUED_DATE`, `WHERE_DOCUMENT_ISSUED`, `SKILLS_DEVELOPMENT_TRAINING`, `IS_RBI_COMPLETE`, `IS_MIC_COMPLETE`, `PROFILE_PICTURE`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`) VALUES
-(3785, 1207, 'KAREPPA', 'BAUTISTA', 'DELRO', '146', 'Phase 1', NULL, '146', NULL, 'Oriole Street', NULL, NULL, 'JR', '2019-01-01', 'Tondo Manila', 'Male', 'Single', 1, 'None', 'Not Applicable', '1970-01-01', 'Filipino', 'Parents', '2019-01-01', 2, 1, '9187781278', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:22', '2019-10-10 21:15:22', 1),
+(3785, 1207, 'DUTERTE', 'BAUTISTA', 'RODEL', '146', 'Phase 1', NULL, '146', NULL, 'Oriole Street', NULL, NULL, 'JR', '2019-01-01', 'Tondo Manila', 'Male', 'Single', 1, 'None', 'Not Applicable', '1970-01-01', 'Filipino', 'Parents', '2019-01-01', 2, 1, '9187781278', NULL, NULL, NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:22', '2019-10-10 21:15:22', 1),
 (3786, 1208, 'CERVANTES', 'GONZALES', 'LEA MAE', '68', 'Phase 2', NULL, '68', NULL, 'Aspen Street', NULL, NULL, '', '1999-01-11', 'Polangui Albay', 'Female', 'Single', 0, 'Software Engineer', 'Employed', '2019-07-09', 'Filipino', 'Parents', '2003-02-07', 2, 1, '9091232879', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:22', '2019-10-10 21:15:22', 1),
 (3787, 1209, 'ZENAROSA', '', 'JOHN EDCEL', '12', 'Phase 7', NULL, '12', NULL, 'Gaya Gaya Street', NULL, NULL, 'JR', '1999-04-27', 'Quezon City', 'Male', 'Single', 0, 'Programmer', 'Employed', '2018-04-27', 'Filipino', 'Parents', '2000-03-09', 2, 1, '9127348732', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:22', '2019-10-10 21:15:22', 1),
 (3788, 1210, 'CABATANA', 'OZCAN', 'REDIYN', '30', 'Phase 8', NULL, '30', NULL, 'Astor Street', NULL, NULL, '', '1980-07-07', 'Quezon City', 'Female', 'Single', 0, 'Graphic Artist', 'Employed', '2001-02-03', 'Filipino', 'Parents', '1998-09-04', 2, 1, '9438924982', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-10-10 21:15:23', 1),
 (3789, 1211, 'ESPIRIDION', 'DELOS SANTOS', 'RELYN', '20', 'Phase 8', NULL, '20', NULL, 'Astor Street', NULL, NULL, '', '1980-03-03', 'Quezon City', 'Female', 'Single', 0, 'Programmer', 'Employed', '2004-09-03', 'Filipino', 'Parents', '1999-02-08', 2, 1, '9324722219', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-10-10 21:15:23', 1),
-(3790, 1212, 'FERNANDEZ', 'UY', 'JOHN HENRY', '17', 'Phase 4', NULL, '17', NULL, 'Yen Street', NULL, NULL, NULL, '2018-02-09', 'Quezon City', 'Male', 'Single', 0, 'Sample', 'Unemployed', '1970-01-01', 'Filipino', 'Parents', '2001-09-09', 2, 1, '9187791200', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-11-03 18:04:18', 1),
+(3790, 1212, 'FERNANDEZ', 'UY', 'JOHN HENRY', '17', 'Phase 4', NULL, '17', NULL, 'Yen Street', NULL, NULL, '', '2018-02-09', 'Quezon City', 'Male', 'Single', 0, NULL, 'Unemployed', '1970-01-01', 'Filipino', 'Parents', '2001-09-09', 2, 1, '9187791200', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-10-10 21:15:23', 1),
 (3791, 1213, 'TELESFORO', 'TIU', 'RENNA JANE', '39', 'Phase 1', NULL, '39', NULL, 'Baht Street', NULL, NULL, '', '1980-02-02', 'Quezon City', 'Female', 'Married', 0, 'Data Engineer', 'Employed', '2000-03-03', 'Filipino', 'Parents', '2004-03-02', 2, 0, '9294798123', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-10-10 21:15:23', 1),
 (3792, 1214, 'RAMOS', 'SANCHEZ', 'JEAN ANN', '19', 'Phase 1', NULL, '19', NULL, 'Baht Street', NULL, NULL, '', '1990-08-08', 'Quezon City', 'Female', 'Single', 0, 'Database Administrator', 'Employed', '2010-04-09', 'Filipino', 'Parents', '1999-09-03', 2, 1, '9284319801', NULL, NULL, NULL, NULL, 0, 'High School', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-10-10 21:15:23', 1),
 (3793, 1215, 'DELA CRUZ', 'SANTOS', 'JOSHUA MARIE', '12', 'Phase 1', NULL, '12', NULL, 'Baht Street', NULL, NULL, '', '1989-08-09', 'Quezon City', 'Female', 'Single', 1, 'Data Analyst', 'Employed', '2011-03-02', 'Filipino', 'Sibling', '2007-08-09', 2, 1, '9287349029', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:23', '2019-10-10 21:15:23', 1),
@@ -1871,13 +1772,35 @@ INSERT INTO `t_resident_basic_info` (`RESIDENT_ID`, `HOUSEHOLD_ID`, `LASTNAME`, 
 (3831, 1253, 'MAU', 'SANTOS', 'KALEI', '30', 'Phase 1', NULL, '30', NULL, 'Ilang Ilang Street', NULL, NULL, '', '1987-03-29', 'Quezon City', 'Female', 'Single', 0, 'Programmer', 'Employed', '2008-09-08', 'Filipino', 'Parents', '2010-02-09', 2, 1, '9323823129', NULL, NULL, NULL, NULL, 0, 'High School', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:25', '2019-10-10 21:15:25', 1),
 (3832, 1254, 'MACANDILI', 'TIAMZON', 'DAWN', '27', 'Phase 1', NULL, '27', NULL, 'Ilang Ilang Street', NULL, NULL, '', '1981-02-12', 'Tondo Manila', 'Female', 'Single', 0, 'Lawyer', 'Employed', '2003-02-09', 'Filipino', 'Parents', '2003-03-09', 2, 1, '9390219823', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:25', '2019-10-10 21:15:25', 1),
 (3833, 1255, 'TIAMZON', 'HO', 'CHRISTINE', '27', 'Phase 1', NULL, '27', NULL, 'Ilang Ilang Street', NULL, NULL, '', '1981-07-19', 'Quezon City', 'Female', 'Married', 0, 'Teacher', 'Employed', '2003-09-09', 'Filipino', 'Parents', '2011-09-02', 2, 1, '9123084290', NULL, NULL, NULL, NULL, 0, 'College', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:25', '2019-10-10 21:15:25', 1),
-(3912, 1296, 'JANRA', '', 'MOSIC', NULL, 'asd', NULL, '1', NULL, 'asd', NULL, NULL, NULL, '1987-02-03', 'asd', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'asd', 'Head', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, 0, 'Not Applicable', NULL, NULL, NULL, 'asd', NULL, NULL, 'asd', 'asd', NULL, 'Owned', NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-04 16:49:38', '2019-11-04 16:49:38', 1),
-(3913, 1296, 'LAGON', '', 'ROME', NULL, 'asd', NULL, '1', NULL, 'asd', NULL, NULL, NULL, '1998-03-05', NULL, 'Female', 'Single', NULL, NULL, 'NotApplicable', NULL, NULL, 'Spouse', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-04 16:49:38', '2019-11-04 16:49:38', 1),
-(3914, 1297, 'DENVER', '', 'TAN', NULL, 'qweqeqe', NULL, '1234', NULL, 'qweqweq', NULL, NULL, NULL, '1999-02-03', 'asd', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'asd', 'Head', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Owned', NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-04 16:57:37', '2019-11-04 16:57:37', 1),
-(3915, 1297, 'JEAN', '', 'NAJANA', NULL, 'qweqeqe', NULL, '1234', NULL, 'qweqweq', NULL, NULL, NULL, '1998-02-03', NULL, 'Female', 'Single', NULL, NULL, 'NotApplicable', NULL, NULL, 'Spouse', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-04 16:57:38', '2019-11-04 16:57:38', 1),
-(3916, 1298, 'DUTERTE', '', 'RODEL', NULL, 'asd', NULL, '123', NULL, 'asd', NULL, NULL, NULL, '1999-02-03', 'asd', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'asd', 'Head', NULL, 1, 0, NULL, NULL, NULL, NULL, NULL, 0, 'Technical/Vocation Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'asd', NULL, 'Owned', NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-04 17:09:08', '2019-11-04 17:09:08', 1),
-(3917, 1298, 'VELGA', '', 'SHIE', NULL, 'asd', NULL, '123', NULL, 'asd', NULL, NULL, NULL, '1996-02-08', NULL, 'Female', 'Single', NULL, NULL, 'NotApplicable', NULL, NULL, 'Spouse', NULL, NULL, 0, NULL, NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-04 17:09:08', '2019-11-04 17:09:08', 1),
-(3918, NULL, 'HJ', 'A', 'ASD', NULL, NULL, NULL, '146', 'arae', 'asd', NULL, NULL, NULL, '2010-03-04', 'tondo manila', 'Male', 'Separated', NULL, 'none', NULL, NULL, 'filipino', 'Granddaughter', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-10 17:19:57', '2019-11-10 17:19:57', 1);
+(3834, 1255, 'RAMOS', '', 'JEAN', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-09-02', 'Commonwealth', 'Female', 'Married', 1, 'None', 'None', '1970-01-01', 'Filipino', 'Spouse', '2019-04-03', NULL, NULL, NULL, NULL, NULL, NULL, '43590', 0, 'Elementary School', NULL, 'Canada', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:25', '2019-10-10 21:15:25', 1),
+(3835, 1255, 'VELGA', 'A', 'SHIELA', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, '2019-09-02', 'Commonwealth', 'Female', 'Married', 1, 'None', 'None', '1970-01-01', 'Filipino', 'Spouse', '2019-04-03', NULL, NULL, NULL, NULL, NULL, NULL, '43590', 0, 'Elementary School', NULL, 'Canada', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, 'avatar.png', '2019-10-10 21:15:25', '2019-10-10 21:15:25', 1),
+(3836, 1256, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'JR', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, 'Data Analyst', 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-12 21:09:50', '2019-10-12 21:13:03', 1),
+(3837, 1256, 'lagon', 'a', 'rome', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-12 21:09:50', '2019-10-12 21:09:50', 1),
+(3838, 1257, 'Velga', 'Aureus', 'Shiela Mae', '5', 'None', NULL, '4', NULL, 'Commowealth Ave. Ext', '1', '1', NULL, '1999-05-06', 'Camarines  Sur, Bicol', 'Female', NULL, 1, 'None', 'Unemployed', '1970-01-01', 'Filipino', 'Head', '1970-01-01', 1, 1, '09295545885555', NULL, NULL, NULL, NULL, 1, 'Highschool Graduate', NULL, NULL, NULL, 'Nurse', 'House', 'Christmas', 'None', 'Quezon City', NULL, NULL, NULL, NULL, NULL, 'Documentation', 0, 0, NULL, '2019-10-25 18:22:08', '2019-10-25 18:22:08', 1),
+(3839, 1258, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:10:09', '2019-10-26 03:10:09', 1),
+(3840, 1258, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:10:09', '2019-10-26 03:10:09', 1),
+(3841, 1259, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:11:35', '2019-10-26 03:11:35', 1),
+(3842, 1259, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:11:35', '2019-10-26 03:11:35', 1),
+(3843, 1260, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:11:43', '2019-10-26 03:11:43', 1),
+(3844, 1260, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:11:43', '2019-10-26 03:11:43', 1),
+(3845, 1261, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:13:49', '2019-10-26 03:13:49', 1),
+(3846, 1261, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:13:49', '2019-10-26 03:13:49', 1),
+(3847, 1261, 'DUTERTE', 'D', 'HOSPITAL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2014-03-13', 'Bayan', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Filipino', 'Daughter', '2019-10-16', NULL, 0, '91231231', NULL, NULL, NULL, NULL, NULL, 'High School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:13:49', '2019-10-26 03:13:49', 1),
+(3848, 1262, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:15:13', '2019-10-26 03:15:13', 1),
+(3849, 1262, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:15:13', '2019-10-26 03:15:13', 1),
+(3850, 1262, 'DUTERTE', 'D', 'HOSPITAL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2014-03-13', 'Bayan', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Filipino', 'Daughter', '2019-10-16', NULL, 0, '91231231', NULL, NULL, NULL, NULL, NULL, 'High School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:15:13', '2019-10-26 03:15:13', 1),
+(3851, 1263, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:15:54', '2019-10-26 03:15:54', 1),
+(3852, 1263, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:15:54', '2019-10-26 03:15:54', 1),
+(3853, 1263, 'DUTERTE', 'D', 'HOSPITAL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2014-03-13', 'Bayan', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Filipino', 'Daughter', '2019-10-16', NULL, 0, '91231231', NULL, NULL, NULL, NULL, NULL, 'High School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:15:54', '2019-10-26 03:15:54', 1),
+(3854, 1264, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:17:42', '2019-10-26 03:17:42', 1),
+(3855, 1264, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:17:42', '2019-10-26 03:17:42', 1),
+(3856, 1264, 'DUTERTE', 'D', 'HOSPITAL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2014-03-13', 'Bayan', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Filipino', 'Daughter', '2019-10-16', NULL, 0, '91231231', NULL, NULL, NULL, NULL, NULL, 'High School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:17:42', '2019-10-26 03:17:42', 1),
+(3857, 1265, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-10-26 03:19:52', '2019-10-26 03:19:52', 1),
+(3858, 1265, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:19:52', '2019-10-26 03:19:52', 1),
+(3859, 1265, 'DUTERTE', 'D', 'HOSPITAL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2014-03-13', 'Bayan', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Filipino', 'Daughter', '2019-10-16', NULL, 0, '91231231', NULL, NULL, NULL, NULL, NULL, 'High School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 03:19:52', '2019-10-26 03:19:52', 1),
+(3860, 1266, 'Alejandria', NULL, 'Micha', NULL, 'Veterans', NULL, '249', NULL, 'Oriloe', '1', NULL, NULL, '1997-05-15', 'Tondo manila', 'Female', NULL, NULL, 'Dev', 'Employed', '2016-05-15', 'Filipino', 'Head', '1970-01-01', 1, NULL, '1', NULL, NULL, NULL, NULL, 0, 'College Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, 'Pup', NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-10-26 17:27:26', '2019-10-26 17:27:26', 1),
+(3861, 1267, 'DUTERTE', 'B', 'RODEL', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Tondo Manila', 'Male', 'Single', 0, NULL, 'NotApplicable', NULL, 'Filipino', 'Head', '2001-02-03', 1, 0, '9223441629', NULL, NULL, NULL, NULL, 0, 'Elementary School Graduate', NULL, NULL, 'home', 'doctor', 'government hospital', 'injured', 'blind', 'Veterans', 'Catholic', 'Owned', NULL, NULL, NULL, 'IT related', 0, 0, NULL, '2019-11-08 22:57:40', '2019-11-08 22:57:40', 1),
+(3862, 1267, 'LAGON', 'A', 'ROME', NULL, 'Sitio Veterans', NULL, '123', NULL, 'Area 2 Oriole Street', NULL, NULL, 'jr', '2001-02-03', 'Caloocan City', 'Male', 'Single', NULL, NULL, 'NotApplicable', NULL, 'Visaya', 'Spouse', NULL, NULL, 0, '9223441650', NULL, NULL, NULL, NULL, NULL, 'Elementary School Graduate', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, 0, NULL, '2019-11-08 22:57:40', '2019-11-08 22:57:40', 1);
 
 -- --------------------------------------------------------
 
@@ -1891,9 +1814,9 @@ CREATE TABLE `t_solo_parent_children` (
   `CHILD_AGE` varchar(50) DEFAULT NULL,
   `IS_PWD` varchar(4) DEFAULT NULL,
   `BARANGAY_CERTIFICATION_ID` int(11) DEFAULT NULL,
-  `CREATED_AT` datetime DEFAULT current_timestamp(),
+  `CREATED_AT` datetime DEFAULT CURRENT_TIMESTAMP,
   `UPDATED_AT` datetime DEFAULT NULL,
-  `ACTIVE_FLAG` tinyint(4) DEFAULT 1,
+  `ACTIVE_FLAG` tinyint(4) DEFAULT '1',
   `CHILD_NAME_2` varchar(250) DEFAULT ' ',
   `CHILD_AGE_2` varchar(50) DEFAULT ' ',
   `IS_PWD_2` varchar(4) DEFAULT ' '
@@ -1960,8 +1883,10 @@ CREATE TABLE `t_users` (
   `PERMIS_DATA_MIGRATION` int(11) DEFAULT NULL,
   `PERMIS_USER_ACCOUNTS` int(11) DEFAULT NULL,
   `PERMIS_BARANGAY_CONFIG` int(11) DEFAULT NULL,
+  `PERMIS_APPLICATION_FORM` int(11) DEFAULT NULL,
+  `PERMIS_APPLICATION_FORM_EVALUATION` int(11) DEFAULT NULL,
   `REMEMBER_TOKEN` varchar(50) DEFAULT NULL,
-  `IS_FIRST_LOGGED_IN` tinyint(1) NOT NULL DEFAULT 1,
+  `IS_FIRST_LOGGED_IN` tinyint(1) NOT NULL DEFAULT '1',
   `CREATED_AT` datetime DEFAULT NULL,
   `UPDATED_AT` datetime DEFAULT NULL,
   `ACTIVE_FLAG` int(11) DEFAULT NULL,
@@ -1972,13 +1897,13 @@ CREATE TABLE `t_users` (
 -- Dumping data for table `t_users`
 --
 
-INSERT INTO `t_users` (`USER_ID`, `BARANGAY_ID`, `BARANGAY_OFFICIAL_ID`, `POSITION_ID`, `FIRSTNAME`, `MIDDLENAME`, `LASTNAME`, `USERNAME`, `EMAIL`, `EMAIL_VERIFIED_AT`, `PASSWORD`, `SECRET_QUESTION`, `SECRET_ANSWER`, `PERMIS_RESIDENT_BASIC_INFO`, `PERMIS_FAMILY_PROFILE`, `PERMIS_COMMUNITY_PROFILE`, `PERMIS_BARANGAY_OFFICIAL`, `PERMIS_BUSINESSES`, `PERMIS_ISSUANCE_OF_FORMS`, `PERMIS_ORDINANCES`, `PERMIS_BLOTTER`, `PERMIS_PATAWAG`, `PERMIS_SYSTEM_REPORT`, `PERMIS_HEALTH_SERVICES`, `PERMIS_DATA_MIGRATION`, `PERMIS_USER_ACCOUNTS`, `PERMIS_BARANGAY_CONFIG`, `REMEMBER_TOKEN`, `IS_FIRST_LOGGED_IN`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`, `PERMIS_BUSINESS_APPROVAL`) VALUES
-(31, 1, NULL, 6, 'Duterte', 'B', 'Rodel', 'admin', 'rodlduterteb@gmail.com', NULL, '$2y$10$ECCjsDobkDgWIeJlFWoAu.ldE7oTYpgoDLgVogI2USzSZkdvuZ9Mu', 'null', 'nulllang', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, '2019-08-02 17:18:40', NULL, 1, 0),
-(57, NULL, 37, 36, NULL, NULL, NULL, 'REDIYN.CABATANA', 'rdoel@gmail.com', NULL, '$2y$10$Gp5rI.Hsdy56qTpUNC.WdOeSwrshrVA7CCOy2P8sInVikf6XB2i9C', NULL, NULL, 1, 1, NULL, NULL, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, NULL, 1, '2019-10-11 17:24:45', NULL, 1, NULL),
-(59, NULL, 39, 37, NULL, NULL, NULL, 'LEAMAE.CERVANTES', 'leah@gmail.com', NULL, '$2y$10$dCbEmssXgjeCE6oj6.iVouqhz/uXa1lOjKELjaD8l24.xNc5u0D42', NULL, NULL, 1, 1, NULL, NULL, 1, 1, 1, 1, 1, 0, 1, 1, NULL, NULL, NULL, 0, '2019-10-11 19:59:18', NULL, 1, NULL),
-(60, NULL, 40, 38, NULL, NULL, NULL, 'JOHNNORRY.YACAP', 'yacap@gmail.com', NULL, '$2y$10$2aqQMB2vO/5lxoHW6IWmTubRILbxlsbbXrUsFA8g3I8V4SPp2VoSG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '2019-10-16 18:22:13', NULL, 1, NULL),
-(61, NULL, 41, 39, NULL, NULL, NULL, 'JOHN.GADEN', 'gaden@gmail.com', NULL, '$2y$10$NGpFQ1Y9a2XJy.AtP6kckukDsoehjN/RPaUSB21WSAxwf7nW4b8Z.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '2019-10-16 19:05:48', NULL, 1, NULL),
-(62, NULL, 42, 35, NULL, NULL, NULL, 'ShielaMae.Velga', 'smav@gmail.com', NULL, '$2y$10$hoaJkEiS69HN.QVjs.ZIeeqIqvyNcjJWjVkwLXZWpa/zQoRj2O1J6', NULL, NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '2019-10-26 02:58:16', NULL, 1, NULL);
+INSERT INTO `t_users` (`USER_ID`, `BARANGAY_ID`, `BARANGAY_OFFICIAL_ID`, `POSITION_ID`, `FIRSTNAME`, `MIDDLENAME`, `LASTNAME`, `USERNAME`, `EMAIL`, `EMAIL_VERIFIED_AT`, `PASSWORD`, `SECRET_QUESTION`, `SECRET_ANSWER`, `PERMIS_RESIDENT_BASIC_INFO`, `PERMIS_FAMILY_PROFILE`, `PERMIS_COMMUNITY_PROFILE`, `PERMIS_BARANGAY_OFFICIAL`, `PERMIS_BUSINESSES`, `PERMIS_ISSUANCE_OF_FORMS`, `PERMIS_ORDINANCES`, `PERMIS_BLOTTER`, `PERMIS_PATAWAG`, `PERMIS_SYSTEM_REPORT`, `PERMIS_HEALTH_SERVICES`, `PERMIS_DATA_MIGRATION`, `PERMIS_USER_ACCOUNTS`, `PERMIS_BARANGAY_CONFIG`, `PERMIS_APPLICATION_FORM`, `PERMIS_APPLICATION_FORM_EVALUATION`, `REMEMBER_TOKEN`, `IS_FIRST_LOGGED_IN`, `CREATED_AT`, `UPDATED_AT`, `ACTIVE_FLAG`, `PERMIS_BUSINESS_APPROVAL`) VALUES
+(31, 1, NULL, 6, 'Duterte', 'B', 'Rodel', 'admin', 'rodlduterteb@gmail.com', NULL, '$2y$10$ECCjsDobkDgWIeJlFWoAu.ldE7oTYpgoDLgVogI2USzSZkdvuZ9Mu', 'null', 'nulllang', 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, NULL, NULL, '', 0, '2019-08-02 17:18:40', NULL, 1, 0),
+(57, NULL, 37, 36, NULL, NULL, NULL, 'REDIYN.CABATANA', 'rdoel@gmail.com', NULL, '$2y$10$Gp5rI.Hsdy56qTpUNC.WdOeSwrshrVA7CCOy2P8sInVikf6XB2i9C', NULL, NULL, 1, 1, NULL, NULL, 1, 1, 1, 1, 1, 1, 1, NULL, NULL, NULL, 0, NULL, NULL, 1, '2019-10-11 17:24:45', NULL, 1, NULL),
+(59, NULL, 39, 37, NULL, NULL, NULL, 'LEAMAE.CERVANTES', 'leah@gmail.com', NULL, '$2y$10$hoaJkEiS69HN.QVjs.ZIeeqIqvyNcjJWjVkwLXZWpa/zQoRj2O1J6', NULL, NULL, 1, 1, NULL, NULL, 1, 1, 1, 1, 1, 0, 1, 1, NULL, NULL, 1, 0, NULL, 0, '2019-10-11 19:59:18', NULL, 1, NULL),
+(60, NULL, 40, 38, NULL, NULL, NULL, 'JOHNNORRY.YACAP', 'yacap@gmail.com', NULL, '$2y$10$2aqQMB2vO/5lxoHW6IWmTubRILbxlsbbXrUsFA8g3I8V4SPp2VoSG', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '2019-10-16 18:22:13', NULL, 1, NULL),
+(61, NULL, 41, 39, NULL, NULL, NULL, 'JOHN.GADEN', 'gaden@gmail.com', NULL, '$2y$10$NGpFQ1Y9a2XJy.AtP6kckukDsoehjN/RPaUSB21WSAxwf7nW4b8Z.', NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '2019-10-16 19:05:48', NULL, 1, NULL),
+(62, NULL, 42, 35, NULL, NULL, NULL, 'ShielaMae.Velga', 'smav@gmail.com', NULL, '$2y$10$6yh4ScBsSyxAzUhYOqjdQeNthPwEeyfCBMVxb7y7yQ7njIDuim5AK', NULL, NULL, 1, 1, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, 0, '2019-10-26 02:58:16', NULL, 1, NULL);
 
 -- --------------------------------------------------------
 
@@ -2339,48 +2264,6 @@ CREATE TABLE `v_generatectrno` (
 -- --------------------------------------------------------
 
 --
--- Stand-in structure for view `v_household_information`
--- (See below for the actual view)
---
-CREATE TABLE `v_household_information` (
-`HOUSEHOLD_ID` int(11)
-,`FULLNAME` varchar(152)
-,`HOME_OWNERSHIP` varchar(50)
-,`PERSON_STAYING_IN_HOUSEHOLD` varchar(50)
-,`HOME_MATERIALS` varchar(10)
-,`LASTNAME` varchar(50)
-,`FIRSTNAME` varchar(50)
-,`MIDDLENAME` varchar(50)
-,`TOILET_HOME` int(11)
-,`PLAY_AREA_HOME` int(11)
-,`BEDROOM_HOME` int(11)
-,`DINING_ROOM_HOME` int(11)
-,`SALA_HOME` int(11)
-,`KITCHEN_HOME` int(11)
-,`WATER_UTILITIES` int(11)
-,`ELECTRICITY_UTILITIES` int(11)
-,`AIRCON_UTILITIES` int(11)
-,`PHONE_UTILITIES` int(11)
-,`COMPUTER_UTILITIES` int(11)
-,`INTERNET_UTILITIES` int(11)
-,`TV_UTILITIES` int(11)
-,`CD_PLAYER_UTILITIES` int(11)
-,`RADIO_UTILITIES` int(11)
-,`COMICS_ENTERTAINMENT` int(11)
-,`NEWS_PAPER_ENTERTAINMENT` int(11)
-,`PETS_ENTERTAINMENT` int(11)
-,`BOOKS_ENTERTAINMENT` int(11)
-,`STORY_BOOKS_ENTERTAINMENT` int(11)
-,`TOYS_ENTERTAINMENT` int(11)
-,`BOARD_GAMES_ENTERTAINMENT` int(11)
-,`PUZZLES_ENTERTAINMENT` int(11)
-,`NUMBER_OF_ROOMS` int(11)
-,`FAMILY_HEADER_ID` int(11)
-);
-
--- --------------------------------------------------------
-
---
 -- Stand-in structure for view `v_line_of_business`
 -- (See below for the actual view)
 --
@@ -2419,7 +2302,7 @@ CREATE TABLE `v_official_business_list` (
 ,`REFERENCED_BUSINESS_ID` int(11)
 ,`GROSS_RECEIPTS_ESSENTIAL` varchar(50)
 ,`GROSS_RECEIPTS_NON_ESSENTIAL` varchar(50)
-,`GROSS_RECEIPT_TOTAL` bigint(21) unsigned
+,`GROSS_RECEIPT_TOTAL` bigint(51) unsigned
 );
 
 -- --------------------------------------------------------
@@ -2505,6 +2388,8 @@ CREATE TABLE `v_realbarangayofficialsaccount` (
 ,`PERMIS_USER_ACCOUNTS` int(11)
 ,`PERMIS_BARANGAY_CONFIG` int(11)
 ,`PERMIS_BUSINESS_APPROVAL` int(11)
+,`PERMIS_APPLICATION_FORM` int(11)
+,`PERMIS_APPLICATION_FORM_EVALUATION` int(11)
 ,`ACTIVE_FLAG` int(11)
 ,`BARANGAY_SEAL` varchar(150)
 ,`MUNICIPAL_SEAL` varchar(50)
@@ -2573,7 +2458,7 @@ CREATE TABLE `v_useraccounts` (
 --
 DROP TABLE IF EXISTS `v_adminaccount`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_adminaccount`  AS  select `u`.`USER_ID` AS `USER_ID`,`bs`.`BARANGAY_ID` AS `BARANGAY_ID`,concat(`u`.`FIRSTNAME`,' ',`u`.`MIDDLENAME`,`u`.`LASTNAME`) AS `FULL_NAME`,`p`.`POSITION_NAME` AS `POSITION_NAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`EMAIL` AS `EMAIL`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`bs`.`BARANGAY_SEAL` AS `BARANGAY_SEAL`,`bs`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`mi`.`MUNICIPAL_SEAL` AS `MUNICIPAL_SEAL`,`mi`.`MUNICIPAL_NAME` AS `MUNICIPAL_NAME`,`mi`.`PROVINCE_NAME` AS `PROVINCE_NAME` from (((`t_users` `u` join `r_barangay_information` `bs` on(`u`.`BARANGAY_ID` = `bs`.`BARANGAY_ID`)) join `r_position` `p` on(`p`.`POSITION_ID` = `u`.`POSITION_ID`)) join `r_municipal_information` `mi` on(`mi`.`MUNICIPAL_ID` = `bs`.`MUNICIPAL_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_adminaccount`  AS  select `u`.`USER_ID` AS `USER_ID`,`bs`.`BARANGAY_ID` AS `BARANGAY_ID`,concat(`u`.`FIRSTNAME`,' ',`u`.`MIDDLENAME`,`u`.`LASTNAME`) AS `FULL_NAME`,`p`.`POSITION_NAME` AS `POSITION_NAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`EMAIL` AS `EMAIL`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`bs`.`BARANGAY_SEAL` AS `BARANGAY_SEAL`,`bs`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`mi`.`MUNICIPAL_SEAL` AS `MUNICIPAL_SEAL`,`mi`.`MUNICIPAL_NAME` AS `MUNICIPAL_NAME`,`mi`.`PROVINCE_NAME` AS `PROVINCE_NAME` from (((`t_users` `u` join `r_barangay_information` `bs` on((`u`.`BARANGAY_ID` = `bs`.`BARANGAY_ID`))) join `r_position` `p` on((`p`.`POSITION_ID` = `u`.`POSITION_ID`))) join `r_municipal_information` `mi` on((`mi`.`MUNICIPAL_ID` = `bs`.`MUNICIPAL_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2582,7 +2467,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_application_form_resident`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_application_form_resident`  AS  select `resident`.`RESIDENT_ID` AS `RESIDENT_ID`,concat(ifnull(`resident`.`FIRSTNAME`,''),' ',ifnull(`resident`.`MIDDLENAME`,''),' ',ifnull(`resident`.`LASTNAME`,'')) AS `RESIDENT_NAME`,`resident`.`SEX` AS `SEX`,`resident`.`CIVIL_STATUS` AS `CIVIL_STATUS`,timestampdiff(YEAR,`resident`.`DATE_OF_BIRTH`,curdate()) AS `AGE`,`resident`.`DATE_OF_BIRTH` AS `DATE_OF_BIRTH`,concat(if(`resident`.`ADDRESS_UNIT_NO` is null,'','Unit '),ifnull(`resident`.`ADDRESS_UNIT_NO`,''),' ',ifnull(`resident`.`ADDRESS_BUILDING`,''),' ',ifnull(`resident`.`ADDRESS_PHASE`,''),' ',ifnull(`resident`.`ADDRESS_BLOCK_NO`,''),' ',ifnull(`resident`.`ADDRESS_STREET`,''),' ',ifnull(`resident`.`ADDRESS_SUBDIVISION`,'')) AS `ADDRESS`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (`t_resident_basic_info` `resident` join `t_application_form` `af` on(`af`.`RESIDENT_ID` = `resident`.`RESIDENT_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_application_form_resident`  AS  select `resident`.`RESIDENT_ID` AS `RESIDENT_ID`,concat(ifnull(`resident`.`FIRSTNAME`,''),' ',ifnull(`resident`.`MIDDLENAME`,''),' ',ifnull(`resident`.`LASTNAME`,'')) AS `RESIDENT_NAME`,`resident`.`SEX` AS `SEX`,`resident`.`CIVIL_STATUS` AS `CIVIL_STATUS`,timestampdiff(YEAR,`resident`.`DATE_OF_BIRTH`,curdate()) AS `AGE`,`resident`.`DATE_OF_BIRTH` AS `DATE_OF_BIRTH`,concat(if(isnull(`resident`.`ADDRESS_UNIT_NO`),'','Unit '),ifnull(`resident`.`ADDRESS_UNIT_NO`,''),' ',ifnull(`resident`.`ADDRESS_BUILDING`,''),' ',ifnull(`resident`.`ADDRESS_PHASE`,''),' ',ifnull(`resident`.`ADDRESS_BLOCK_NO`,''),' ',ifnull(`resident`.`ADDRESS_STREET`,''),' ',ifnull(`resident`.`ADDRESS_SUBDIVISION`,'')) AS `ADDRESS`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`)) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (`t_resident_basic_info` `resident` join `t_application_form` `af` on((`af`.`RESIDENT_ID` = `resident`.`RESIDENT_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2591,7 +2476,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_approved_application_form`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_approved_application_form`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(`b`.`UNIT_NO` is null,'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (((`t_business_information` `b` left join `r_business_nature` `n` on(`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`)) join `t_application_form` `af` on(`af`.`BUSINESS_ID` = `b`.`BUSINESS_ID`)) join `r_paper_type` `pt` on(`pt`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) where `b`.`STATUS` = 'Approved' and `af`.`STATUS` = 'Approved' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_approved_application_form`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(isnull(`b`.`UNIT_NO`),'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`)) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (((`t_business_information` `b` left join `r_business_nature` `n` on((`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`))) join `t_application_form` `af` on((`af`.`BUSINESS_ID` = `b`.`BUSINESS_ID`))) join `r_paper_type` `pt` on((`pt`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`))) where ((`b`.`STATUS` = 'Approved') and (`af`.`STATUS` = 'Approved')) ;
 
 -- --------------------------------------------------------
 
@@ -2600,7 +2485,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_approved_business`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_approved_business`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(`b`.`UNIT_NO` is null,'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH` from (`t_business_information` `b` left join `r_business_nature` `n` on(`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`)) where `b`.`STATUS` = 'Approved' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_approved_business`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(isnull(`b`.`UNIT_NO`),'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH` from (`t_business_information` `b` left join `r_business_nature` `n` on((`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`))) where (`b`.`STATUS` = 'Approved') ;
 
 -- --------------------------------------------------------
 
@@ -2609,7 +2494,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_barangay_certificate`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_barangay_certificate`  AS  select `r`.`RESIDENT_ID` AS `RESIDENT_ID`,concat(ifnull(`r`.`FIRSTNAME`,''),' ',ifnull(`r`.`MIDDLENAME`,''),' ',ifnull(`r`.`LASTNAME`,'')) AS `RESIDENT_NAME`,`r`.`SEX` AS `SEX`,if(`r`.`SEX` = 'Female','her','his') AS `SEX_ADDRESS`,`r`.`CIVIL_STATUS` AS `CIVIL_STATUS`,timestampdiff(YEAR,`r`.`DATE_OF_BIRTH`,curdate()) AS `AGE`,`r`.`DATE_OF_BIRTH` AS `DATE_OF_BIRTH`,concat(if(`r`.`ADDRESS_UNIT_NO` is null,'','Unit '),ifnull(`r`.`ADDRESS_UNIT_NO`,''),' ',ifnull(`r`.`ADDRESS_BUILDING`,''),' ',ifnull(`r`.`ADDRESS_PHASE`,''),' ',ifnull(`r`.`ADDRESS_BLOCK_NO`,''),' ',ifnull(`r`.`ADDRESS_STREET`,''),' ',ifnull(`r`.`ADDRESS_SUBDIVISION`,'')) AS `ADDRESS`,`cc`.`CONTROL_NO` AS `CONTROL_NO`,`cc`.`ISSUED_DATE` AS `ISSUED_DATE`,`cc`.`OR_NO` AS `OR_NO`,`cc`.`OR_DATE` AS `OR_DATE`,`cc`.`OR_AMOUNT` AS `OR_AMOUNT`,`paper`.`PAPER_TYPE_NAME` AS `PAPER_TYPE_NAME`,`af`.`FORM_ID` AS `FORM_ID`,`bc`.`REQUESTOR_NAME` AS `REQUESTOR_NAME`,`bc`.`SSS_NO` AS `SSS_NO`,`bc`.`CALAMITY_NAME` AS `CALAMITY_NAME`,`bc`.`CALAMITY_DATE` AS `CALAMITY_DATE`,`bc`.`COUNTRY` AS `COUNTRY`,`bc`.`CATEGORY_SINGLE_PARENT` AS `CATEGORY_SINGLE_PARENT`,`bc`.`PURPOSE` AS `PURPOSE`,`solo`.`CHILD_NAME` AS `CHILD_NAME`,`solo`.`CHILD_AGE` AS `CHILD_AGE`,`solo`.`IS_PWD` AS `IS_PWD`,`solo`.`CHILD_NAME_2` AS `CHILD_NAME_2`,`solo`.`CHILD_AGE_2` AS `CHILD_AGE_2`,`solo`.`IS_PWD_2` AS `IS_PWD_2` from (((((`t_resident_basic_info` `r` join `t_application_form` `af` on(`af`.`RESIDENT_ID` = `r`.`RESIDENT_ID`)) join `r_paper_type` `paper` on(`paper`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`)) join `t_bf_barangay_certification` `bc` on(`bc`.`FORM_ID` = `af`.`FORM_ID`)) join `t_clearance_certification` `cc` on(`cc`.`FORM_ID` = `af`.`FORM_ID`)) left join `t_solo_parent_children` `solo` on(`solo`.`BARANGAY_CERTIFICATION_ID` = `bc`.`BARANGAY_CERTIFICATION_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_barangay_certificate`  AS  select `r`.`RESIDENT_ID` AS `RESIDENT_ID`,concat(ifnull(`r`.`FIRSTNAME`,''),' ',ifnull(`r`.`MIDDLENAME`,''),' ',ifnull(`r`.`LASTNAME`,'')) AS `RESIDENT_NAME`,`r`.`SEX` AS `SEX`,if((`r`.`SEX` = 'Female'),'her','his') AS `SEX_ADDRESS`,`r`.`CIVIL_STATUS` AS `CIVIL_STATUS`,timestampdiff(YEAR,`r`.`DATE_OF_BIRTH`,curdate()) AS `AGE`,`r`.`DATE_OF_BIRTH` AS `DATE_OF_BIRTH`,concat(if(isnull(`r`.`ADDRESS_UNIT_NO`),'','Unit '),ifnull(`r`.`ADDRESS_UNIT_NO`,''),' ',ifnull(`r`.`ADDRESS_BUILDING`,''),' ',ifnull(`r`.`ADDRESS_PHASE`,''),' ',ifnull(`r`.`ADDRESS_BLOCK_NO`,''),' ',ifnull(`r`.`ADDRESS_STREET`,''),' ',ifnull(`r`.`ADDRESS_SUBDIVISION`,'')) AS `ADDRESS`,`cc`.`CONTROL_NO` AS `CONTROL_NO`,`cc`.`ISSUED_DATE` AS `ISSUED_DATE`,`cc`.`OR_NO` AS `OR_NO`,`cc`.`OR_DATE` AS `OR_DATE`,`cc`.`OR_AMOUNT` AS `OR_AMOUNT`,`paper`.`PAPER_TYPE_NAME` AS `PAPER_TYPE_NAME`,`af`.`FORM_ID` AS `FORM_ID`,`bc`.`REQUESTOR_NAME` AS `REQUESTOR_NAME`,`bc`.`SSS_NO` AS `SSS_NO`,`bc`.`CALAMITY_NAME` AS `CALAMITY_NAME`,`bc`.`CALAMITY_DATE` AS `CALAMITY_DATE`,`bc`.`COUNTRY` AS `COUNTRY`,`bc`.`CATEGORY_SINGLE_PARENT` AS `CATEGORY_SINGLE_PARENT`,`bc`.`PURPOSE` AS `PURPOSE`,`solo`.`CHILD_NAME` AS `CHILD_NAME`,`solo`.`CHILD_AGE` AS `CHILD_AGE`,`solo`.`IS_PWD` AS `IS_PWD`,`solo`.`CHILD_NAME_2` AS `CHILD_NAME_2`,`solo`.`CHILD_AGE_2` AS `CHILD_AGE_2`,`solo`.`IS_PWD_2` AS `IS_PWD_2` from (((((`t_resident_basic_info` `r` join `t_application_form` `af` on((`af`.`RESIDENT_ID` = `r`.`RESIDENT_ID`))) join `r_paper_type` `paper` on((`paper`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`))) join `t_bf_barangay_certification` `bc` on((`bc`.`FORM_ID` = `af`.`FORM_ID`))) join `t_clearance_certification` `cc` on((`cc`.`FORM_ID` = `af`.`FORM_ID`))) left join `t_solo_parent_children` `solo` on((`solo`.`BARANGAY_CERTIFICATION_ID` = `bc`.`BARANGAY_CERTIFICATION_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2618,7 +2503,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_barangay_clearance`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_barangay_clearance`  AS  select concat(`business`.`BUSINESS_OWNER_FIRSTNAME`,' ',`business`.`BUSINESS_OWNER_MIDDLENAME`,' ',`business`.`BUSINESS_OWNER_LASTNAME`) AS `BUSINESS_OWNER`,concat(ifnull(`business`.`BUILDING_NAME`,''),' ',ifnull(`business`.`BUILDING_NUMBER`,''),if(`business`.`UNIT_NO` is null,'',' Unit '),ifnull(`business`.`UNIT_NO`,''),' ',ifnull(`business`.`STREET`,''),' ',ifnull(`business`.`SITIO`,''),' ',ifnull(`business`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`clearance`.`CONTROL_NO` AS `CONTROL_NO`,`clearance`.`ISSUED_DATE` AS `ISSUED_DATE`,`clearance`.`OR_NO` AS `OR_NO`,`clearance`.`OR_DATE` AS `OR_DATE`,`clearance`.`OR_AMOUNT` AS `OR_AMOUNT`,`paper`.`PAPER_TYPE_NAME` AS `PAPER_TYPE_NAME`,`form`.`FORM_ID` AS `FORM_ID`,`business`.`BUSINESS_NAME` AS `BUSINESS_NAME`,concat(`scope_work`.`SCOPE_OF_WORK_NAME`,' of ',`scope_work`.`SCOPE_OF_WORK_SPECIFY`) AS `PROJECT_NAME`,`barangay_clearance`.`PROJECT_LOCATION` AS `PROJECT_LOCATION`,`line_business`.`LINE_OF_BUSINESS_NAME` AS `LINE_OF_BUSINESS_NAME`,`barangay_clearance`.`OCT_TCT_NUMBER` AS `OCT_TCT_NUMBER`,`barangay_clearance`.`TAX_DECLARATION` AS `TAX_DECLARATION`,`barangay_clearance`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`barangay_clearance`.`AREA_CLASSIFICATION` AS `AREA_CLASSIFICATION`,`barangay_clearance`.`PURPOSE` AS `PURPOSE`,`barangay_clearance`.`D_DRIVER_LICENSE_NO` AS `D_DRIVER_LICENSE_NO`,`barangay_clearance`.`D_MUDGUARD_NO` AS `D_MUDGUARD_NO`,`barangay_clearance`.`D_CR_NO` AS `D_CR_NO`,`barangay_clearance`.`D_OR_NO` AS `D_OR_NO`,`barangay_clearance`.`APPLICANT_NAME` AS `APPLICANT_NAME` from (((((((`t_business_information` `business` join `t_application_form` `form` on(`form`.`BUSINESS_ID` = `business`.`BUSINESS_ID`)) join `r_paper_type` `paper` on(`paper`.`PAPER_TYPE_ID` = `form`.`REQUESTED_PAPER_TYPE_ID`)) join `t_bf_barangay_clearance` `barangay_clearance` on(`barangay_clearance`.`FORM_ID` = `form`.`FORM_ID`)) join `t_clearance_certification` `clearance` on(`clearance`.`FORM_ID` = `form`.`FORM_ID`)) left join `t_bf_scope_of_work` `scope_work` on(`barangay_clearance`.`SCOPE_OF_WORK_ID` = `scope_work`.`SCOPE_OF_WORK_ID`)) left join `t_bf_business_activity` `business_activity` on(`business_activity`.`BUSINESS_ID` = `business`.`BUSINESS_ID`)) left join `r_bf_line_of_business` `line_business` on(`line_business`.`LINE_OF_BUSINESS_ID` = `business_activity`.`LINE_OF_BUSINESS_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_barangay_clearance`  AS  select concat(`business`.`BUSINESS_OWNER_FIRSTNAME`,' ',`business`.`BUSINESS_OWNER_MIDDLENAME`,' ',`business`.`BUSINESS_OWNER_LASTNAME`) AS `BUSINESS_OWNER`,concat(ifnull(`business`.`BUILDING_NAME`,''),' ',ifnull(`business`.`BUILDING_NUMBER`,''),if(isnull(`business`.`UNIT_NO`),'',' Unit '),ifnull(`business`.`UNIT_NO`,''),' ',ifnull(`business`.`STREET`,''),' ',ifnull(`business`.`SITIO`,''),' ',ifnull(`business`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`clearance`.`CONTROL_NO` AS `CONTROL_NO`,`clearance`.`ISSUED_DATE` AS `ISSUED_DATE`,`clearance`.`OR_NO` AS `OR_NO`,`clearance`.`OR_DATE` AS `OR_DATE`,`clearance`.`OR_AMOUNT` AS `OR_AMOUNT`,`paper`.`PAPER_TYPE_NAME` AS `PAPER_TYPE_NAME`,`form`.`FORM_ID` AS `FORM_ID`,`business`.`BUSINESS_NAME` AS `BUSINESS_NAME`,concat(`scope_work`.`SCOPE_OF_WORK_NAME`,' of ',`scope_work`.`SCOPE_OF_WORK_SPECIFY`) AS `PROJECT_NAME`,`barangay_clearance`.`PROJECT_LOCATION` AS `PROJECT_LOCATION`,`line_business`.`LINE_OF_BUSINESS_NAME` AS `LINE_OF_BUSINESS_NAME`,`barangay_clearance`.`OCT_TCT_NUMBER` AS `OCT_TCT_NUMBER`,`barangay_clearance`.`TAX_DECLARATION` AS `TAX_DECLARATION`,`barangay_clearance`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`barangay_clearance`.`AREA_CLASSIFICATION` AS `AREA_CLASSIFICATION`,`barangay_clearance`.`PURPOSE` AS `PURPOSE`,`barangay_clearance`.`D_DRIVER_LICENSE_NO` AS `D_DRIVER_LICENSE_NO`,`barangay_clearance`.`D_MUDGUARD_NO` AS `D_MUDGUARD_NO`,`barangay_clearance`.`D_CR_NO` AS `D_CR_NO`,`barangay_clearance`.`D_OR_NO` AS `D_OR_NO`,`barangay_clearance`.`APPLICANT_NAME` AS `APPLICANT_NAME` from (((((((`t_business_information` `business` join `t_application_form` `form` on((`form`.`BUSINESS_ID` = `business`.`BUSINESS_ID`))) join `r_paper_type` `paper` on((`paper`.`PAPER_TYPE_ID` = `form`.`REQUESTED_PAPER_TYPE_ID`))) join `t_bf_barangay_clearance` `barangay_clearance` on((`barangay_clearance`.`FORM_ID` = `form`.`FORM_ID`))) join `t_clearance_certification` `clearance` on((`clearance`.`FORM_ID` = `form`.`FORM_ID`))) left join `t_bf_scope_of_work` `scope_work` on((`barangay_clearance`.`SCOPE_OF_WORK_ID` = `scope_work`.`SCOPE_OF_WORK_ID`))) left join `t_bf_business_activity` `business_activity` on((`business_activity`.`BUSINESS_ID` = `business`.`BUSINESS_ID`))) left join `r_bf_line_of_business` `line_business` on((`line_business`.`LINE_OF_BUSINESS_ID` = `business_activity`.`LINE_OF_BUSINESS_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2627,7 +2512,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_business_information`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_business_information`  AS  select `business`.`BUSINESS_ID` AS `BUSINESS_ID`,`business`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`business`.`TRADE_NAME` AS `TRADE_NAME`,concat(`business`.`BUSINESS_OWNER_FIRSTNAME`,' ',ifnull(`business`.`BUSINESS_OWNER_MIDDLENAME`,''),' ',`business`.`BUSINESS_OWNER_LASTNAME`) AS `BUSINESS_OWNER`,`business`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`business`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`business`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`business`.`BUILDING_NAME`,''),' ',ifnull(`business`.`BUILDING_NUMBER`,''),if(`business`.`UNIT_NO` is null,'',' Unit '),ifnull(`business`.`UNIT_NO`,''),' ',ifnull(`business`.`STREET`,''),' ',ifnull(`business`.`SITIO`,''),' ',ifnull(`business`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`business`.`BUILDING_NAME` AS `BUILDING_NAME`,`business`.`BUILDING_NUMBER` AS `BUILDING_NUMBER`,`business`.`UNIT_NO` AS `UNIT_NO`,`business`.`STREET` AS `STREET`,`business`.`SITIO` AS `SITIO`,`business`.`SUBDIVISION` AS `SUBDIVISION`,`business`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`business`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`business`.`BARANGAY_ZONE_ID` AS `BARANGAY_ZONE_ID`,`business`.`TIN_NO` AS `TIN_NO`,`business`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`business`.`TYPE_OF_BUSINESS` AS `TYPE_OF_BUSINESS`,`business`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`business`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`business`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`business`.`BUSINESS_MOBILE_NO` AS `BUSINESS_MOBILE_NO`,`business`.`OWNER_ADDRESS` AS `OWNER_ADDRESS`,`business`.`OWNER_POSTAL_CODE` AS `OWNER_POSTAL_CODE`,`business`.`OWNER_EMAIL_ADD` AS `OWNER_EMAIL_ADD`,`business`.`OWNER_TELEPHONE_NO` AS `OWNER_TELEPHONE_NO`,`business`.`OWNER_MOBILE_NO` AS `OWNER_MOBILE_NO`,`business`.`EMERGENCY_CONTACT_PERSON` AS `EMERGENCY_CONTACT_PERSON`,`business`.`EMERGENCY_PERSON_CONTACT_NO` AS `EMERGENCY_PERSON_CONTACT_NO`,`business`.`EMERGENCY_PERSON_EMAIL_ADD` AS `EMERGENCY_PERSON_EMAIL_ADD`,`business`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`business`.`NO_EMPLOYEE_ESTABLISHMENT` AS `NO_EMPLOYEE_ESTABLISHMENT`,`business`.`NO_EMPLOYEE_LGU` AS `NO_EMPLOYEE_LGU`,`business`.`LESSOR_NAME` AS `LESSOR_NAME`,`business`.`LESSOR_ADDRESS` AS `LESSOR_ADDRESS`,`business`.`LESSOR_POSTAL` AS `LESSOR_POSTAL`,`business`.`LESSOR_CONTACT_NO` AS `LESSOR_CONTACT_NO`,`business`.`LESSOR_TELEPHONE` AS `LESSOR_TELEPHONE`,`business`.`LESSOR_MOBILE_NO` AS `LESSOR_MOBILE_NO`,`business`.`LESSOR_EMAIL_ADD` AS `LESSOR_EMAIL_ADD`,`business`.`MONTHLY_RENTAL` AS `MONTHLY_RENTAL`,`business`.`REFERENCED_BUSINESS_ID` AS `REFERENCED_BUSINESS_ID`,`activity`.`NO_OF_UNITS` AS `NO_OF_UNITS`,`business`.`STATUS` AS `STATUS`,`business`.`NEW_RENEW_STATUS` AS `NEW_RENEW_STATUS`,`activity`.`CAPITALIZATION` AS `CAPITALIZATION`,`activity`.`GROSS_RECEIPTS_ESSENTIAL` AS `GROSS_RECEIPTS_ESSENTIAL`,`activity`.`GROSS_RECEIPTS_NON_ESSENTIAL` AS `GROSS_RECEIPTS_NON_ESSENTIAL`,`lob`.`LINE_OF_BUSINESS_NAME` AS `LINE_OF_BUSINESS_NAME` from ((`t_business_information` `business` left join `t_bf_business_activity` `activity` on(`activity`.`BUSINESS_ID` = `business`.`BUSINESS_ID`)) join `r_bf_line_of_business` `lob` on(`lob`.`LINE_OF_BUSINESS_ID` = `activity`.`LINE_OF_BUSINESS_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_business_information`  AS  select `business`.`BUSINESS_ID` AS `BUSINESS_ID`,`business`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`business`.`TRADE_NAME` AS `TRADE_NAME`,concat(`business`.`BUSINESS_OWNER_FIRSTNAME`,' ',ifnull(`business`.`BUSINESS_OWNER_MIDDLENAME`,''),' ',`business`.`BUSINESS_OWNER_LASTNAME`) AS `BUSINESS_OWNER`,`business`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`business`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`business`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`business`.`BUILDING_NAME`,''),' ',ifnull(`business`.`BUILDING_NUMBER`,''),if(isnull(`business`.`UNIT_NO`),'',' Unit '),ifnull(`business`.`UNIT_NO`,''),' ',ifnull(`business`.`STREET`,''),' ',ifnull(`business`.`SITIO`,''),' ',ifnull(`business`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`business`.`BUILDING_NAME` AS `BUILDING_NAME`,`business`.`BUILDING_NUMBER` AS `BUILDING_NUMBER`,`business`.`UNIT_NO` AS `UNIT_NO`,`business`.`STREET` AS `STREET`,`business`.`SITIO` AS `SITIO`,`business`.`SUBDIVISION` AS `SUBDIVISION`,`business`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`business`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`business`.`BARANGAY_ZONE_ID` AS `BARANGAY_ZONE_ID`,`business`.`TIN_NO` AS `TIN_NO`,`business`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`business`.`TYPE_OF_BUSINESS` AS `TYPE_OF_BUSINESS`,`business`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`business`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`business`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`business`.`BUSINESS_MOBILE_NO` AS `BUSINESS_MOBILE_NO`,`business`.`OWNER_ADDRESS` AS `OWNER_ADDRESS`,`business`.`OWNER_POSTAL_CODE` AS `OWNER_POSTAL_CODE`,`business`.`OWNER_EMAIL_ADD` AS `OWNER_EMAIL_ADD`,`business`.`OWNER_TELEPHONE_NO` AS `OWNER_TELEPHONE_NO`,`business`.`OWNER_MOBILE_NO` AS `OWNER_MOBILE_NO`,`business`.`EMERGENCY_CONTACT_PERSON` AS `EMERGENCY_CONTACT_PERSON`,`business`.`EMERGENCY_PERSON_CONTACT_NO` AS `EMERGENCY_PERSON_CONTACT_NO`,`business`.`EMERGENCY_PERSON_EMAIL_ADD` AS `EMERGENCY_PERSON_EMAIL_ADD`,`business`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`business`.`NO_EMPLOYEE_ESTABLISHMENT` AS `NO_EMPLOYEE_ESTABLISHMENT`,`business`.`NO_EMPLOYEE_LGU` AS `NO_EMPLOYEE_LGU`,`business`.`LESSOR_NAME` AS `LESSOR_NAME`,`business`.`LESSOR_ADDRESS` AS `LESSOR_ADDRESS`,`business`.`LESSOR_POSTAL` AS `LESSOR_POSTAL`,`business`.`LESSOR_CONTACT_NO` AS `LESSOR_CONTACT_NO`,`business`.`LESSOR_TELEPHONE` AS `LESSOR_TELEPHONE`,`business`.`LESSOR_MOBILE_NO` AS `LESSOR_MOBILE_NO`,`business`.`LESSOR_EMAIL_ADD` AS `LESSOR_EMAIL_ADD`,`business`.`MONTHLY_RENTAL` AS `MONTHLY_RENTAL`,`business`.`REFERENCED_BUSINESS_ID` AS `REFERENCED_BUSINESS_ID`,`activity`.`NO_OF_UNITS` AS `NO_OF_UNITS`,`business`.`STATUS` AS `STATUS`,`business`.`NEW_RENEW_STATUS` AS `NEW_RENEW_STATUS`,`activity`.`CAPITALIZATION` AS `CAPITALIZATION`,`activity`.`GROSS_RECEIPTS_ESSENTIAL` AS `GROSS_RECEIPTS_ESSENTIAL`,`activity`.`GROSS_RECEIPTS_NON_ESSENTIAL` AS `GROSS_RECEIPTS_NON_ESSENTIAL`,`lob`.`LINE_OF_BUSINESS_NAME` AS `LINE_OF_BUSINESS_NAME` from ((`t_business_information` `business` left join `t_bf_business_activity` `activity` on((`activity`.`BUSINESS_ID` = `business`.`BUSINESS_ID`))) join `r_bf_line_of_business` `lob` on((`lob`.`LINE_OF_BUSINESS_ID` = `activity`.`LINE_OF_BUSINESS_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2636,7 +2521,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_business_nature`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_business_nature`  AS  select `r_business_nature`.`BUSINESS_NATURE_ID` AS `BUSINESS_NATURE_ID`,`r_business_nature`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME` from `r_business_nature` where `r_business_nature`.`ACTIVE_FLAG` = 1 ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_business_nature`  AS  select `r_business_nature`.`BUSINESS_NATURE_ID` AS `BUSINESS_NATURE_ID`,`r_business_nature`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME` from `r_business_nature` where (`r_business_nature`.`ACTIVE_FLAG` = 1) ;
 
 -- --------------------------------------------------------
 
@@ -2645,7 +2530,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_business_permit`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_business_permit`  AS  select `business`.`BUSINESS_NAME` AS `BUSINESS_NAME`,concat(ifnull(`business`.`BUILDING_NAME`,''),' ',ifnull(`business`.`BUILDING_NUMBER`,''),if(`business`.`UNIT_NO` is null,'',' Unit '),ifnull(`business`.`UNIT_NO`,''),' ',ifnull(`business`.`STREET`,''),' ',ifnull(`business`.`SITIO`,''),' ',ifnull(`business`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`lob`.`LINE_OF_BUSINESS_NAME` AS `BUSINESS_NATURE_NAME`,`permit`.`TAX_YEAR` AS `TAX_YEAR`,`permit`.`QUARTER` AS `QUARTER`,`clearance`.`OR_NO` AS `OR_NO`,`clearance`.`OR_AMOUNT` AS `OR_AMOUNT`,`clearance`.`OR_DATE` AS `OR_DATE`,`permit`.`BARANGAY_PERMIT` AS `BARANGAY_PERMIT`,`permit`.`BUSINESS_TAX` AS `BUSINESS_TAX`,`permit`.`GARBAGE_FEE` AS `GARBAGE_FEE`,`permit`.`SIGNBOARD` AS `SIGNBOARD`,`permit`.`CTC` AS `CTC`,`form`.`FORM_ID` AS `FORM_ID` from (((((`t_business_information` `business` join `t_application_form` `form` on(`business`.`BUSINESS_ID` = `form`.`BUSINESS_ID`)) join `t_bf_business_permit` `permit` on(`permit`.`FORM_ID` = `form`.`FORM_ID`)) join `t_clearance_certification` `clearance` on(`clearance`.`FORM_ID` = `form`.`FORM_ID`)) left join `t_bf_business_activity` `activity` on(`activity`.`BUSINESS_ID` = `business`.`BUSINESS_ID`)) left join `r_bf_line_of_business` `lob` on(`lob`.`LINE_OF_BUSINESS_ID` = `activity`.`LINE_OF_BUSINESS_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_business_permit`  AS  select `business`.`BUSINESS_NAME` AS `BUSINESS_NAME`,concat(ifnull(`business`.`BUILDING_NAME`,''),' ',ifnull(`business`.`BUILDING_NUMBER`,''),if(isnull(`business`.`UNIT_NO`),'',' Unit '),ifnull(`business`.`UNIT_NO`,''),' ',ifnull(`business`.`STREET`,''),' ',ifnull(`business`.`SITIO`,''),' ',ifnull(`business`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`lob`.`LINE_OF_BUSINESS_NAME` AS `BUSINESS_NATURE_NAME`,`permit`.`TAX_YEAR` AS `TAX_YEAR`,`permit`.`QUARTER` AS `QUARTER`,`clearance`.`OR_NO` AS `OR_NO`,`clearance`.`OR_AMOUNT` AS `OR_AMOUNT`,`clearance`.`OR_DATE` AS `OR_DATE`,`permit`.`BARANGAY_PERMIT` AS `BARANGAY_PERMIT`,`permit`.`BUSINESS_TAX` AS `BUSINESS_TAX`,`permit`.`GARBAGE_FEE` AS `GARBAGE_FEE`,`permit`.`SIGNBOARD` AS `SIGNBOARD`,`permit`.`CTC` AS `CTC`,`form`.`FORM_ID` AS `FORM_ID` from (((((`t_business_information` `business` join `t_application_form` `form` on((`business`.`BUSINESS_ID` = `form`.`BUSINESS_ID`))) join `t_bf_business_permit` `permit` on((`permit`.`FORM_ID` = `form`.`FORM_ID`))) join `t_clearance_certification` `clearance` on((`clearance`.`FORM_ID` = `form`.`FORM_ID`))) left join `t_bf_business_activity` `activity` on((`activity`.`BUSINESS_ID` = `business`.`BUSINESS_ID`))) left join `r_bf_line_of_business` `lob` on((`lob`.`LINE_OF_BUSINESS_ID` = `activity`.`LINE_OF_BUSINESS_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2654,7 +2539,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_declined_application_form`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_declined_application_form`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(`b`.`UNIT_NO` is null,'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (((`t_business_information` `b` left join `r_business_nature` `n` on(`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`)) join `t_application_form` `af` on(`af`.`BUSINESS_ID` = `b`.`BUSINESS_ID`)) join `r_paper_type` `pt` on(`pt`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) where `b`.`STATUS` = 'Approved' and `af`.`STATUS` = 'Declined' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_declined_application_form`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(isnull(`b`.`UNIT_NO`),'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`)) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (((`t_business_information` `b` left join `r_business_nature` `n` on((`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`))) join `t_application_form` `af` on((`af`.`BUSINESS_ID` = `b`.`BUSINESS_ID`))) join `r_paper_type` `pt` on((`pt`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`))) where ((`b`.`STATUS` = 'Approved') and (`af`.`STATUS` = 'Declined')) ;
 
 -- --------------------------------------------------------
 
@@ -2663,7 +2548,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_declined_business`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_declined_business`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(`b`.`UNIT_NO` is null,'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH` from (`t_business_information` `b` left join `r_business_nature` `n` on(`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`)) where `b`.`STATUS` = 'Pending' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_declined_business`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(isnull(`b`.`UNIT_NO`),'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH` from (`t_business_information` `b` left join `r_business_nature` `n` on((`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`))) where (`b`.`STATUS` = 'Pending') ;
 
 -- --------------------------------------------------------
 
@@ -2672,7 +2557,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_dpoaccount`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dpoaccount`  AS  select `u`.`USER_ID` AS `USER_ID`,`bs`.`BARANGAY_ID` AS `BARANGAY_ID`,concat(`u`.`FIRSTNAME`,' ',`u`.`MIDDLENAME`,`u`.`LASTNAME`) AS `DPO_Name`,`p`.`POSITION_NAME` AS `POSITION_NAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`EMAIL` AS `EMAIL`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`bs`.`BARANGAY_SEAL` AS `BARANGAY_SEAL`,`bs`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`u`.`PERMIS_BARANGAY_CONFIG` AS `PERMIS_BARANGAY_CONFIG` from ((`t_users` `u` join `r_barangay_information` `bs` on(`u`.`USER_ID` = `bs`.`USER_ID`)) join `r_position` `p` on(`p`.`POSITION_ID` = `u`.`POSITION_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_dpoaccount`  AS  select `u`.`USER_ID` AS `USER_ID`,`bs`.`BARANGAY_ID` AS `BARANGAY_ID`,concat(`u`.`FIRSTNAME`,' ',`u`.`MIDDLENAME`,`u`.`LASTNAME`) AS `DPO_Name`,`p`.`POSITION_NAME` AS `POSITION_NAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`EMAIL` AS `EMAIL`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`bs`.`BARANGAY_SEAL` AS `BARANGAY_SEAL`,`bs`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`u`.`PERMIS_BARANGAY_CONFIG` AS `PERMIS_BARANGAY_CONFIG` from ((`t_users` `u` join `r_barangay_information` `bs` on((`u`.`USER_ID` = `bs`.`USER_ID`))) join `r_position` `p` on((`p`.`POSITION_ID` = `u`.`POSITION_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2681,16 +2566,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_generatectrno`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_generatectrno`  AS  select concat(year(current_timestamp()),month(current_timestamp()),dayofmonth(current_timestamp())) AS `CTR_NO` ;
-
--- --------------------------------------------------------
-
---
--- Structure for view `v_household_information`
---
-DROP TABLE IF EXISTS `v_household_information`;
-
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_household_information`  AS  select `hi`.`HOUSEHOLD_ID` AS `HOUSEHOLD_ID`,concat(`t`.`LASTNAME`,' ',`t`.`FIRSTNAME`,' ',`t`.`MIDDLENAME`) AS `FULLNAME`,`hi`.`HOME_OWNERSHIP` AS `HOME_OWNERSHIP`,`hi`.`PERSON_STAYING_IN_HOUSEHOLD` AS `PERSON_STAYING_IN_HOUSEHOLD`,`hi`.`HOME_MATERIALS` AS `HOME_MATERIALS`,`t`.`LASTNAME` AS `LASTNAME`,`t`.`FIRSTNAME` AS `FIRSTNAME`,`t`.`MIDDLENAME` AS `MIDDLENAME`,`hi`.`TOILET_HOME` AS `TOILET_HOME`,`hi`.`PLAY_AREA_HOME` AS `PLAY_AREA_HOME`,`hi`.`BEDROOM_HOME` AS `BEDROOM_HOME`,`hi`.`DINING_ROOM_HOME` AS `DINING_ROOM_HOME`,`hi`.`SALA_HOME` AS `SALA_HOME`,`hi`.`KITCHEN_HOME` AS `KITCHEN_HOME`,`hi`.`WATER_UTILITIES` AS `WATER_UTILITIES`,`hi`.`ELECTRICITY_UTILITIES` AS `ELECTRICITY_UTILITIES`,`hi`.`AIRCON_UTILITIES` AS `AIRCON_UTILITIES`,`hi`.`PHONE_UTILITIES` AS `PHONE_UTILITIES`,`hi`.`COMPUTER_UTILITIES` AS `COMPUTER_UTILITIES`,`hi`.`INTERNET_UTILITIES` AS `INTERNET_UTILITIES`,`hi`.`TV_UTILITIES` AS `TV_UTILITIES`,`hi`.`CD_PLAYER_UTILITIES` AS `CD_PLAYER_UTILITIES`,`hi`.`RADIO_UTILITIES` AS `RADIO_UTILITIES`,`hi`.`COMICS_ENTERTAINMENT` AS `COMICS_ENTERTAINMENT`,`hi`.`NEWS_PAPER_ENTERTAINMENT` AS `NEWS_PAPER_ENTERTAINMENT`,`hi`.`PETS_ENTERTAINMENT` AS `PETS_ENTERTAINMENT`,`hi`.`BOOKS_ENTERTAINMENT` AS `BOOKS_ENTERTAINMENT`,`hi`.`STORY_BOOKS_ENTERTAINMENT` AS `STORY_BOOKS_ENTERTAINMENT`,`hi`.`TOYS_ENTERTAINMENT` AS `TOYS_ENTERTAINMENT`,`hi`.`BOARD_GAMES_ENTERTAINMENT` AS `BOARD_GAMES_ENTERTAINMENT`,`hi`.`PUZZLES_ENTERTAINMENT` AS `PUZZLES_ENTERTAINMENT`,`hi`.`NUMBER_OF_ROOMS` AS `NUMBER_OF_ROOMS`,`tb`.`FAMILY_HEADER_ID` AS `FAMILY_HEADER_ID` from (((`t_resident_basic_info` `t` join `t_household_information` `hi` on(`t`.`HOUSEHOLD_ID` = `hi`.`HOUSEHOLD_ID`)) join `t_household_members` `th` on(`t`.`RESIDENT_ID` = `th`.`RESIDENT_ID`)) join `t_household_batch` `tb` on(`th`.`FAMILY_HEADER_ID` = `tb`.`FAMILY_HEADER_ID`)) where lcase(`t`.`RELATION_TO_HOUSEHOLD_HEAD`) = 'HEAD' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_generatectrno`  AS  select concat(year(now()),month(now()),dayofmonth(now())) AS `CTR_NO` ;
 
 -- --------------------------------------------------------
 
@@ -2708,7 +2584,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_official_business_list`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_official_business_list`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(`b`.`UNIT_NO` is null,'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`lob`.`LINE_OF_BUSINESS_NAME` AS `LINE_OF_BUSINESS_NAME`,`b`.`STATUS` AS `STATUS`,`b`.`NEW_RENEW_STATUS` AS `NEW_RENEW_STATUS`,`b`.`REFERENCED_BUSINESS_ID` AS `REFERENCED_BUSINESS_ID`,`activity`.`GROSS_RECEIPTS_ESSENTIAL` AS `GROSS_RECEIPTS_ESSENTIAL`,`activity`.`GROSS_RECEIPTS_NON_ESSENTIAL` AS `GROSS_RECEIPTS_NON_ESSENTIAL`,cast(`activity`.`GROSS_RECEIPTS_ESSENTIAL` as unsigned) + cast(`activity`.`GROSS_RECEIPTS_NON_ESSENTIAL` as unsigned) AS `GROSS_RECEIPT_TOTAL` from ((`t_business_information` `b` left join `t_bf_business_activity` `activity` on(`activity`.`BUSINESS_ID` = `b`.`BUSINESS_ID`)) left join `r_bf_line_of_business` `lob` on(`lob`.`LINE_OF_BUSINESS_ID` = `activity`.`LINE_OF_BUSINESS_ID`)) where !(`b`.`BUSINESS_ID` in (select `t_business_information`.`REFERENCED_BUSINESS_ID` from `t_business_information` where `t_business_information`.`REFERENCED_BUSINESS_ID` is not null)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_official_business_list`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(isnull(`b`.`UNIT_NO`),'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`lob`.`LINE_OF_BUSINESS_NAME` AS `LINE_OF_BUSINESS_NAME`,`b`.`STATUS` AS `STATUS`,`b`.`NEW_RENEW_STATUS` AS `NEW_RENEW_STATUS`,`b`.`REFERENCED_BUSINESS_ID` AS `REFERENCED_BUSINESS_ID`,`activity`.`GROSS_RECEIPTS_ESSENTIAL` AS `GROSS_RECEIPTS_ESSENTIAL`,`activity`.`GROSS_RECEIPTS_NON_ESSENTIAL` AS `GROSS_RECEIPTS_NON_ESSENTIAL`,(cast(`activity`.`GROSS_RECEIPTS_ESSENTIAL` as unsigned) + cast(`activity`.`GROSS_RECEIPTS_NON_ESSENTIAL` as unsigned)) AS `GROSS_RECEIPT_TOTAL` from ((`t_business_information` `b` left join `t_bf_business_activity` `activity` on((`activity`.`BUSINESS_ID` = `b`.`BUSINESS_ID`))) left join `r_bf_line_of_business` `lob` on((`lob`.`LINE_OF_BUSINESS_ID` = `activity`.`LINE_OF_BUSINESS_ID`))) where (not(`b`.`BUSINESS_ID` in (select `t_business_information`.`REFERENCED_BUSINESS_ID` from `t_business_information` where (`t_business_information`.`REFERENCED_BUSINESS_ID` is not null)))) ;
 
 -- --------------------------------------------------------
 
@@ -2726,7 +2602,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_pending_application_form`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pending_application_form`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(`b`.`UNIT_NO` is null,'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where `r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (((`t_business_information` `b` left join `r_business_nature` `n` on(`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`)) join `t_application_form` `af` on(`af`.`BUSINESS_ID` = `b`.`BUSINESS_ID`)) join `r_paper_type` `pt` on(`pt`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) where `b`.`STATUS` = 'Approved' and `af`.`STATUS` = 'Pending' ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_pending_application_form`  AS  select `b`.`BUSINESS_ID` AS `BUSINESS_ID`,`b`.`BUSINESS_NAME` AS `BUSINESS_NAME`,`b`.`TRADE_NAME` AS `TRADE_NAME`,`b`.`BUSINESS_OWNER_FIRSTNAME` AS `BUSINESS_OWNER_FIRSTNAME`,`b`.`BUSINESS_OWNER_MIDDLENAME` AS `BUSINESS_OWNER_MIDDLENAME`,`b`.`BUSINESS_OWNER_LASTNAME` AS `BUSINESS_OWNER_LASTNAME`,concat(ifnull(`b`.`BUILDING_NAME`,''),' ',ifnull(`b`.`BUILDING_NUMBER`,''),if(isnull(`b`.`UNIT_NO`),'',' Unit '),ifnull(`b`.`UNIT_NO`,''),' ',ifnull(`b`.`STREET`,''),' ',ifnull(`b`.`SITIO`,''),' ',ifnull(`b`.`SUBDIVISION`,'')) AS `BUSINESS_ADDRESS`,`b`.`BUSINESS_OR_NUMBER` AS `BUSINESS_OR_NUMBER`,`b`.`BUSINESS_OR_ACQUIRED_DATE` AS `BUSINESS_OR_ACQUIRED_DATE`,`b`.`TIN_NO` AS `TIN_NO`,`b`.`DTI_REGISTRATION_NO` AS `DTI_REGISTRATION_NO`,`b`.`BUSINESS_POSTAL_CODE` AS `BUSINESS_POSTAL_CODE`,`b`.`BUSINESS_EMAIL_ADD` AS `BUSINESS_EMAIL_ADD`,`b`.`BUSINESS_TELEPHONE_NO` AS `BUSINESS_TELEPHONE_NO`,`b`.`BUSINESS_AREA` AS `BUSINESS_AREA`,`n`.`BUSINESS_NATURE_NAME` AS `BUSINESS_NATURE_NAME`,timestampdiff(YEAR,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_YEAR`,timestampdiff(MONTH,`b`.`BUSINESS_OR_ACQUIRED_DATE`,curdate()) AS `BUSINESS_PERIOD_MONTH`,`af`.`STATUS` AS `STATUS`,`af`.`FORM_ID` AS `FORM_ID`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`REQUESTED_PAPER_TYPE_ID`)) AS `REQUESTED_PAPER_TYPE`,(select `r_paper_type`.`PAPER_TYPE_NAME` from `r_paper_type` where (`r_paper_type`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`)) AS `FORM_PAPER_TYPE`,`af`.`REQUESTED_PAPER_TYPE_ID` AS `REQUESTED_PAPER_TYPE_ID`,`af`.`PAPER_TYPE_ID` AS `PAPER_TYPE_ID` from (((`t_business_information` `b` left join `r_business_nature` `n` on((`n`.`BUSINESS_NATURE_ID` = `b`.`BUSINESS_NATURE_ID`))) join `t_application_form` `af` on((`af`.`BUSINESS_ID` = `b`.`BUSINESS_ID`))) join `r_paper_type` `pt` on((`pt`.`PAPER_TYPE_ID` = `af`.`PAPER_TYPE_ID`))) where ((`b`.`STATUS` = 'Approved') and (`af`.`STATUS` = 'Pending')) ;
 
 -- --------------------------------------------------------
 
@@ -2735,7 +2611,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_realbarangayofficialsaccount`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_realbarangayofficialsaccount`  AS  select `bo`.`BARANGAY_OFFICIAL_ID` AS `BARANGAY_OFFICIAL_ID`,`bo`.`BARANGAY_ID` AS `BARANGAY_ID`,`u`.`USER_ID` AS `USER_ID`,concat(`rbi`.`FIRSTNAME`,' ',`rbi`.`MIDDLENAME`,' ',`rbi`.`LASTNAME`) AS `FULLNAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`p`.`POSITION_NAME` AS `POSITION_NAME`,`u`.`EMAIL` AS `EMAIL`,`bo`.`START_TERM` AS `START_TERM`,`bo`.`END_TERM` AS `END_TERM`,`u`.`PERMIS_RESIDENT_BASIC_INFO` AS `PERMIS_RESIDENT_BASIC_INFO`,`u`.`PERMIS_FAMILY_PROFILE` AS `PERMIS_FAMILY_PROFILE`,`u`.`PERMIS_COMMUNITY_PROFILE` AS `PERMIS_COMMUNITY_PROFILE`,`u`.`PERMIS_BLOTTER` AS `PERMIS_BLOTTER`,`u`.`PERMIS_PATAWAG` AS `PERMIS_PATAWAG`,`u`.`PERMIS_BARANGAY_OFFICIAL` AS `PERMIS_BARANGAY_OFFICIAL`,`u`.`PERMIS_BUSINESSES` AS `PERMIS_BUSINESSES`,`u`.`PERMIS_ISSUANCE_OF_FORMS` AS `PERMIS_ISSUANCE_OF_FORMS`,`u`.`PERMIS_ORDINANCES` AS `PERMIS_ORDINANCES`,`u`.`PERMIS_SYSTEM_REPORT` AS `PERMIS_SYSTEM_REPORT`,`u`.`PERMIS_HEALTH_SERVICES` AS `PERMIS_HEALTH_SERVICES`,`u`.`PERMIS_DATA_MIGRATION` AS `PERMIS_DATA_MIGRATION`,`u`.`PERMIS_USER_ACCOUNTS` AS `PERMIS_USER_ACCOUNTS`,`u`.`PERMIS_BARANGAY_CONFIG` AS `PERMIS_BARANGAY_CONFIG`,`u`.`PERMIS_BUSINESS_APPROVAL` AS `PERMIS_BUSINESS_APPROVAL`,`bo`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`bs`.`BARANGAY_SEAL` AS `BARANGAY_SEAL`,`mi`.`MUNICIPAL_SEAL` AS `MUNICIPAL_SEAL`,`mi`.`MUNICIPAL_NAME` AS `MUNICIPAL_NAME`,`mi`.`PROVINCE_NAME` AS `PROVINCE_NAME` from (((((`t_users` `u` join `t_barangay_official` `bo` on(`bo`.`BARANGAY_OFFICIAL_ID` = `u`.`BARANGAY_OFFICIAL_ID`)) join `r_barangay_information` `bs` on(`bs`.`BARANGAY_ID` = `bo`.`BARANGAY_ID`)) join `t_resident_basic_info` `rbi` on(`bo`.`RESIDENT_ID` = `rbi`.`RESIDENT_ID`)) join `r_position` `p` on(`p`.`POSITION_ID` = `u`.`POSITION_ID`)) join `r_municipal_information` `mi` on(`mi`.`MUNICIPAL_ID` = `bs`.`MUNICIPAL_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_realbarangayofficialsaccount`  AS  select `bo`.`BARANGAY_OFFICIAL_ID` AS `BARANGAY_OFFICIAL_ID`,`bo`.`BARANGAY_ID` AS `BARANGAY_ID`,`u`.`USER_ID` AS `USER_ID`,concat(`rbi`.`FIRSTNAME`,' ',`rbi`.`MIDDLENAME`,' ',`rbi`.`LASTNAME`) AS `FULLNAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`p`.`POSITION_NAME` AS `POSITION_NAME`,`u`.`EMAIL` AS `EMAIL`,`bo`.`START_TERM` AS `START_TERM`,`bo`.`END_TERM` AS `END_TERM`,`u`.`PERMIS_RESIDENT_BASIC_INFO` AS `PERMIS_RESIDENT_BASIC_INFO`,`u`.`PERMIS_FAMILY_PROFILE` AS `PERMIS_FAMILY_PROFILE`,`u`.`PERMIS_COMMUNITY_PROFILE` AS `PERMIS_COMMUNITY_PROFILE`,`u`.`PERMIS_BLOTTER` AS `PERMIS_BLOTTER`,`u`.`PERMIS_PATAWAG` AS `PERMIS_PATAWAG`,`u`.`PERMIS_BARANGAY_OFFICIAL` AS `PERMIS_BARANGAY_OFFICIAL`,`u`.`PERMIS_BUSINESSES` AS `PERMIS_BUSINESSES`,`u`.`PERMIS_ISSUANCE_OF_FORMS` AS `PERMIS_ISSUANCE_OF_FORMS`,`u`.`PERMIS_ORDINANCES` AS `PERMIS_ORDINANCES`,`u`.`PERMIS_SYSTEM_REPORT` AS `PERMIS_SYSTEM_REPORT`,`u`.`PERMIS_HEALTH_SERVICES` AS `PERMIS_HEALTH_SERVICES`,`u`.`PERMIS_DATA_MIGRATION` AS `PERMIS_DATA_MIGRATION`,`u`.`PERMIS_USER_ACCOUNTS` AS `PERMIS_USER_ACCOUNTS`,`u`.`PERMIS_BARANGAY_CONFIG` AS `PERMIS_BARANGAY_CONFIG`,`u`.`PERMIS_BUSINESS_APPROVAL` AS `PERMIS_BUSINESS_APPROVAL`,`u`.`PERMIS_APPLICATION_FORM` AS `PERMIS_APPLICATION_FORM`,`u`.`PERMIS_APPLICATION_FORM_EVALUATION` AS `PERMIS_APPLICATION_FORM_EVALUATION`,`bo`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`bs`.`BARANGAY_SEAL` AS `BARANGAY_SEAL`,`mi`.`MUNICIPAL_SEAL` AS `MUNICIPAL_SEAL`,`mi`.`MUNICIPAL_NAME` AS `MUNICIPAL_NAME`,`mi`.`PROVINCE_NAME` AS `PROVINCE_NAME` from (((((`t_users` `u` join `t_barangay_official` `bo` on((`bo`.`BARANGAY_OFFICIAL_ID` = `u`.`BARANGAY_OFFICIAL_ID`))) join `r_barangay_information` `bs` on((`bs`.`BARANGAY_ID` = `bo`.`BARANGAY_ID`))) join `t_resident_basic_info` `rbi` on((`bo`.`RESIDENT_ID` = `rbi`.`RESIDENT_ID`))) join `r_position` `p` on((`p`.`POSITION_ID` = `u`.`POSITION_ID`))) join `r_municipal_information` `mi` on((`mi`.`MUNICIPAL_ID` = `bs`.`MUNICIPAL_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2744,7 +2620,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_resident`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_resident`  AS  select `t_resident_basic_info`.`RESIDENT_ID` AS `RESIDENT_ID`,concat(`t_resident_basic_info`.`FIRSTNAME`,' ',`t_resident_basic_info`.`MIDDLENAME`,' ',`t_resident_basic_info`.`LASTNAME`) AS `RESIDENT_NAME`,concat(if(`t_resident_basic_info`.`ADDRESS_UNIT_NO` is null,'','Unit '),ifnull(`t_resident_basic_info`.`ADDRESS_UNIT_NO`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_BUILDING`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_PHASE`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_BLOCK_NO`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_STREET`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_SUBDIVISION`,''),' ') AS `ADDRESS`,`t_resident_basic_info`.`DATE_OF_BIRTH` AS `DATE_OF_BIRTH`,`t_resident_basic_info`.`SEX` AS `SEX`,`t_resident_basic_info`.`IS_OFW` AS `IS_OFW`,`t_resident_basic_info`.`CIVIL_STATUS` AS `CIVIL_STATUS` from `t_resident_basic_info` ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_resident`  AS  select `t_resident_basic_info`.`RESIDENT_ID` AS `RESIDENT_ID`,concat(`t_resident_basic_info`.`FIRSTNAME`,' ',`t_resident_basic_info`.`MIDDLENAME`,' ',`t_resident_basic_info`.`LASTNAME`) AS `RESIDENT_NAME`,concat(if(isnull(`t_resident_basic_info`.`ADDRESS_UNIT_NO`),'','Unit '),ifnull(`t_resident_basic_info`.`ADDRESS_UNIT_NO`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_BUILDING`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_PHASE`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_BLOCK_NO`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_STREET`,''),' ',ifnull(`t_resident_basic_info`.`ADDRESS_SUBDIVISION`,''),' ') AS `ADDRESS`,`t_resident_basic_info`.`DATE_OF_BIRTH` AS `DATE_OF_BIRTH`,`t_resident_basic_info`.`SEX` AS `SEX`,`t_resident_basic_info`.`IS_OFW` AS `IS_OFW`,`t_resident_basic_info`.`CIVIL_STATUS` AS `CIVIL_STATUS` from `t_resident_basic_info` ;
 
 -- --------------------------------------------------------
 
@@ -2753,7 +2629,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_useraccount`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_useraccount`  AS  select `p`.`POSITION_NAME` AS `POSITION_NAME`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`u`.`FIRSTNAME` AS `FIRSTNAME`,`u`.`MIDDLENAME` AS `MIDDLENAME`,`u`.`LASTNAME` AS `LASTNAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`EMAIL` AS `EMAIL`,`u`.`ACTIVE_FLAG` AS `ACTIVE_FLAG` from (((`t_users` `u` join `r_position` `p` on(`p`.`POSITION_ID` = `u`.`POSITION_ID`)) left join `r_barangay_information` `bs` on(`u`.`USER_ID` = `bs`.`USER_ID`)) left join `t_barangay_official` `bo` on(`u`.`BARANGAY_OFFICIAL_ID` = `bo`.`BARANGAY_OFFICIAL_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_useraccount`  AS  select `p`.`POSITION_NAME` AS `POSITION_NAME`,`bs`.`BARANGAY_NAME` AS `BARANGAY_NAME`,`u`.`FIRSTNAME` AS `FIRSTNAME`,`u`.`MIDDLENAME` AS `MIDDLENAME`,`u`.`LASTNAME` AS `LASTNAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`EMAIL` AS `EMAIL`,`u`.`ACTIVE_FLAG` AS `ACTIVE_FLAG` from (((`t_users` `u` join `r_position` `p` on((`p`.`POSITION_ID` = `u`.`POSITION_ID`))) left join `r_barangay_information` `bs` on((`u`.`USER_ID` = `bs`.`USER_ID`))) left join `t_barangay_official` `bo` on((`u`.`BARANGAY_OFFICIAL_ID` = `bo`.`BARANGAY_OFFICIAL_ID`))) ;
 
 -- --------------------------------------------------------
 
@@ -2762,7 +2638,7 @@ CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW 
 --
 DROP TABLE IF EXISTS `v_useraccounts`;
 
-CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_useraccounts`  AS  select `u`.`BARANGAY_OFFICIAL_ID` AS `BARANGAY_OFFICIAL_ID`,`p`.`POSITION_NAME` AS `POSITION_NAME`,ifnull(`bi`.`BARANGAY_NAME`,'Null') AS `BARANGAY_NAME`,`u`.`LASTNAME` AS `LASTNAME`,`u`.`FIRSTNAME` AS `FIRSTNAME`,`u`.`MIDDLENAME` AS `MIDDLENAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`u`.`IS_FIRST_LOGGED_IN` AS `IS_FIRST_LOGGED_IN`,`u`.`USER_ID` AS `USER_ID` from (((`t_users` `u` left join `t_barangay_official` `bo` on(`u`.`BARANGAY_OFFICIAL_ID` = `bo`.`BARANGAY_OFFICIAL_ID`)) join `r_position` `p` on(`u`.`POSITION_ID` = `p`.`POSITION_ID`)) left join `r_barangay_information` `bi` on(`bo`.`BARANGAY_ID` = `bi`.`BARANGAY_ID`)) ;
+CREATE ALGORITHM=UNDEFINED DEFINER=`root`@`localhost` SQL SECURITY DEFINER VIEW `v_useraccounts`  AS  select `u`.`BARANGAY_OFFICIAL_ID` AS `BARANGAY_OFFICIAL_ID`,`p`.`POSITION_NAME` AS `POSITION_NAME`,ifnull(`bi`.`BARANGAY_NAME`,'Null') AS `BARANGAY_NAME`,`u`.`LASTNAME` AS `LASTNAME`,`u`.`FIRSTNAME` AS `FIRSTNAME`,`u`.`MIDDLENAME` AS `MIDDLENAME`,`u`.`USERNAME` AS `USERNAME`,`u`.`PASSWORD` AS `PASSWORD`,`u`.`ACTIVE_FLAG` AS `ACTIVE_FLAG`,`u`.`IS_FIRST_LOGGED_IN` AS `IS_FIRST_LOGGED_IN`,`u`.`USER_ID` AS `USER_ID` from (((`t_users` `u` left join `t_barangay_official` `bo` on((`u`.`BARANGAY_OFFICIAL_ID` = `bo`.`BARANGAY_OFFICIAL_ID`))) join `r_position` `p` on((`u`.`POSITION_ID` = `p`.`POSITION_ID`))) left join `r_barangay_information` `bi` on((`bo`.`BARANGAY_ID` = `bi`.`BARANGAY_ID`))) ;
 
 --
 -- Indexes for dumped tables
@@ -2943,6 +2819,18 @@ ALTER TABLE `t_clearance_certification`
   ADD KEY `FK_ClearanceCertification_PaperType` (`PAPER_TYPE_ID`);
 
 --
+-- Indexes for table `t_family_header`
+--
+ALTER TABLE `t_family_header`
+  ADD PRIMARY KEY (`FAMILY_HEADER_ID`) USING BTREE;
+
+--
+-- Indexes for table `t_family_information`
+--
+ALTER TABLE `t_family_information`
+  ADD PRIMARY KEY (`FAMILY_INFORMATION_ID`) USING BTREE;
+
+--
 -- Indexes for table `t_fathers_profile`
 --
 ALTER TABLE `t_fathers_profile`
@@ -2957,23 +2845,11 @@ ALTER TABLE `t_food_eaten`
   ADD KEY `FK_C_ID_CPROFILE` (`CHILDREN_ID`) USING BTREE;
 
 --
--- Indexes for table `t_household_batch`
---
-ALTER TABLE `t_household_batch`
-  ADD PRIMARY KEY (`FAMILY_HEADER_ID`) USING BTREE;
-
---
 -- Indexes for table `t_household_information`
 --
 ALTER TABLE `t_household_information`
   ADD PRIMARY KEY (`HOUSEHOLD_ID`) USING BTREE,
   ADD KEY `FK_B_ID_HOUSEHOLDINFO` (`BARANGAY_ID`) USING BTREE;
-
---
--- Indexes for table `t_household_members`
---
-ALTER TABLE `t_household_members`
-  ADD PRIMARY KEY (`FAMILY_INFORMATION_ID`) USING BTREE;
 
 --
 -- Indexes for table `t_hs_adolescent`
@@ -3148,7 +3024,7 @@ ALTER TABLE `migrations`
 -- AUTO_INCREMENT for table `r_barangay_information`
 --
 ALTER TABLE `r_barangay_information`
-  MODIFY `BARANGAY_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `BARANGAY_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
 
 --
 -- AUTO_INCREMENT for table `r_barangay_zone`
@@ -3202,19 +3078,19 @@ ALTER TABLE `r_position`
 -- AUTO_INCREMENT for table `r_resident_type`
 --
 ALTER TABLE `r_resident_type`
-  MODIFY `TYPE_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `TYPE_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 
 --
 -- AUTO_INCREMENT for table `t_application_form`
 --
 ALTER TABLE `t_application_form`
-  MODIFY `FORM_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=53;
+  MODIFY `FORM_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=46;
 
 --
 -- AUTO_INCREMENT for table `t_application_form_evaluation`
 --
 ALTER TABLE `t_application_form_evaluation`
-  MODIFY `AF_EVALUATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=34;
+  MODIFY `AF_EVALUATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=32;
 
 --
 -- AUTO_INCREMENT for table `t_barangay_official`
@@ -3226,19 +3102,19 @@ ALTER TABLE `t_barangay_official`
 -- AUTO_INCREMENT for table `t_bf_barangay_certification`
 --
 ALTER TABLE `t_bf_barangay_certification`
-  MODIFY `BARANGAY_CERTIFICATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
+  MODIFY `BARANGAY_CERTIFICATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
 
 --
 -- AUTO_INCREMENT for table `t_bf_barangay_clearance`
 --
 ALTER TABLE `t_bf_barangay_clearance`
-  MODIFY `BARANGAY_CLEARANCE_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=15;
+  MODIFY `BARANGAY_CLEARANCE_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=14;
 
 --
 -- AUTO_INCREMENT for table `t_bf_business_activity`
 --
 ALTER TABLE `t_bf_business_activity`
-  MODIFY `BUSINESS_ACTIVITY_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
+  MODIFY `BUSINESS_ACTIVITY_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=27;
 
 --
 -- AUTO_INCREMENT for table `t_bf_business_permit`
@@ -3250,7 +3126,7 @@ ALTER TABLE `t_bf_business_permit`
 -- AUTO_INCREMENT for table `t_bf_scope_of_work`
 --
 ALTER TABLE `t_bf_scope_of_work`
-  MODIFY `SCOPE_OF_WORK_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `SCOPE_OF_WORK_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- AUTO_INCREMENT for table `t_blotter`
@@ -3262,13 +3138,13 @@ ALTER TABLE `t_blotter`
 -- AUTO_INCREMENT for table `t_business_approval`
 --
 ALTER TABLE `t_business_approval`
-  MODIFY `APPROVAL_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=76;
+  MODIFY `APPROVAL_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=78;
 
 --
 -- AUTO_INCREMENT for table `t_business_information`
 --
 ALTER TABLE `t_business_information`
-  MODIFY `BUSINESS_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
+  MODIFY `BUSINESS_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=90;
 
 --
 -- AUTO_INCREMENT for table `t_children_profile`
@@ -3280,13 +3156,25 @@ ALTER TABLE `t_children_profile`
 -- AUTO_INCREMENT for table `t_clearance_certification`
 --
 ALTER TABLE `t_clearance_certification`
-  MODIFY `CLEARANCE_CERTIFICATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
+  MODIFY `CLEARANCE_CERTIFICATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+
+--
+-- AUTO_INCREMENT for table `t_family_header`
+--
+ALTER TABLE `t_family_header`
+  MODIFY `FAMILY_HEADER_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=855;
+
+--
+-- AUTO_INCREMENT for table `t_family_information`
+--
+ALTER TABLE `t_family_information`
+  MODIFY `FAMILY_INFORMATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=947;
 
 --
 -- AUTO_INCREMENT for table `t_fathers_profile`
 --
 ALTER TABLE `t_fathers_profile`
-  MODIFY `FATHERS_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
+  MODIFY `FATHERS_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_food_eaten`
@@ -3295,40 +3183,28 @@ ALTER TABLE `t_food_eaten`
   MODIFY `FOOD_EATEN_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
--- AUTO_INCREMENT for table `t_household_batch`
---
-ALTER TABLE `t_household_batch`
-  MODIFY `FAMILY_HEADER_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=884;
-
---
 -- AUTO_INCREMENT for table `t_household_information`
 --
 ALTER TABLE `t_household_information`
-  MODIFY `HOUSEHOLD_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1299;
-
---
--- AUTO_INCREMENT for table `t_household_members`
---
-ALTER TABLE `t_household_members`
-  MODIFY `FAMILY_INFORMATION_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1000;
+  MODIFY `HOUSEHOLD_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=1268;
 
 --
 -- AUTO_INCREMENT for table `t_hs_adolescent`
 --
 ALTER TABLE `t_hs_adolescent`
-  MODIFY `ADOLESCENT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
+  MODIFY `ADOLESCENT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
 -- AUTO_INCREMENT for table `t_hs_child`
 --
 ALTER TABLE `t_hs_child`
-  MODIFY `CHILD_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=24;
+  MODIFY `CHILD_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=21;
 
 --
 -- AUTO_INCREMENT for table `t_hs_chronic_cough`
 --
 ALTER TABLE `t_hs_chronic_cough`
-  MODIFY `CHRONIC_COUGH_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=12;
+  MODIFY `CHRONIC_COUGH_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_hs_chronic_disease`
@@ -3358,13 +3234,13 @@ ALTER TABLE `t_hs_family_planning_users_visitations`
 -- AUTO_INCREMENT for table `t_hs_infant`
 --
 ALTER TABLE `t_hs_infant`
-  MODIFY `INFANT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=9;
+  MODIFY `INFANT_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_hs_newborn`
 --
 ALTER TABLE `t_hs_newborn`
-  MODIFY `NEWBORN_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=86;
+  MODIFY `NEWBORN_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_hs_non_family_planning_users`
@@ -3382,7 +3258,7 @@ ALTER TABLE `t_hs_post_partum`
 -- AUTO_INCREMENT for table `t_hs_pregnant`
 --
 ALTER TABLE `t_hs_pregnant`
-  MODIFY `PREGNANT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `PREGNANT_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_hs_pwd`
@@ -3400,13 +3276,13 @@ ALTER TABLE `t_issuance`
 -- AUTO_INCREMENT for table `t_mothers_profile`
 --
 ALTER TABLE `t_mothers_profile`
-  MODIFY `MOTHERS_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `MOTHERS_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_nonresident_basic_info`
 --
 ALTER TABLE `t_nonresident_basic_info`
-  MODIFY `NONRESIDENT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=59;
+  MODIFY `NONRESIDENT_ID` int(11) NOT NULL AUTO_INCREMENT;
 
 --
 -- AUTO_INCREMENT for table `t_ordinance`
@@ -3415,10 +3291,137 @@ ALTER TABLE `t_ordinance`
   MODIFY `ORDINANCE_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
 
 --
+-- AUTO_INCREMENT for table `t_patawag`
+--
+ALTER TABLE `t_patawag`
+  MODIFY `PATAWAG_ID` int(10) UNSIGNED NOT NULL AUTO_INCREMENT;
+
+--
 -- AUTO_INCREMENT for table `t_resident_basic_info`
 --
 ALTER TABLE `t_resident_basic_info`
-  MODIFY `RESIDENT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3919;
+  MODIFY `RESIDENT_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3863;
+
+--
+-- AUTO_INCREMENT for table `t_solo_parent_children`
+--
+ALTER TABLE `t_solo_parent_children`
+  MODIFY `CHILD_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
+-- AUTO_INCREMENT for table `t_transient_record`
+--
+ALTER TABLE `t_transient_record`
+  MODIFY `TRANSIENT_RECORD_ID` int(11) NOT NULL AUTO_INCREMENT;
+
+--
+-- AUTO_INCREMENT for table `t_users`
+--
+ALTER TABLE `t_users`
+  MODIFY `USER_ID` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=63;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `r_barangay_zone`
+--
+ALTER TABLE `r_barangay_zone`
+  ADD CONSTRAINT `FK_B_ID_BRGY_INFO` FOREIGN KEY (`BARANGAY_ID`) REFERENCES `r_barangay_information` (`BARANGAY_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_application_form`
+--
+ALTER TABLE `t_application_form`
+  ADD CONSTRAINT `FK_ApplicationFormRequest_PaperType` FOREIGN KEY (`REQUESTED_PAPER_TYPE_ID`) REFERENCES `r_paper_type` (`PAPER_TYPE_ID`),
+  ADD CONSTRAINT `FK_ApplicationForm_BusinessInformation` FOREIGN KEY (`BUSINESS_ID`) REFERENCES `t_business_information` (`BUSINESS_ID`),
+  ADD CONSTRAINT `FK_ApplicationForm_Resident` FOREIGN KEY (`RESIDENT_ID`) REFERENCES `t_resident_basic_info` (`RESIDENT_ID`),
+  ADD CONSTRAINT `t_application_form_ibfk_1` FOREIGN KEY (`PAPER_TYPE_ID`) REFERENCES `r_paper_type` (`PAPER_TYPE_ID`);
+
+--
+-- Constraints for table `t_application_form_evaluation`
+--
+ALTER TABLE `t_application_form_evaluation`
+  ADD CONSTRAINT `FK_ApplicationFormEvaluation_ApplicationForm` FOREIGN KEY (`FORM_ID`) REFERENCES `t_application_form` (`FORM_ID`);
+
+--
+-- Constraints for table `t_barangay_official`
+--
+ALTER TABLE `t_barangay_official`
+  ADD CONSTRAINT `FK_BO_ID_BRGY_INFO` FOREIGN KEY (`BARANGAY_ID`) REFERENCES `r_barangay_information` (`BARANGAY_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_R_ID_T_RESIDENTS` FOREIGN KEY (`RESIDENT_ID`) REFERENCES `t_resident_basic_info` (`RESIDENT_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_bf_barangay_certification`
+--
+ALTER TABLE `t_bf_barangay_certification`
+  ADD CONSTRAINT `FK_BarangayCertification_ApplicationForm` FOREIGN KEY (`FORM_ID`) REFERENCES `t_application_form` (`FORM_ID`);
+
+--
+-- Constraints for table `t_bf_barangay_clearance`
+--
+ALTER TABLE `t_bf_barangay_clearance`
+  ADD CONSTRAINT `FK_BarangayClearance` FOREIGN KEY (`SCOPE_OF_WORK_ID`) REFERENCES `t_bf_scope_of_work` (`SCOPE_OF_WORK_ID`),
+  ADD CONSTRAINT `FK_BarangayClearance_ApplicationForm` FOREIGN KEY (`FORM_ID`) REFERENCES `t_application_form` (`FORM_ID`);
+
+--
+-- Constraints for table `t_bf_business_activity`
+--
+ALTER TABLE `t_bf_business_activity`
+  ADD CONSTRAINT `FK_BusinessActivity_BusinessInfo` FOREIGN KEY (`BUSINESS_ID`) REFERENCES `t_business_information` (`BUSINESS_ID`),
+  ADD CONSTRAINT `fk_BusinessActivity_LineOfBusiness` FOREIGN KEY (`LINE_OF_BUSINESS_ID`) REFERENCES `r_bf_line_of_business` (`LINE_OF_BUSINESS_ID`);
+
+--
+-- Constraints for table `t_bf_business_permit`
+--
+ALTER TABLE `t_bf_business_permit`
+  ADD CONSTRAINT `FK_BusinessPermit_ApplicationForm` FOREIGN KEY (`FORM_ID`) REFERENCES `t_application_form` (`FORM_ID`);
+
+--
+-- Constraints for table `t_business_information`
+--
+ALTER TABLE `t_business_information`
+  ADD CONSTRAINT `FK_BusinessInformation_BusinessNature` FOREIGN KEY (`BUSINESS_NATURE_ID`) REFERENCES `r_business_nature` (`BUSINESS_NATURE_ID`),
+  ADD CONSTRAINT `t_business_information_ibfk_1` FOREIGN KEY (`REFERENCED_BUSINESS_ID`) REFERENCES `t_business_information` (`BUSINESS_ID`);
+
+--
+-- Constraints for table `t_clearance_certification`
+--
+ALTER TABLE `t_clearance_certification`
+  ADD CONSTRAINT `FK_ClearanceCertification_ApplicationForm` FOREIGN KEY (`FORM_ID`) REFERENCES `t_application_form` (`FORM_ID`),
+  ADD CONSTRAINT `FK_ClearanceCertification_PaperType` FOREIGN KEY (`PAPER_TYPE_ID`) REFERENCES `r_paper_type` (`PAPER_TYPE_ID`);
+
+--
+-- Constraints for table `t_hs_chronic_cough`
+--
+ALTER TABLE `t_hs_chronic_cough`
+  ADD CONSTRAINT `FK_ChronicCough` FOREIGN KEY (`RESIDENT_ID`) REFERENCES `t_resident_basic_info` (`RESIDENT_ID`) ON DELETE CASCADE ON UPDATE CASCADE,
+  ADD CONSTRAINT `FK_ChronicCough_NonResident` FOREIGN KEY (`NONRESIDENT_ID`) REFERENCES `t_nonresident_basic_info` (`NONRESIDENT_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_hs_elderly`
+--
+ALTER TABLE `t_hs_elderly`
+  ADD CONSTRAINT `sfk_Elderly_Resident` FOREIGN KEY (`RESIDENT_ID`) REFERENCES `t_resident_basic_info` (`RESIDENT_ID`);
+
+--
+-- Constraints for table `t_hs_newborn`
+--
+ALTER TABLE `t_hs_newborn`
+  ADD CONSTRAINT `FK_NEWBORN_NONRESIDENT` FOREIGN KEY (`NONRESIDENT_ID`) REFERENCES `t_nonresident_basic_info` (`NONRESIDENT_ID`) ON DELETE SET NULL ON UPDATE SET NULL;
+
+--
+-- Constraints for table `t_resident_basic_info`
+--
+ALTER TABLE `t_resident_basic_info`
+  ADD CONSTRAINT `fk_Resident_Household` FOREIGN KEY (`HOUSEHOLD_ID`) REFERENCES `t_household_information` (`HOUSEHOLD_ID`) ON DELETE CASCADE ON UPDATE CASCADE;
+
+--
+-- Constraints for table `t_solo_parent_children`
+--
+ALTER TABLE `t_solo_parent_children`
+  ADD CONSTRAINT `FK_SoloParentChild_BarangayCertificaiton` FOREIGN KEY (`BARANGAY_CERTIFICATION_ID`) REFERENCES `t_bf_barangay_certification` (`BARANGAY_CERTIFICATION_ID`);
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;

@@ -515,33 +515,28 @@ Route::group(['prefix' => '/HealthServices'], function(){
     });
 
 
- Route::group(['prefix' => '/PermitCertificateClearance'], function(){
-        //Business Application
-        Route::get('/BusinessApplication', 'PCC\ApplicationController@index')
-            ->name('BusinessApplication');
-        
-        Route::post('/BusinessApplication/Add', 'PCC\ApplicationController@CRUDBusinessApplication')
-            ->name('CRUDBusinessApplication');
 
-        Route::post('/BusinessApplication/SpecificBusiness', 'PCC\ApplicationController@SpecificBusiness')
-            ->name('SpecificBusinessApplication');
+ Route::group(['prefix' => '/PermitCertificateClearance'], function(){
+
 
         //Business Evaluation
-         Route::get('/BusinessEvaluation', 'PCC\EvaluationController@index')
-            ->name('BusinessEvaluation');
+        Route::get('/BusinessEvaluation', 'PCC\EvaluationController@index')
+            ->name('PCCEvaluation');
 
-        Route::post('/BusinessEvaluation/Evaluate', 'PCC\EvaluationController@CRUDBusinessApproval')
-            ->name('CRUDBusinessApproval');
 
         //Issuance Verification
         Route::post('/IssuanceEvaluation', 'PCC\EvaluationController@IssuanceEvaluation')
             ->name('IssuanceEvaluation');
+
 
         //Permit CertificateClearance Request
         Route::group(['prefix' => '/Request'], function(){
             Route::get('/Permit', 'PCC\RequestController@index')
                 ->defaults('typeofview', 'RequestPermit')
                 ->name('RequestPermit');
+
+             Route::get('/Permit/Add', 'PCC\RequestController@BusinessIssuanceRequest')
+                ->name('BusinessIssuanceRequest');
 
             Route::get('/Certification', 'PCC\RequestController@index')
                 ->defaults('typeofview', 'RequestCertification')
@@ -572,16 +567,23 @@ Route::group(['prefix' => '/HealthServices'], function(){
     });
 
   Route::group(['prefix' => '/Business'], function(){
+        // Registration
         Route::get('/Registration', 'BusinessController@index')
-            ->defaults('typeofview', 'BusinessRegistration')
-            ->name('BusinessRegistration');
+            ->defaults('typeofview', 'business_registration')
+            ->name('BusinessApplication');
+        
+        Route::post('/Registration/Add', 'BusinessController@CRUDBusinessApplication')
+            ->name('CRUDBusinessApplication');
 
-        Route::get('/Issuance', 'BusinessController@index')
-            ->defaults('typeofview', 'BusinessIssuance')
-            ->name('BusinessIssuance');
-        Route::post('/Issuance/Request', 'BusinessController@BusinessIssuanceRequest')
-            ->defaults('typeofview', 'BusinessIssuanceRequest')
-            ->name('BusinessIssuanceRequest');
+        Route::post('/Registration/SpecificBusiness', 'BusinessController@SpecificBusiness')
+            ->name('SpecificBusinessApplication');
 
+        //Evaluation
 
+        Route::get('/BusinessEvaluation', 'BusinessController@index')
+            ->defaults('typeofview', 'business_evaluation')
+            ->name('BusinessEvaluation');
+
+        Route::post('/BusinessEvaluation/Evaluate', 'BusinessController@CRUDBusinessApproval')
+            ->name('CRUDBusinessApproval');
     });

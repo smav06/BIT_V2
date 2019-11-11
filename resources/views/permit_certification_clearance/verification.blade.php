@@ -18,13 +18,13 @@
 <div id="content" class="content">
 	<ol class="breadcrumb pull-right">
 		<li class="breadcrumb-item"><a href="javascript:;">Permit/Certification/Clearance</a></li>
-		<li class="breadcrumb-item"><a href="javascript:;">Business Evaluation</a></li>
+		<li class="breadcrumb-item"><a href="javascript:;">Application Evaluation</a></li>
 	</ol>
 
-	<h1 class="page-header">Business Evaluation<small>DILG Requirements</small></h1>
+	<h1 class="page-header">Application Evaluation<small>DILG Requirements</small></h1>
 
 	<ul class="nav nav-pills">
-		<li class="nav-items">
+		<li class="nav-items" hidden>
 			<a href="#nav-pills-tab-1" data-toggle="tab" class="nav-link" >
 
 				<span class="d-sm-block d-none">Business Evaluation</span>
@@ -33,20 +33,20 @@
 		<li class="nav-items">
 			<a href="#nav-pills-tab-2" data-toggle="tab" class="nav-link" id="">
 
-				<span class="d-sm-block d-none">Business Issuance Verification</span>
+				<span class="d-sm-block d-none">Business Application</span>
 			</a>
 		</li>
 		<li class="nav-items">
 			<a href="#nav-pills-tab-3" data-toggle="tab" class="nav-link" id="">
 
-				<span class="d-sm-block d-none">Resident Issuance Verification </span>
+				<span class="d-sm-block d-none">Resident Application</span>
 			</a>
 		</li>
 	</ul>
 
 	<div class="tab-content">	
 		{{-- NAV PILLS TAB 1 --}}
-		<div class="tab-pane fade active show" id="nav-pills-tab-1">
+		<div class="tab-pane fade active show" id="nav-pills-tab-1" hidden>
 			<div class="panel panel-inverse">
 				<div class="panel-heading">
 					<div class="panel-heading-btn">
@@ -106,7 +106,7 @@
 		</div>
 
 		{{-- NAV PILLS TAB 2 --}}
-		<div class="tab-pane fade" id="nav-pills-tab-2">
+		<div class="tab-pane fade  active show" id="nav-pills-tab-2">
 			<div class="panel panel-inverse">
 				<!-- begin panel-heading -->
 				<div class="panel-heading">

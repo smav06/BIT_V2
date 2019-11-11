@@ -441,19 +441,29 @@ header('Content-Type: text/html');?>
 
 
 
-
  <li class="has-sub ">
+        <a href="javascript:;">
+            <b class="caret"></b>
+            <i class="fas fa-file-alt"></i>
+            <span>Business</span>
+        </a>
+        <ul class="sub-menu">
+            <li class="{{ session('session_permis_businesses') == 1 ? '' : 'hide'}}"> <a href="{{route('BusinessApplication')}}">Registration</a></li>
+            <li class="{{ session('session_permis_business_approval') == 1 ? '' : 'hide'}}"><a href="{{route('BusinessEvaluation')}}">Evaluation</a></li>
+        </ul>
+    </li>
+
+ <li class="has-sub {{session('session_permis_barangay_application_form') == 1 ? '' : 'hide'}}">
         <a href="javascript:;">
             <b class="caret"></b>
             <i class="fas fa-file-alt"></i>
             <span>Permit / Certification / Clearance</span>
         </a>
         <ul class="sub-menu">
-               <li ><a href="{{route('BusinessApplication')}}">Application</a></li>
             <li class="has-sub">
                 <a href="javascript:;">
                     <b class="caret"></b>
-                    Request
+                    Application
                 </a>
                 <ul class="sub-menu">
                     <li><a href="{{ route('RequestPermit') }}">Permit</a></li>
@@ -461,10 +471,11 @@ header('Content-Type: text/html');?>
                     <li><a href="{{ route('RequestClearance') }}">Clearance</a></li>
                 </ul>
             </li>            
-            <li ><a href="{{route('BusinessEvaluation')}}">Evaluation/Verification</a></li>
+            <li class="{{session('session_permis_barangay_application_evaluation') == 1 ? '' : 'hide' }}"><a href="{{route('PCCEvaluation')}}">Evaluation</a></li>
             <li ><a href="{{route('Issuance')}}">Issuance </a></li>
         </ul>
     </li>
+    
 <li class="has-sub {{   Route::currentRouteName() == 'HealthServices'                     ||
 Route::currentRouteName() == 'NewBorn'                            ||
 Route::currentRouteName() == 'DisplayResidentInfant'              ||
