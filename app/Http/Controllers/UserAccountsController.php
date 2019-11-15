@@ -523,6 +523,9 @@ class UserAccountsController extends Controller
                                  session(['session_permis_user_accounts' => $value->PERMIS_USER_ACCOUNTS]);
                                  session(['session_permis_barangay_config' => $value->PERMIS_BARANGAY_CONFIG]);
                                  session(['session_permis_business_approval' => $value->PERMIS_BUSINESS_APPROVAL]);
+
+                                 session(['session_permis_barangay_application_form' => $value->PERMIS_APPLICATION_FORM]);
+                                 session(['session_permis_barangay_application_evaluation' => $value->PERMIS_APPLICATION_FORM_EVALUATION]);
                                  
                             }
 

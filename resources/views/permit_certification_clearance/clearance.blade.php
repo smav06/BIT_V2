@@ -67,7 +67,7 @@
 					<tr class="gradeC" id="{{$row->BUSINESS_ID}}">
 						<td>{{$row->BUSINESS_OR_NUMBER}}</td>
 						<td>{{$row->BUSINESS_NAME}}</td>
-						<td>{{$row->LINE_OF_BUSINESS_NAME}}</td>
+						<td>{{$row->BUSINESS_NATURE_NAME}}</td>
 						<td>{{$row->BUSINESS_ADDRESS}}</td>
 						<td>{{$row->BUSINESS_OWNER_FIRSTNAME}} {{$row->BUSINESS_OWNER_MIDDLENAME}} {{$row->BUSINESS_OWNER_LASTNAME}} </td>
 						{{-- <td>{{$row->NEW_RENEW_STATUS}}</td> --}}

@@ -3,8 +3,8 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\patawag;
-use App\blotter;
+use App\TPatawag;
+use App\TBlotter;
 use Carbon\Carbon;
 use DB;
 
@@ -41,13 +41,21 @@ class PatawagController extends Controller
         $time = date("H:i:s", strtotime($intime));
         $datetime = Carbon::createFromTimestamp(strtotime($date . $time));
 
-        $insertPatawag = new patawag();
 
-        $insertPatawag->blotter_id = $request->input('EditBlotterIDH');
-        $insertPatawag->patawag_sched_datetime = $datetime;
-        $insertPatawag->patawag_sched_place = $request->input('addScheduledPlace');
+        // $insertPatawag = new patawag();
+        
+        DB::table('t_patawag')->insert([
+                                        'BLOTTER_ID' => $request->input('EditBlotterIDH'),
+                                        'patawag_sched_datetime' => $datetime,
+                                        'patawag_sched_place' => $request->input('addScheduledPlace')
+                                        ]);
 
-        $insertPatawag->save();
+        // $insertPatawag->blotter_id = $request->input('EditBlotterIDH');
+
+        // $insertPatawag->patawag_sched_datetime = $datetime;
+        // $insertPatawag->patawag_sched_place = $request->input('addScheduledPlace');
+
+        // $insertPatawag->save();
 
       //  return redirect('Blotter');
     }
