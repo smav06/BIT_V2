@@ -143,7 +143,7 @@ ROUTE::GROUP(['prefix' => ''], function (){
    
 ROUTE::GET('/Resident', 'ResidentsController@index')
     ->NAME('Resident');
-        ROUTE::GET('/LoadResidents', 'ResidentsController@loadresident')
+        ROUTE::get('/LoadResidents', 'ResidentsController@loadresident')
         ->NAME('LoadResidents');
     
     ROUTE::POST('/BasicInfoAdd', 'ResidentsController@store')
@@ -175,8 +175,14 @@ ROUTE::GROUP(['' => ''], function (){
     ROUTE::GET('/HouseholdMembers/{id}', 'HouseholdMemberController@index')
     ->NAME('HouseholdMembers');
 
+    ROUTE::GET('/ViewRbi/{id}', 'HouseholdMemberController@view_rbi')
+    ->NAME('ViewRbi');
+
     ROUTE::POST('/AddHouseholdMembers', 'HouseholdMemberController@addmember')
     ->NAME('AddHouseholdMemberss');
+
+    ROUTE::GET('/HouseholdList', 'HouseholdMemberController@hh_list')
+    ->NAME('HouseholdList');
      
 });
 ROUTE::GROUP(['' => ''], function (){
@@ -186,8 +192,6 @@ ROUTE::GROUP(['' => ''], function (){
     ->NAME('MothersProfileAdd');
     ROUTE::POST('/MothersProfileEdit', 'MothersProfileController@edit')
     ->NAME('MothersProfileEdit');
-     ROUTE::GET('/LoadMothers', 'MothersProfileController@loadresident')
-    ->NAME('LoadMothers');
      
 });
 ROUTE::GROUP(['' => ''], function (){
@@ -197,8 +201,7 @@ ROUTE::GROUP(['' => ''], function (){
     ->NAME('FathersProfileAdd');
     ROUTE::POST('/FathersProfileEdit', 'FathersProfileController@edit')
     ->NAME('FathersProfileEdit');
-    ROUTE::GET('/LoadFathers', 'FathersProfileController@loadresident')
-    ->NAME('LoadFathers');
+    
      
 });
 ROUTE::GROUP(['' => ''], function (){

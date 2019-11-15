@@ -546,6 +546,8 @@ Route::currentRouteName() == 'DisplayResidentElderly'
         <li class="{{ Route::currentRouteName() == 'ListofBusinesses' ? 'active' : '' }}"><a href="{{ route('ListofBusinesses') }}">List of Businesses</a></li>
         <li class="{{ Route::currentRouteName() == 'LisfofOrdianance' ? 'active' : '' }}"><a href="{{ route('LisfofOrdianance') }}">List of Ordinances</a></li>
         <li class="{{ Route::currentRouteName() == 'ListOfBlotters' ? 'active' : '' }}"><a href="{{route('ListOfBlotters')}}">List of Blotters</a></li>
+        <li class=""><a href="{{route('HouseholdList')}}">Rbi Report</a></li>
+        
     </ul>
 </li>
 

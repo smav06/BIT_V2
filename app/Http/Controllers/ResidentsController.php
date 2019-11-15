@@ -16,10 +16,12 @@ class ResidentsController extends Controller
     public function index(Request $request)
     {
         
-        // $resident_type = DB::TABLE('R_RESIDENT_TYPE AS RT')
-        //                 ->PLUCK('RT.TYPE_NAME','RT.TYPE_ID');
-        // return view('resident.basicinfo', compact('resident_type'));  
-        return view('queriesreports.rbi_report');
+        $resident_type = DB::TABLE('R_RESIDENT_TYPE AS RT')
+                            ->PLUCK('RT.TYPE_NAME','RT.TYPE_ID');
+        return view('resident.basicinfo', compact('resident_type')); 
+        //$display_data = db::select("call sp_resident_info(?)",['cerv']);
+        //dd($display_data);
+      
     }
 
     public function searchresident()
@@ -45,13 +47,9 @@ class ResidentsController extends Controller
     public function loadresident()
     {                        
       
-            $display_data = DB::TABLE('T_RESIDENT_BASIC_INFO AS T')
-            ->SELECT('T.RESIDENT_ID','T.LASTNAME','T.FIRSTNAME','T.MIDDLENAME','T.QUALIFIER','T.SEX','T.DATE_OF_BIRTH','T.CIVIL_STATUS','T.OCCUPATION','T.WORK_STATUS',
-                'T.CITIZENSHIP','T.RELATION_TO_HOUSEHOLD_HEAD','T.CONTACT_NUMBER','T.DATE_OF_BIRTH','T.PLACE_OF_BIRTH','T.ADDRESS_UNIT_NO','T.ADDRESS_PHASE',
-                'T.ADDRESS_HOUSE_NO','T.ADDRESS_STREET','T.ADDRESS_SUBDIVISION','T.ADDRESS_BUILDING','T.DATE_STARTED_WORKING','T.DATE_OF_ARRIVAL','T.ACTIVE_FLAG','T.ADDRESS_STREET_NO');
-            //->WHERE('T.ACTIVE_FLAG',1); 
-
-        return datatables()->of($display_data)->addIndexColumn()->make(true);
+        $searchval = request('searchval');
+        $display_data = db::select("call sp_resident_info(?)",[$searchval]);
+        return datatables()->of($display_data)->make(true);
     } 
     public function healthservices() {
 
@@ -113,7 +111,7 @@ class ResidentsController extends Controller
                     'ADDRESS_SUBDIVISION' => request ('edit_hsubdivision'),
                     'ADDRESS_BUILDING' => request ('edit_hbuilding'),
                     //'EDUCATIONAL_ATTAINMENT' => request ('editeducationatt'),
-                    'UPDATED_AT' => DB::raw('CURRENT_TIMESTAMP')
+                    'UPDATED_AT' => DB::RAW('CURRENT_TIMESTAMP')
                 ]   
             );
 

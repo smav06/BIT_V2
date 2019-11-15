@@ -87,8 +87,8 @@
 
                       { render:function(data, type, full, meta)
                         {
-                          return "<button type='button' class='btn btn-success mother-btn' data-toggle='modal' data-target='#UpdateModal'><i class='fa fa-edit'></i> Edit</button><button type='button' onClick=\"famMembers('" + full.FAMILY_HEADER_ID+"')\" class='btn btn-warning view_btn' ><i class='fa fa-eye'></i> View</button>";
-                        }, 
+                          return "<button type='button' onClick=\"famMembers('" + full.FAMILY_HEADER_ID+"')\" class='btn btn-warning view_btn' ><i class='fa fa-eye'></i> View</button>";
+                        },
                         searchable: false}, 
                   ]
               });    
@@ -97,236 +97,23 @@
 
 </script>
 
+
+
     <script type="text/javascript">
       function famMembers(id) {
           $id = id;
-          
-          location.href = "{{asset('')}}" + "HouseholdMembers/"+$id;
+          if ($id == "null" || $id == "") {
+            $id = 0;  
+          }
+           
+          location.href = "{{asset('')}}" + "ViewRbi/"+$id;
       }
 
-      $(document).ready(function() {
-        // $(document).on('click','.view_btn', function() {
-
-
-        //   //location.href = "{{route('HouseholdProfile')}}";
-        //   //"{{asset('')}}"+
-        // });
-
-        $('#data-table-default tbody').on('click','tr', function() {
-
-            // var lastname = table.cell( this, 5).data();
-            // var firstname = table.cell( this, 6).data();
-            // var middlename = table.cell( this, 7).data();
-            var fullname =  table.cell( this, 1).data();
-            $('#edit_db_name').text(fullname);
-            
-           
-
-            var edittoilet = table.cell( this, 5).data();           
-            var parea =  table.cell( this, 6).data(); 
-            var bedroom =  table.cell( this, 7).data(); 
-            var dining =  table.cell( this, 8).data(); 
-            var sala =  table.cell( this, 9).data(); 
-            var kitchen =  table.cell( this, 10).data(); 
-            var water =  table.cell( this, 11).data(); 
-            var electric =  table.cell( this, 12).data(); 
-            var aircon =  table.cell( this, 13).data(); 
-            var phone =  table.cell( this, 14).data(); 
-            var computer = table.cell( this, 15).data(); 
-            var internet =  table.cell( this, 16).data(); 
-            var tv =  table.cell( this, 17).data(); 
-            var cdplayer =  table.cell( this, 18).data(); 
-            var radio =  table.cell( this, 19).data(); 
-            var comics =  table.cell( this, 20).data(); 
-            var newspaper =  table.cell( this, 21).data(); 
-            var pets =  table.cell( this, 22).data(); 
-            var books =  table.cell( this, 23).data(); 
-            var storybooks = table.cell( this, 24).data(); 
-            var toys =  table.cell( this, 25).data(); 
-            var bgames = table.cell( this, 26).data(); 
-            var puzzle =  table.cell( this, 27).data(); 
-          
-           $('#EditCatID').val(table.cell( this, 0).data());           
-           $('#editnumberofrooms').val(table.cell( this, 28).data());
-
-           if (edittoilet == 1) { document.getElementById('edittoilet').checked = true;} else if (edittoilet == 0) { document.getElementById('edittoilet').checked = false; }
-           if (parea == 1) { document.getElementById('editplayarea').checked = true;} else if (parea == 0) { document.getElementById('editplayarea').checked = false; }
-           if (bedroom == 1) { document.getElementById('editbedroom').checked = true;} else if (bedroom == 0) { document.getElementById('editbedroom').checked = false; }
-           if (dining == 1) { document.getElementById('editdining').checked = true;} else if (dining == 0) { document.getElementById('editdining').checked = false; }
-           if (sala == 1) { document.getElementById('editsala').checked = true;} else if (sala == 0) { document.getElementById('editsala').checked = false; }
-           if (kitchen == 1) { document.getElementById('editkitchen').checked = true;} else if (kitchen == 0) { document.getElementById('editkitchen').checked = false; }
-           if (water == 1) { document.getElementById('editrunningwater').checked = true;} else if (water == 0) { document.getElementById('editrunningwater').checked = false; }
-           if (electric == 1) { document.getElementById('editelectricity').checked = true;} else if (electric == 0) { document.getElementById('editelectricity').checked = false; }
-           if (aircon == 1) { document.getElementById('editaircon').checked = true;} else if (aircon == 0) { document.getElementById('editaircon').checked = false; }
-           if (phone == 1) { document.getElementById('editmobile').checked = true;} else if (phone == 0) { document.getElementById('editmobile').checked = false; }
-           if (computer == 1) { document.getElementById('editcomputer').checked = true;} else if (computer == 0) { document.getElementById('editcomputer').checked = false; }
-           if (internet == 1) { document.getElementById('editinternet').checked = true;} else if (internet == 0) { document.getElementById('editinternet').checked = false; }
-           if (tv == 1) { document.getElementById('edittv').checked = true;} else if (tv == 0) { document.getElementById('edittv').checked = false; }
-           if (cdplayer == 1) { document.getElementById('editdvd').checked = true;} else if (cdplayer == 0) { document.getElementById('editdvd').checked = false; }
-           if (radio == 1) { document.getElementById('editradio').checked = true;} else if (radio == 0) { document.getElementById('editradio').checked = false; }
-           if (comics == 1) { document.getElementById('editcomics').checked = true;} else if (comics == 0) { document.getElementById('editcomics').checked = false; }
-           if (newspaper == 1) { document.getElementById('editnews').checked = true;} else if (newspaper == 0) { document.getElementById('editnews').checked = false; }
-           if (pets == 1) { document.getElementById('editpets').checked = true;} else if (pets == 0) { document.getElementById('editpets').checked = false; }
-           if (books == 1) { document.getElementById('editbooks').checked = true;} else if (books == 0) { document.getElementById('editbooks').checked = false; }
-           if (storybooks == 1) { document.getElementById('editsbooks').checked = true;} else if (storybooks == 0) { document.getElementById('editsbooks').checked = false; }
-           if (toys == 1) { document.getElementById('edittoys').checked = true;} else if (toys == 0) { document.getElementById('edittoys').checked = false; }
-           if (bgames == 1) { document.getElementById('editbgames').checked = true;} else if (bgames == 0) { document.getElementById('editbgames').checked = false; }
-           if (puzzle == 1) { document.getElementById('editpuzzles').checked = true;} else if (puzzle == 0) { document.getElementById('editpuzzles').checked = false; }
-
-        });
-      });
+     
 
     </script>
 
-    <script type="text/javascript">
-      $(document).ready(function() {
-        $('#EditBTN').on('click', function() {
-
-            var household_id = $('#EditCatID').val();
-            var homeowner = $('#edithomeownership').children(":selected").attr("value");
-            var pstaying = $('#editpstaying').children(":selected").attr("value");
-            var build_mat = $("input:radio[name=edit_radio_home_materials]:checked").val();
-            var noofrooms = $('#editnumberofrooms').val();
-
-            if ($("#edittoilet").is(":checked")){ var toilet = 1; } else if ($("#edittoilet").is(":not(:checked)")) { var toilet = 0; }
-
-            if ($("#editplayarea").is(":checked")){ var playarea = 1; } else if ($("#editplayarea").is(":not(:checked)")) { var playarea = 0; }
-
-            if ($("#editbedroom").is(":checked")){ var bedroom = 1; } else if ($("#editbedroom").is(":not(:checked)")) { var bedroom = 0; }
-
-            if ($("#editdining").is(":checked")){ var dining = 1; } else if ($("#editdining").is(":not(:checked)")) { var dining = 0; }
-
-            if ($("#editsala").is(":checked")){ var sala = 1; } else if ($("#editsala").is(":not(:checked)")) { var sala = 0; }
-
-            if ($("#editkitchen").is(":checked")){ var kitchen = 1; } else if ($("#editkitchen").is(":not(:checked)")) { var kitchen = 0; }
-              
-
-
-            if ($("#editrunningwater").is(":checked")){ var runningwater = 1; } else if ($("#editrunningwater").is(":not(:checked)")) { var runningwater = 0; }
-
-            if ($("#editelectricity").is(":checked")){ var electricity = 1; } else if ($("#editelectricity").is(":not(:checked)")) { var electricity = 0; }
-
-            if ($("#editaircon").is(":checked")){ var aircon = 1; } else if ($("#editaircon").is(":not(:checked)")) { var aircon = 0; }
-
-
-
-            if ($("#editmobile").is(":checked")){ var mobile = 1; } else if ($("#editmobile").is(":not(:checked)")) { var mobile = 0; }
-
-            if ($("#editcomputer").is(":checked")){ var ncomputer = 1; } else if ($("#editcomputer").is(":not(:checked)")) { var ncomputer = 0; }
-
-            if ($("#editinternet").is(":checked")){ var internet = 1; } else if ($("#editinternet").is(":not(:checked)")) { var internet = 0; }
-
-            if ($("#edittv").is(":checked")){ var boxtv = 1; } else if ($("#edittv").is(":not(:checked)")) { var boxtv = 0; }
-
-            if ($("#editdvd").is(":checked")){ var cdplayer = 1; } else if ($("#editdvd").is(":not(:checked)")) { var cdplayer = 0; }
-
-            if ($("#editradio").is(":checked")){ var boxradio = 1; } else if ($("#editradio").is(":not(:checked)")) { var boxradio = 0; }
-
-            if ($("#editcomics").is(":checked")){ var ncomics = 1; } else if ($("#editcomics").is(":not(:checked)")) { var ncomics = 0; }
-
-            if ($("#editnews").is(":checked")){ var newspaper = 1; } else if ($("#editnews").is(":not(:checked)")) { var newspaper = 0; }
-
-            if ($("#editpets").is(":checked")){ var pets = 1; } else if ($("#editpets").is(":not(:checked)")) { var pets = 0; }
-
-            if ($("#editbooks").is(":checked")){ var books = 1; } else if ($("#editbooks").is(":not(:checked)")) { var books = 0; }
-
-            if ($("#editsbooks").is(":checked")){ var storybooks = 1; } else if ($("#editsbooks").is(":not(:checked)")) { var storybooks = 0; }
-
-            if ($("#edittoys").is(":checked")){ var toys = 1; } else if ($("#edittoys").is(":not(:checked)")) { var toys = 0; }
-
-            if ($("#editbgames").is(":checked")){ var boardgames = 1; } else if ($("#editbgames").is(":not(:checked)")) { var boardgames = 0; }
-
-            if ($("#editpuzzles").is(":checked")){ var puzzles = 1; } else if ($("#editpuzzles").is(":not(:checked)")) { var puzzles = 0; }            
-
-            var fd = new FormData();
-            fd.append('EditCatID',household_id)
-           
-            fd.append('homeowner',homeowner);
-            fd.append('pstaying',pstaying);
-            fd.append('build_mat',build_mat);
-            fd.append('noofrooms',noofrooms);
-
-            // checkboxes
-
-            fd.append('toilet', toilet);
-            fd.append('playarea', playarea);
-            fd.append('bedroom', bedroom);
-            fd.append('dining', dining);
-            fd.append('sala', sala);
-            fd.append('kitchen', kitchen);
-            fd.append('runningwater', runningwater);
-            fd.append('electricity', electricity);
-            fd.append('aircon', aircon);
-            fd.append('mobile', mobile);
-            fd.append('computer', ncomputer);
-            fd.append('internet', internet);
-            fd.append('boxtv', boxtv);
-            fd.append('cdplayer', cdplayer);
-            fd.append('boxradio', boxradio);
-            fd.append('comics', ncomics);
-            fd.append('newspaper', newspaper);
-            fd.append('pets', pets);
-            fd.append('books', books);
-            fd.append('storybooks', storybooks);
-            fd.append('toys', toys);
-            fd.append('boardgames', boardgames);
-            fd.append('puzzles', puzzles);  
-            fd.append('_token',"{{ csrf_token() }}");
-
-
-            let result;
-
-              swal({
-                title: "Wait!",
-                text: "Are you sure you want to edit this?",
-                icon: "warning",
-                buttons: true,
-                dangerMode: true,
-              })
-              .then((willDelete) => {
-                      if (willDelete) {
-                           Update(fd);
-                         
-                      } else {
-                          swal("Operation Cancelled.", {
-                              icon: "error",
-                          });
-                      }
-              });
-
-        });
-      });
-
-
-    async function Update(fd) {
-       swal("Data have been successfully updated!", {
-                  icon: "success",
-                });
-          try
-          {
-              result = await $.ajax({
-                   url:"{{ route('HouseholdProfileEdit') }}",
-                   type:'post',
-                   processData:false,
-                   contentType:false,
-                   cache:false,
-                   data:fd,
-                   success:function(data)
-                   {
-                      if (data == "good" )
-                      {
-                          location.reload();
-                      } 
-                   }   
-                })
-          }
-          catch(error)
-          {
-            console.error(error);
-          }
-               
-    } 
-    </script>
+    
 </script>
 
 
