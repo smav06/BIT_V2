@@ -48,7 +48,7 @@
         App.init();
         FormWizard.init();
         Notification.init();
-        $('#resident_table').DataTable();
+        //$('#resident_table').DataTable();
         $("#wizard-mic").smartWizard();
         $('#nbody').show();
     });
@@ -1109,7 +1109,7 @@ function loadsummary() {
         console.log(lnames)
         console.log($multirelstohead)
         console.log(dobs.length)
-        var ncolors = []; var icolors = []; var ccolors = []; var acolors = []; var ecolors = [];
+        var ncolors = []; var icolors = []; var ccolors = []; var acolors = []; var ecolors = []; var table;
         var length = 0;
         for (var i=0; i<dobs.length; i++ ) {
 
@@ -1666,80 +1666,6 @@ $(document).ready(function(){
     var output = '', designer = '', streetno = '';
     var active_flag;
     var middlename = '', qualifier = '';
-    var table = $("#resident_table").DataTable({
-    serverSide: true,
-    processing: true,
-    ordering: false,
-   
-    ajax:"{{ route('LoadResidents') }}",
-
-    columns: [  
-    { data: "RESIDENT_ID", name: "T.RESIDENT_ID", visible: false, searchable: true,  },
-    { data: "LASTNAME", name: "T.LASTNAME" , visible: false, searchable: true, },
-    { data: "FIRSTNAME", name: "T.FIRSTNAME" , visible: false, searchable: true, },
-    { data: "MIDDLENAME", name: "T.MIDDLENAME" , visible: false, searchable: true, },
-    { data: "QUALIFIER",name: "T.QUALIFIER", visible: false, searchable: false},
-    { data: "DATE_OF_BIRTH", name: "T.DATE_OF_BIRTH", visible: false, searchable: false},
-    { data: "PLACE_OF_BIRTH", name: "T.PLACE_OF_BIRTH", visible: false, searchable: false},
-    { data: "RELATION_TO_HOUSEHOLD_HEAD", name: "T.RELATION_TO_HOUSEHOLD_HEAD", visible: false, searchable: false},
-    { data: "IS_RBI_COMPLETE", name: "IS_RBI_COMPLETE", searchable: false, visible:false },
-
-    { data: "ADDRESS_HOUSE_NO", name: "T.ADDRESS_HOUSE_NO", visible: false, searchable: false},
-    { data: "ADDRESS_STREET_NO", name: "T.ADDRESS_STREET_NO", visible: false, searchable: false},
-    { data: "ADDRESS_STREET", name: "T.ADDRESS_STREET", visible: false, searchable: false},
-    
-    { 
-
-       render: function ( data, type, full, meta, row ) {
-                    full.MIDDLENAME == null ? middlename = '' : middlename = full.MIDDLENAME
-                    full.QUALIFIER == null ? qualifier = '' : qualifier = full.QUALIFIER;
-                        
-                    return full["FIRSTNAME"] + ' ' + middlename +' '+ full["LASTNAME"] + ', ' +qualifier +'<br>' + '('+full["SEX"]+')';
-                }, class: 'fontstyling',
-        
-    },
-    { 
-
-       render: function ( data, type, full, meta, row ) {
-                    
-                    full["ADDRESS_STREET_NO"] == null ? streetno  = '' : streetno = full["ADDRESS_STREET_NO"]
-                    return full["ADDRESS_HOUSE_NO"] + ', ' + streetno +  '<br>' + full["ADDRESS_STREET"];
-                }, class: 'fontstyling',
-        
-    },
-    
-    { data: "SEX",name: "T.SEX", searchable: false, visible: false},
-    { 
-
-       render: function ( data, type, full, meta, row ) {
-                    
-                    designer = full["PLACE_OF_BIRTH"] + '<br>' + full["DATE_OF_BIRTH"];
-                    return designer;
-                }, searchable: false, class: 'fontstyling',
-        
-    },
-    { data: "CIVIL_STATUS", name:"T.CIVIL_STATUS",searchable:false, class: 'fontstyling'},
-    { data: "OCCUPATION", name: "T.OCCUPATION", searchable: false, class: 'fontstyling'},
-    { data: "CITIZENSHIP", name: "T.CITIZENSHIP", searchable: false, class: 'fontstyling', visible: false},
-    { data: "ADDRESS_UNIT_NO", name: "T.ADDRESS_UNIT_NO", visible: false, searchable: false},
-    { data: "ADDRESS_SUBDIVISION", name: "T.ADDRESS_SUBDIVISION", visible: false, searchable: false},
-    { data: "ADDRESS_BUILDING", name: "T.ADDRESS_BUILDING", visible: false, searchable: false},
-    
-    {render:function(data, type, full, meta){
-
-        output = "<button  type='button' class='btn btn-success editCategory' data-toggle='modal' data-target='#UpdateModal'><i class='fa fa-edit'></i> Edit&nbsp;";
-        // active_flag = full.ACTIVE_FLAG;
-        //  output += "</button><button type='button' class='btn btn-danger disableResident' id='disable' name='disable'><i class='fa fa-redo'></i> Disable</button>";
-        // if (active_flag == 1) {
-
-        // }else {
-        //     output += "</button><button type='button' class='btn btn-danger' id='enable' name='disable'><i class='fa fa-redo'></i> Disable</button>";
-        // }
-
-        return output;
-    }, searchable: false, class: 'fontstyling'}, 
-    ]
-});
 
    $('#editcstatus').change(function (){
         checkeditage( $('#editbdate').val(), '#editcstatus' );
@@ -1764,6 +1690,7 @@ $(document).ready(function(){
         var relationtohead = table.cell( this, 7).data() == null ? '' : table.cell( this, 7).data();
         var house_no = table.cell( this, 9).data();
         var address_no = table.cell( this, 10).data();
+
         var address_street = table.cell( this, 11).data();
         var cstatus = table.cell( this, 16).data();
         var occupation = table.cell( this, 17).data();
@@ -2013,11 +1940,11 @@ $(document).ready(function(){
         +'<option value="Doctoral/Unit Degree">Doctoral/Unit Degree</option>\n'
         +'<option value="Not Applicable">Not Applicable</option>\n'
         +'</select>&nbsp\n'
-        +'<label style="text-align: left">&nbspPlace of delivery</label><input type="text" id=multipdelivery name=multipdelivery class="form-control multifname" placeholder="e.g hospital, home">&nbsp\n'
+        +'<label style="text-align: left">&nbspPlace of delivery</label><input type="text" id=multipdelivery name=multipdelivery class="form-control multipdelivery" placeholder="e.g hospital, home">&nbsp\n'
         +'<label class="col-md-3 col-form-label text-md-right">Birth Attendant</label><textarea  id="multibattendant" name="multibattendant" placeholder="e.g , doctor, nurse, midwife, hilot" class="form-control"  ></textarea>\n'
 
         +'<label class="col-md-3 col-form-label text-md-right">Place of school</label><input type="text" id="multipschool" name="multipschool" class="form-control" />\n'
-        +'<label class="col-md-3 col-form-label text-md-right">Place of delivery</label><input type="text" id="multipdelivery" name="multipdelivery" class="form-control" />\n'
+        
 
 
 
@@ -3333,60 +3260,196 @@ $("#register-btn").click(function(e){
  
 </script>
 <script type="text/javascript">
-    $(document).ready(function(){
-        // $('#sdateofbirth').text('Manila, 1898')
 
-
-    });
     // SEARCH RESIDENTS SCRIPT START
-    $('.search_btn').click(function() {
+    table = $("#resident_table").DataTable({columnDefs: [{
+            "targets": [0],
+            "visible": false
+        },{
+            "targets": [1],
+            "visible": false
+        },{
+            "targets": [2],
+            "visible": false
+        },{
+            "targets": [3],
+            "visible": false
+        },{
+            "targets": [4],
+            "visible": false
+        },{
+            "targets": [5],
+            "visible": false
+        },{
+            "targets": [6],
+            "visible": false
+        },{
+            "targets": [7],
+            "visible": false
+        },{
+            "targets": [8],
+            "visible": false
+        },{
+            "targets": [9],
+            "visible": false
+            },{
+                "targets": [10],
+                "visible": false
+            },{
+            "targets": [11],
+            "visible": false
+        },{
+            "targets": [14],
+            "visible": false
+        },{
+            "targets": [18],
+            "visible": false
+        },{
+            "targets": [19],
+            "visible": false
+        },{
+            "targets": [20],
+            "visible": false
+        },{
+            "targets": [21],
+            "visible": false
+        }]});
 
-        var searchval = $('#stext').val();
+  $('.search_btn').on('click',function() {
+            //$('#resident_table').closest('tbody tr').find('td').remove();
+            var searchval = $('#stext').val()
+            
+            $.ajax({
+               url:  "{{ route('LoadResidents') }}",
+               type: 'get',
+               data: { searchval: searchval, _token : "{{ csrf_token() }}"},
+               success:function(data){
+                    table.clear().draw();
+                    data['data'].map((val)=>{
 
-        $.ajax({
-            url: "{{route('ResidentsSearch')}}",
-            type: "post",
-            dataType:'json',
-            data: { searchval: searchval, _token: "{{csrf_token()}}" },
+                    table.row.add([ 
 
-            success:function(data)
-            {
-                if(data.length > 0) {
-                    data.map( value => {
-                    value['listofresidents'].map(residents => {
-                         $('.result-list').append(
-                        '<li>\n'
-                                               
-                        +'<a href="#" class="result-image" style=""></a>\n'
-                                                   
-                        +'<div class="result-info">\n'
-                            +'<h4 class="title"><a href="javascript:;">'+residents['FULLNAME']+'</a></h4>\n'
-                            +'<p class="location">Birth details: <h>'+residents['PLACE_OF_BIRTH']+', '+residents['DATE_OF_BIRTH']+'</h></p>\n'
-                            +'<p class="desc">Nunc et ornare ligula. Aenean commodo lectus turpis, eu laoreet risus lobortis quis. Suspendisse vehicula mollis magna vel aliquet. Donec ac tempor neque, convallis euismod mauris. Integer dictum dictum ipsum quis viverra.</p>\n'
-                                                       
-                            +'</div>\n'
-                            +'<div class="result-price">Resident <a href="javascript:;" class="btn btn-yellow btn-block">View Details</a></div>\n'
-                            +'</li>'
-                        );
+                        val['RESIDENT_ID'],
+                        val['LASTNAME'],
+                        val['FIRSTNAME'],
+                        val['MIDDLENAME'],
+                        val['Qualifier'],
+                        val['DATE_OF_BIRTH'],
+                        val['PLACE_OF_BIRTH'],
+                        val['RELATION_TO_HOUSEHOLD_HEAD'],
+                        val['IS_RBI_COMPLETE'],
+                        val['ADDRESS_HOUSE_NO'],
+                        val['ADDRESS_STREET_NO'],
+                        val['ADDRESS_STREET'],
+                        val['LASTNAME'] + ',' +  (val['QUALIFIER'] == null ? '' : val['QUALIFIER']) + ' ' + val['FIRSTNAME'] + ' ' + val['MIDDLENAME'] + ' / ' +val['SEX'],
+                        val['ADDRESS_HOUSE_NO'] + ', '+val['ADDRESS_STREET_NO'] + ' ' + val['ADDRESS_STREET'] + ' ' + val['ADDRESS_SUBDIVISION'],
+                        val['SEX'],
+                        val['DATE_OF_BIRTH'] + ' , ' +val['PLACE_OF_BIRTH'],
+                        val['CIVIL_STATUS'],
+                        val['OCCUPATION'],
+                        val['CITIZEN_STATUS'],
+                        val['ADDRESS_UNIT_NO'],
+                        val['ADDRESS_SUBDIVISION'],
+                        val['ADDRESS_BUILDING'],
+                        '<button type="button" class="btn btn-success edit-modal-btn" data-toggle="modal" data-target="#UpdateModal"><i class="fas fa-edit"></i> Edit</button>'
+                        ]).draw();
+
                         
-                    })
-                });
-                }
-                
-                
-                
-            }
-            ,
-            error:function(error)
-            {
-                console.log(error)
-            }
+                })
+            
+               },
+               error: function(error){
 
-        });
-      
-       
-    });
+
+               }
+            });
+             
+            
+    })
     // SEARCH RESIDENTS SCRIPT END
+
+
+
+
+
+
+    // table = $("#resident_table").DataTable({
+    //         serverSide: true,
+    //         processing: true,
+    //         ordering: false,
+    //         ajax: {
+    //            url:  "{{ route('LoadResidents') }}",
+    //            type: 'get',
+    //            data: { searchval: searchval, _token : "{{ csrf_token() }}"}
+    //         },
+            
+    //         columns: [  
+    //         { data: "RESIDENT_ID", name: "RESIDENT_ID", visible: false, searchable: true,  },
+    //         { data: "LASTNAME", name: "LASTNAME" , visible: false, searchable: true, },
+    //         { data: "FIRSTNAME", name: "FIRSTNAME" , visible: false, searchable: true, },
+    //         { data: "MIDDLENAME", name: "MIDDLENAME" , visible: false, searchable: true, },
+    //         { data: "QUALIFIER",name: "QUALIFIER", visible: false, searchable: false},
+    //         { data: "DATE_OF_BIRTH", name: "DATE_OF_BIRTH", visible: false, searchable: false},
+    //         { data: "PLACE_OF_BIRTH", name: "PLACE_OF_BIRTH", visible: false, searchable: false},
+    //         { data: "RELATION_TO_HOUSEHOLD_HEAD", name: "RELATION_TO_HOUSEHOLD_HEAD", visible: false, searchable: false},
+    //         { data: "IS_RBI_COMPLETE", name: "IS_RBI_COMPLETE", searchable: false, visible:false },
+
+    //         { data: "ADDRESS_HOUSE_NO", name: "ADDRESS_HOUSE_NO", visible: false, searchable: false},
+    //         { data: "ADDRESS_STREET_NO", name: "ADDRESS_STREET_NO", visible: false, searchable: false},
+    //         { data: "ADDRESS_STREET", name: "ADDRESS_STREET", visible: false, searchable: false},
+            
+    //         { 
+
+    //            render: function ( data, type, full, meta, row ) {
+    //                         full.MIDDLENAME == null ? middlename = '' : middlename = full.MIDDLENAME
+    //                         full.QUALIFIER == null ? qualifier = '' : qualifier = full.QUALIFIER;
+                                
+    //                         return full["FIRSTNAME"] + ' ' + middlename +' '+ full["LASTNAME"] + ', ' +qualifier +'<br>' + '('+full["SEX"]+')';
+    //                     }, class: 'fontstyling',
+                
+    //         },
+    //         { 
+
+    //            render: function ( data, type, full, meta, row ) {
+                            
+    //                         full["ADDRESS_STREET_NO"] == null ? streetno  = '' : streetno = full["ADDRESS_STREET_NO"]
+    //                         return full["ADDRESS_HOUSE_NO"] + ', ' + streetno +  '<br>' + full["ADDRESS_STREET"];
+    //                     }, class: 'fontstyling',
+                
+    //         },
+            
+    //         { data: "SEX",name: "SEX", searchable: false, visible: false},
+    //         { 
+
+    //            render: function ( data, type, full, meta, row ) {
+                            
+    //                         designer = full["PLACE_OF_BIRTH"] + '<br>' + full["DATE_OF_BIRTH"];
+    //                         return designer;
+    //                     }, searchable: false, class: 'fontstyling',
+                
+    //         },
+    //         { data: "CIVIL_STATUS", name:"CIVIL_STATUS",searchable:false, class: 'fontstyling'},
+    //         { data: "OCCUPATION", name: "OCCUPATION", searchable: false, class: 'fontstyling'},
+    //         { data: "CITIZENSHIP", name: "CITIZENSHIP", searchable: false, class: 'fontstyling', visible: false},
+    //         { data: "ADDRESS_UNIT_NO", name: "ADDRESS_UNIT_NO", visible: false, searchable: false},
+    //         { data: "ADDRESS_SUBDIVISION", name: "ADDRESS_SUBDIVISION", visible: false, searchable: false},
+    //         { data: "ADDRESS_BUILDING", name: "ADDRESS_BUILDING", visible: false, searchable: false},
+            
+    //         {render:function(data, type, full, meta){
+
+    //             output = "<button  type='button' class='btn btn-success editCategory' data-toggle='modal' data-target='#UpdateModal'><i class='fa fa-edit'></i> Edit&nbsp;";
+    //             // active_flag = full.ACTIVE_FLAG;
+    //             //  output += "</button><button type='button' class='btn btn-danger disableResident' id='disable' name='disable'><i class='fa fa-redo'></i> Disable</button>";
+    //             // if (active_flag == 1) {
+
+    //             // }else {
+    //             //     output += "</button><button type='button' class='btn btn-danger' id='enable' name='disable'><i class='fa fa-redo'></i> Disable</button>";
+    //             // }
+
+    //             return output;
+    //         }, searchable: false, class: 'fontstyling'}, 
+    //         ]
+    //     });
 </script>
 
 @endsection
@@ -3427,7 +3490,15 @@ label.error {
     <!-- begin page-header -->
     <h1 class="page-header">Basic Information  <small>DILG Requirements</small></h1>
     <!-- end page-header -->
+     <div class="input-group input-group-lg m-b-20">
+                    <input type="text" class="form-control input-white" placeholder="Search Resident/Inhabitant" id="stext"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary search_btn"><i class="fa fa-search fa-fw"></i> Search</button>
 
+                        
+                    </div>
+                </div>
+                <!-- end input-group -->
     <!-- begin nav-pills -->
     <ul class="nav nav-pills">
         <li class="nav-items">
@@ -3493,6 +3564,11 @@ label.error {
     </div>
     <!-- end nav-pills -->
     <!-- begin tab-content -->
+    
+                <!-- begin dropdown -->
+                
+
+                
     <br><br>
     <div class="tab-content" >
         <!-- begin tab-pane -->
@@ -3527,7 +3603,7 @@ label.error {
 
                     <table id="resident_table" class="table table-hover table-striped table-bordered data-table" cellspacing="0" width="100%">
                         <thead>
-                            <tr>
+                            <tr class="remove_data">
                                 <th hidden>resident id</th>
                                 <th hidden>Last Name</th>
                                 <th hidden>First Name</th>
@@ -4212,12 +4288,12 @@ label.error {
                                             <label class="col-md-3 col-form-label text-md-right">Sex <span class="text-danger">&nbsp;</span></label>
                                             <div class="col-md-6">
                                                 <div class="radio radio-css radio-inline">
-                                                    <input type="radio" name="sex_gender" id="inlineCssRadio1" value="Male" checked />
-                                                    <label for="inlineCssRadio1">Male</label>
+                                                    <input type="radio" name="sex_gender" id="inlineCssRadio11" value="Male" checked />
+                                                    <label for="inlineCssRadio11">Male</label>
                                                 </div>
                                                 <div class="radio radio-css radio-inline">
-                                                    <input type="radio" name="sex_gender" id="inlineCssRadio2" />
-                                                    <label for="inlineCssRadio2" value="Female">Female</label>
+                                                    <input type="radio" name="sex_gender" id="inlineCssRadio22" />
+                                                    <label for="inlineCssRadio22" value="Female">Female</label>
                                                 </div>
                                             </div>
                                         </div>
@@ -4495,7 +4571,7 @@ label.error {
                             <input class="form-control" type="text" id="fromwhat" name="fromwhat" placeholder=""/>
                         </div>
                     </div>
-
+                    <div hidden>
                     <div class="form-group row m-b-10">
                         <label class="col-md-3 col-form-label text-md-right">Type of document<span class="text-danger"></span></label>
                         <div class="col-md-6">
@@ -4513,6 +4589,7 @@ label.error {
                         <div class="col-md-6">
                             <input type="text" id="mwhereissued" name="mwhereissued" placeholder="" class="form-control"/>
                         </div>
+                    </div>
                     </div>
                 </div>
 

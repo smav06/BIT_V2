@@ -39,61 +39,13 @@
         
             TableManageDefault.init();
             Notification.init();
-            $('#data-table-default-1').DataTable();
+            
         });
 
 
     </script>
-    <script type="text/javascript">
-        var table = $("#data-table-default-1").DataTable({
-                  serverSide: true,
-                  processing: true,    
-                  ajax:"{{ route('LoadMothers') }}",
-
-                  columns:
-                  [  
-                      { data: "RESIDENT_ID", name: "T.RESIDENT_ID", visible: false},
-                      { data: "LASTNAME", name: "T.LASTNAME"},
-                      { data: "FIRSTNAME", name: "T.FIRSTNAME"},
-                      { data: "MIDDLENAME",name: "T.MIDDLENAME"},
-                      
-                      { data: "SEX",name: "T.SEX", searchable: true},
-                      { data: "DATE_OF_BIRTH", name: "T.DATE_OF_BIRTH", searchable: false},
-                      { data: "CIVIL_STATUS", name:"T.CIVIL_STATUS",searchable:false},
-                      { data: "OCCUPATION", name: "T.OCCUPATION", searchable: false},
-                      { data: "WORK_STATUS", name: "T.WORK_STATUS", searchable: false},
-                      { render:function()
-                        {
-                          return "<button type='button' class='btn btn-success mother-btn' data-toggle='modal' data-target='#UpdateModal'><i class='fa fa-plus'></i> Add Profile</button>";
-                        }, 
-                        searchable: false}, 
-                  ]
-              });    
-     
-
-
-    </script>
-    <script type="text/javascript">
     
-
-      $(document).ready(function() {
-
-        $("#data-table-default-1 tbody").on('click', 'tr', function () {
-
-         
-           var lastname = $(this).closest("tbody tr").find("td:eq(1)").html();
-           var firstname = $(this).closest("tbody tr").find("td:eq(2)").html();
-           var middlename = $(this).closest("tbody tr").find("td:eq(3)").html();
-
-           var fullname = lastname + ", " + firstname + " " + middlename;
-           $('#mother_id').val(table.cell( this, 0 ).data());
-           $("#view_db_name").text(fullname);
-
-        });
-       
-    });
-
-    </script>
+   
     <script type="text/javascript">
         $('#data-table-default').on('click','.edit-mother-btn', function () {
             

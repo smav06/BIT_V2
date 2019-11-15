@@ -9,11 +9,36 @@ class HouseholdMemberController extends Controller
 {
     public function index($id)
     {
+        
+        //dd($id);
+        
+        if ($id == "null") {
+            $id = 0;
+        }
+
     	$result = db::select("call sp_gethousehold_mebers(?)",[$id]);
+        //return view('queriesreports.rbi_report', compact('result','id'));
     	return view('resident.householdmembers', compact('result','id'));
 
     }
 
+    public function hh_list()
+    {
+        return view('queriesreports.hh_list');
+    }
+
+    public function view_rbi($id)
+    {
+        $brgy_id = session('session_brgy_id');
+        $municipalinfo = db::select("call sp_municipal_info(?)",[$brgy_id]);
+        if ($id == "null" || $id == "") {
+            $id = 0;
+        }
+        //dd($municipalinfo);
+        $houseno = db::select("call sp_house_no(?)",[$id]);
+        $result = db::select("call sp_gethousehold_mebers(?)",[$id]);
+        return view('queriesreports.rbi_report', compact('result','id','houseno','municipalinfo'));
+    }
 
     public function addmember()
     {

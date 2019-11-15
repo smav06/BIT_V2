@@ -538,18 +538,7 @@
                 </div>
                 <!-- end input-group -->
                 <!-- begin dropdown -->
-                {{--<div class="dropdown pull-left">
-                    <a href="javascript:;" class="btn btn-white btn-white-without-border dropdown-toggle" data-toggle="dropdown">
-                        Filters by
-                    </a>
-                    <ul class="dropdown-menu" role="menu">
-                        <li><a href="javascript:;">Posted Date</a></li>
-                        <li><a href="javascript:;">View Count</a></li>
-                        <li><a href="javascript:;">Total View</a></li>
-                        <li class="divider"></li>
-                        <li><a href="javascript:;">Location</a></li>
-                    </ul>
-                </div>--}}
+                
 
                 <br>
                 <div class="clear_search">
