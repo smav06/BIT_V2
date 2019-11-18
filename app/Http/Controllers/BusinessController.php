@@ -32,6 +32,8 @@ class BusinessController extends Controller
     	$BUSINESS_OR_NUMBER = $request->BUSINESS_OR_NUMBER;
     	$TIN_NO = $request->TIN_NO;
     	$DTI_REGISTRATION_NO = $request->DTI_REGISTRATION_NO;
+        $DTI_NO_DATE = $request->DTI_NO_DATE;
+
     	$TYPE_OF_BUSINESS = $request->TYPE_OF_BUSINESS;
     	$BUSINESS_POSTAL_CODE = $request->BUSINESS_POSTAL_CODE;
     	$BUSINESS_EMAIL_ADD = $request->BUSINESS_EMAIL_ADD;
@@ -48,19 +50,25 @@ class BusinessController extends Controller
     	$BUSINESS_AREA = $request->BUSINESS_AREA;
     	$NO_EMPLOYEE_ESTABLISHMENT = $request->NO_EMPLOYEE_ESTABLISHMENT;
     	$NO_EMPLOYEE_LGU = $request->NO_EMPLOYEE_LGU;
+
+        $NO_FEMALE_EMPLOYEE = $request->NO_FEMALE_EMPLOYEE;
+        $NO_MALE_EMPLOYEE = $request->NO_MALE_EMPLOYEE;
+        $NO_FEMALE_LGU = $request->NO_FEMALE_LGU;
+        $NO_MALE_LGU = $request->NO_MALE_LGU;
+
     	$LESSOR_NAME = $request->LESSOR_NAME;
     	$LESSOR_ADDRESS = $request->LESSOR_ADDRESS;
     	$LESSOR_CONTACT_NO = $request->LESSOR_CONTACT_NO;
-        $LESSOR_TELEPHONE = $request->LESSOR_TELEPHONE;
-        $LESSOR_MOBILE_NO = $request->LESSOR_MOBILE_NO;
+        // $LESSOR_TELEPHONE = $request->LESSOR_TELEPHONE;
+        // $LESSOR_MOBILE_NO = $request->LESSOR_MOBILE_NO;
     	$LESSOR_EMAIL_ADD = $request->LESSOR_EMAIL_ADD;
     	$MONTHLY_RENTAL = $request->MONTHLY_RENTAL;
-    	$BUSINESS_OR_ACQUIRED_DATE = $request->BUSINESS_OR_ACQUIRED_DATE;
-    	$LINE_OF_BUSINESS_ID = $request->LINE_OF_BUSINESS_ID;
-    	$NO_OF_UNITS = $request->NO_OF_UNITS;
-    	$CAPITALIZATION = $request->CAPITALIZATION;
-    	$GROSS_RECEIPTS_ESSENTIAL = $request->GROSS_RECEIPTS_ESSENTIAL;
-    	$GROSS_RECEIPTS_NON_ESSENTIAL = $request->GROSS_RECEIPTS_NON_ESSENTIAL;
+    	// $BUSINESS_OR_ACQUIRED_DATE = $request->BUSINESS_OR_ACQUIRED_DATE;
+    	// $LINE_OF_BUSINESS_ID = $request->LINE_OF_BUSINESS_ID;
+    	// $NO_OF_UNITS = $request->NO_OF_UNITS;
+    	// $CAPITALIZATION = $request->CAPITALIZATION;
+    	// $GROSS_RECEIPTS_ESSENTIAL = $request->GROSS_RECEIPTS_ESSENTIAL;
+    	// $GROSS_RECEIPTS_NON_ESSENTIAL = $request->GROSS_RECEIPTS_NON_ESSENTIAL;
         // BUSINESS ADDRESS
         $BUILDING_NUMBER = $request->BUILDING_NUMBER;
         $BUILDING_NAME = $request->BUILDING_NAME;
@@ -104,35 +112,35 @@ class BusinessController extends Controller
     			,'LESSOR_NAME' => $LESSOR_NAME
     			,'LESSOR_ADDRESS' => $LESSOR_ADDRESS
     			,'LESSOR_CONTACT_NO' => $LESSOR_CONTACT_NO
-                ,'LESSOR_TELEPHONE' => $LESSOR_TELEPHONE
-                ,'LESSOR_MOBILE_NO' => $LESSOR_MOBILE_NO
+                // ,'LESSOR_TELEPHONE' => $LESSOR_TELEPHONE
+                // ,'LESSOR_MOBILE_NO' => $LESSOR_MOBILE_NO
     			,'LESSOR_EMAIL_ADD' => $LESSOR_EMAIL_ADD
     			,'MONTHLY_RENTAL' => $MONTHLY_RENTAL 
-    			,'BUSINESS_OR_ACQUIRED_DATE'   => $BUSINESS_OR_ACQUIRED_DATE
+    			// ,'BUSINESS_OR_ACQUIRED_DATE'   => $BUSINESS_OR_ACQUIRED_DATE
     			,'CREATED_AT' => date('Y-m-d')
     			,'STATUS' => 'Pending'
                 ,'BUILDING_NUMBER' => $BUILDING_NUMBER
                 ,'BUILDING_NAME' => $BUILDING_NAME
                 ,'UNIT_NO' => $UNIT_NO
                 ,'STREET' => $STREET
-                ,'SITIO' => $SITIO
-                ,'SUBDIVISION' => $SUBDIVISION
+                // ,'SITIO' => $SITIO
+                // ,'SUBDIVISION' => $SUBDIVISION
                 ,'REFERENCED_BUSINESS_ID' => $REFERENCED_BUSINESS_ID
                 ,'NEW_RENEW_STATUS' => $NEW_RENEW_STATUS
     		));
 
-    	$LASTEST_BUSINESS_ID = DB::table('t_business_information')->select('BUSINESS_ID')->latest('BUSINESS_ID')->first();
+    	// $LASTEST_BUSINESS_ID = DB::table('t_business_information')->select('BUSINESS_ID')->latest('BUSINESS_ID')->first();
 
 
-    	$inserBusinessActivity = DB::table('t_bf_business_activity')
-    		->insert(array(
-    			'LINE_OF_BUSINESS_ID' => $LINE_OF_BUSINESS_ID
-    			,'NO_OF_UNITS' => $NO_OF_UNITS
-    			,'CAPITALIZATION' => $CAPITALIZATION
-    			,'GROSS_RECEIPTS_ESSENTIAL' => $GROSS_RECEIPTS_ESSENTIAL
-    			,'GROSS_RECEIPTS_NON_ESSENTIAL' => $GROSS_RECEIPTS_NON_ESSENTIAL
-    			,'BUSINESS_ID' => $LASTEST_BUSINESS_ID->BUSINESS_ID
-    		));
+    	// $inserBusinessActivity = DB::table('t_bf_business_activity')
+    	// 	->insert(array(
+    	// 		'LINE_OF_BUSINESS_ID' => $LINE_OF_BUSINESS_ID
+    	// 		,'NO_OF_UNITS' => $NO_OF_UNITS
+    	// 		,'CAPITALIZATION' => $CAPITALIZATION
+    	// 		,'GROSS_RECEIPTS_ESSENTIAL' => $GROSS_RECEIPTS_ESSENTIAL
+    	// 		,'GROSS_RECEIPTS_NON_ESSENTIAL' => $GROSS_RECEIPTS_NON_ESSENTIAL
+    	// 		,'BUSINESS_ID' => $LASTEST_BUSINESS_ID->BUSINESS_ID
+    	// 	));
     }
 
     public function SpecificBusiness(Request $request){

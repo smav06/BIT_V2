@@ -12,7 +12,9 @@ class EvaluationController extends Controller
     public function index(){
         $businessNotApproved = DB::table('v_official_business_list')->where('STATUS', 'Pending')->get();
         $application_form_resident = DB::table('v_application_form_resident')->where('STATUS', 'Pending')->get();
-          $pending_application_form = DB::table('v_pending_application_form')->get();
+          $pending_application_form = DB::table('v_pending_application_form')
+            ->orderBy('FORM_DATE', 'desc')
+            ->get();
         $approved_application_form = DB::table('v_approved_application_form')->get();
         $declined_application_form = DB::table('v_declined_application_form')->get();
         return view('permit_certification_clearance.verification', compact('businessNotApproved', 'pending_application_form', 'application_form_resident'));

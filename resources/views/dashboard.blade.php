@@ -107,9 +107,9 @@
                         <h4>Ordinances</h4>
                         <p>{{$get_total_ordinances}}</p>
                     </div>
-                    <div class="stats-link">
+                    {{-- <div class="stats-link">
                       <a href="javascript:;" data-toggle='modal' data-target='#OrdinancesModal'>View Details <i class="fa fa-arrow-alt-circle-right"></i></a> 
-                    </div>
+                    </div> --}}
                 </div>
             </div>
             <!-- end col-3 -->
@@ -1184,126 +1184,98 @@
 
 
 <!-- #modal-START VIEW ORDINANCE DETAILS DASHBOARD -->
-     <div class="modal fade" id="OrdinancesModal">
-        <div class="modal-dialog" style="max-width: 80%">
-            <form id="AddForm" method="POST">
-                @csrf
+//      <div class="modal fade" id="OrdinancesModal">
+//         <div class="modal-dialog" style="max-width: 80%">
+//             <form id="AddForm" method="POST">
+//                 @csrf
 
-                <div class="modal-content">
-                    <div class="modal-header" style="background-color:#f59c1a;">
-                        <h4 class="modal-title" style="color: white">Ordinance More Details</h4>
-                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white">×</button>
-                    </div>
-                    <div class="modal-body">
-                       {{--modal body start--}}                     
-                       <div id="container-ordinances" style="min-width: 310px; max-width: 1000px; height: 400px; margin: 0 auto"></div>
-                       <script type="text/javascript">
+//                 <div class="modal-content">
+//                     <div class="modal-header" style="background-color:#f59c1a;">
+//                         <h4 class="modal-title" style="color: white">Ordinance More Details</h4>
+//                         <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white">×</button>
+//                     </div>
+//                     <div class="modal-body">
+//                        {{--modal body start--}}                     
+//                        <div id="container-ordinances" style="min-width: 310px; max-width: 1000px; height: 400px; margin: 0 auto"></div>
+//                        <script type="text/javascript">
 
-                        Highcharts.chart('container-ordinances', {
-                            chart: {
-                                type: 'bar'
-                            },
-                            title: {
-                                text: 'Total Number of Ordinances By Category'
-                            },
-                            subtitle: {
-                                text: ''
-                            },
-                            xAxis: {
+//                         Highcharts.chart('container-ordinances', {
+//                             chart: {
+//                                 type: 'bar'
+//                             },
+//                             title: {
+//                                 text: 'Total Number of Ordinances By Category'
+//                             },
+//                             subtitle: {
+//                                 text: ''
+//                             },
+//                             xAxis: {
 
-                                categories: [
-                                    <?php
-                                            $get_ordinances_category = DB::table('r_ordinance_category')->select('ORDINANCE_CATEGORY_NAME')->where('ACTIVE_FLAG',1)->get();
-                                    ?>    
+//                                 categories: [
 
 
-                                    @foreach($get_ordinances_category as $value)
-                                    '{{$value->ORDINANCE_CATEGORY_NAME}}',
-                                     
-                                    @endforeach
-                                     ],
 
-                                title: {
-                                    text: null
-                                }
-                            },
-                            yAxis: {
-                                min: 0,
-                                allowDecimals:false,
-                                title: {
-                                    text: 'Count',
-                                    align: 'high'
-                                },
-                                labels: {
-                                    overflow: 'justify'
-                                }
-                            },
-                            tooltip: {
-                                valueSuffix: ''
-                            },
-                            plotOptions: {
-                                bar: {
-                                    dataLabels: {
-                                        enabled: true
-                                    }
-                                }
-                            },
-                            legend: {
-                                layout: 'horizontal',
-                                align: 'right',
-                                verticalAlign: 'top',
-                                x: -20,
-                                y: 80,
-                                floating: true,
-                                borderWidth: 1,
-                                backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
-                                shadow: true
-                            },
-                            credits: {
-                                enabled: false
-                            },
-                            series: [
-                            <?php
-                                $get_years_ordinances = DB::table('t_ordinance')->select(DB::raw('YEAR(CREATED_AT) as YEAR_CREATED'),DB::raw('COUNT(ORDINANCE_ID) as COUNT_ORDINANCE_ID'))->groupBy(DB::raw('YEAR(CREATED_AT)'))->get();
-                            ?>    
+
+//                                      ],
+
+//                                 title: {
+//                                     text: null
+//                                 }
+//                             },
+//                             yAxis: {
+//                                 min: 0,
+//                                 allowDecimals:false,
+//                                 title: {
+//                                     text: 'Count',
+//                                     align: 'high'
+//                                 },
+//                                 labels: {
+//                                     overflow: 'justify'
+//                                 }
+//                             },
+//                             tooltip: {
+//                                 valueSuffix: ''
+//                             },
+//                             plotOptions: {
+//                                 bar: {
+//                                     dataLabels: {
+//                                         enabled: true
+//                                     }
+//                                 }
+//                             },
+//                             legend: {
+//                                 layout: 'horizontal',
+//                                 align: 'right',
+//                                 verticalAlign: 'top',
+//                                 x: -20,
+//                                 y: 80,
+//                                 floating: true,
+//                                 borderWidth: 1,
+//                                 backgroundColor: ((Highcharts.theme && Highcharts.theme.legendBackgroundColor) || '#FFFFFF'),
+//                                 shadow: true
+//                             },
+//                             credits: {
+//                                 enabled: false
+//                             },
+//                             series: [
+
 
                           
-                            
-                            @foreach($get_years_ordinances   as $value)
+                 
                         
-
-                            {
-                                name: 'Year {{$value->YEAR_CREATED}}',
-
-                                data: [
-                                    @foreach($get_ordinances_category as $val) 
-                                    <?php
-                                        $get_count_category_ordinance = DB::table('t_ordinance')                                                                        
-                                                                        ->join('r_ordinance_category', 'r_ordinance_category.ORDINANCE_CATEGORY_ID', 't_ordinance.ORDINANCE_CATEGORY_ID')
-                                                                        ->where('r_ordinance_category.ORDINANCE_CATEGORY_NAME',$val->ORDINANCE_CATEGORY_NAME)
-                                                                        ->where(DB::raw('Year(t_ordinance.CREATED_AT)'),$value->YEAR_CREATED)
-                                                                        ->count();
-                                    ?>    
-                                    {{$get_count_category_ordinance}},
-                                    @endforeach
-                                    ]
-                            },
-                        
-                            @endforeach
-                        
-                           ]
-                        });
-                                </script>
-                    {{--modal body end--}}
-                </div>
-                <div class="modal-footer">
-                    <a href="javascript:;" class="btn btn-white" id="AddCloseBtn" data-dismiss="modal">Close</a>
+//                            ]
+//                         });
+//                                 </script>
+//                     {{--modal body end--}}
+//                 </div>
+//                 <div class="modal-footer">
+//                     <a href="javascript:;" class="btn btn-white" id="AddCloseBtn" data-dismiss="modal">Close</a>
                     
-                </div>
-            </div>
-        </form>
-    </div>
-</div>
+//                 </div>
+//             </div>
+//         </form>
+//     </div>
+// </div>
 <!-- #modal-END VIEW ORDINANCE DETAILS DASHBOARD -->
 
 

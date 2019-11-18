@@ -8,6 +8,13 @@
 {{-- Wizard Form --}}
 <link href="{{ asset('assets/plugins/DataTables/extensions/Responsive/css/smart_wizard.css') }}" rel="stylesheet" />
 <link href="{{ asset('assets/plugins/DataTables/extensions/Responsive/css/parsley.css') }}" rel="stylesheet" />
+{{-- Select 2 --}}
+<link href="{{ asset('assets/plugins/select2/dist/css/select2.min.css') }}" rel="stylesheet" />
+
+	{{-- <script src="../assets/plugins/pace/pace.min.js"></script> --}}
+
+
+{{-- <link href="../assets/plugins/select2/dist/css/select2.min.css" rel="stylesheet" /> --}}
 
 {{-- Bootstrap Combobox --}}
 {{-- <link href="{{ asset('assets/plugins/bootstrap-select/bootstrap-select.min.css') }}" rel="stylesheet" />
@@ -40,8 +47,14 @@
 				<span class="d-sm-block d-none">Businesses</span>
 			</a>
 		</li>
-		<li class="nav-items">
+		{{-- <li class="nav-items">
 			<a href="#nav-pills-tab-2" data-toggle="tab" class="nav-link" >
+
+				<span class="d-sm-block d-none">Add New Business</span>
+			</a>
+		</li> --}}
+		<li class="nav-items">
+			<a href="#nav-pills-tab-3" data-toggle="tab" class="nav-link" >
 
 				<span class="d-sm-block d-none">Add New Business</span>
 			</a>
@@ -90,7 +103,7 @@
 							@foreach($approved_business as $row)
 							<tr class="gradeC" id="{{$row->BUSINESS_ID}}">
 								<td>{{$row->BUSINESS_OR_NUMBER}}</td>
-								<td>{{$row->BUSINESS_NAME}} <br> ( {{$row->LINE_OF_BUSINESS_NAME}})</td>
+								<td>{{$row->BUSINESS_NAME}} <br> ({{$row->BUSINESS_NATURE_NAME}})</td>
 								<td>{{$row->BUSINESS_ADDRESS}}</td>
 								<td>{{$row->BUSINESS_OWNER_LASTNAME}}, {{$row->BUSINESS_OWNER_FIRSTNAME}}, {{$row->BUSINESS_OWNER_MIDDLENAME}}</td>
 								{{-- <td>{{$row->BUSINESS_OR_ACQUIRED_DATE}}</td> --}}
@@ -119,8 +132,10 @@
 				<!-- end panel-body -->
 			</div>        	
 		</div>
-		{{-- NAV PILLS TAB 2 --}}
-		<div class="tab-pane fade " id="nav-pills-tab-2">
+		
+
+		{{-- NAV PILLS TAB 3 --}}
+		<div class="tab-pane fade " id="nav-pills-tab-3">
 			<div class="panel panel-inverse">
 				<!-- begin panel-heading -->
 				<div class="panel-heading">
@@ -133,454 +148,19 @@
 					<h4 class="panel-title">Business Application </h4> 
 				</div>
 				<!-- end panel-heading -->
-				<div class="alert alert-yellow fade show">
-					<button type="button" class="close" data-dismiss="alert">
-						<span aria-hidden="true">×</span>
-					</button>
-					Fill out the following field for Business Application.
-				</div>
+				
 				
 				<!-- begin panel-body -->
 				<div class="panel-body">
-					<!-- begin wizard-form -->
-					<form id="frm_Business" name="form-wizard" class="form-control-with-bg">
-						<!-- begin wizard -->
-						<div id="wizard">
-							<!-- begin wizard-step -->
-							<ul>
-								<li class="col-md-3 col-sm-4 col-6">
-									<a href="#step-1">
-										<span class="number">1</span> 
-										<span class="info text-ellipsis">
-											Business Basic Info
-											<small class="text-ellipsis">Business Name, Address, Business Type</small>
-										</span>
-									</a>
-								</li>
-								<li class="col-md-3 col-sm-4 col-6">
-									<a href="#step-2">
-										<span class="number">2</span> 
-										<span class="info text-ellipsis">
-											Business Activity
-											<small class="text-ellipsis">Lines of business, Unit</small>
-										</span>
-									</a>
-								</li>
-								<li class="col-md-3 col-sm-4 col-6">
-									<a href="#step-3">
-										<span class="number">3</span>
-										<span class="info text-ellipsis">
-											Rented Business Place
-											<small class="text-ellipsis">Lessor Name, Address, Monthly Rental</small>
-										</span>
-									</a>
-								</li>
-								<li class="col-md-3 col-sm-4 col-6">
-									<a href="#step-4">
-										<span class="number">4</span> 
-										<span class="info text-ellipsis">
-											Completed
-											<small class="text-ellipsis">Complete Business Registration</small>
-										</span>
-									</a>
-								</li>
-							</ul>
-							<!-- end wizard-step -->
-							<!-- begin wizard-content -->
-							<div>
-								<!-- begin step-1 -->
-								<div id="step-1">
-									<!-- begin fieldset -->
-									<fieldset>
-										<!-- begin row -->
-										<div class="row">
-											<!-- begin col-8 -->
-											<div class="col-md-8 offset-md-2">
-												<legend class="no-border f-w-700 p-b-0 m-t-0 m-b-20 f-s-16 text-inverse">Business Basic Info</legend>
-												<!-- begin form-group -->
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Number <span class="text-danger">*</span></label>
-													<div class="col-md-6">
-														<input type="text" placeholder="BSN-321938" data-parsley-group="step-1"  class="form-control"  id="txt_business_number" data-parsley-required="true"/>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Name</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="XYZ Computer Stuffs" data-parsley-group="step-1"  class="form-control"  id="txt_business_name" data-parsley-required="true"/>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Trade Name <span class="text-danger">*</span></label>
-													<div class="col-md-6">
-														<input type="text" placeholder="XYZ Computer Stuffs" data-parsley-group="step-1"  class="form-control"  id="txt_trade_name" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Category <span class="text-danger" >*</span></label>
-													<div class="col-md-6">
-														<select class="form-control" id="sel_business_nature" data-parsley-required="true" >
-															<option>-- Nature of Business --</option>
-															@foreach($business_nature as $row)
-
-															<option id="{{$row->BUSINESS_NATURE_ID}}">{{$row->BUSINESS_NATURE_NAME}}</option>
-															@endforeach
-
-														</select>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Type of Business<span class="text-danger" >*</span></label>
-													<div class="col-md-6">
-														<select class="form-control" id="sel_business_type" data-parsley-required="true">
-															<option >-- Type of Business --</option>
-															<option value="Single">Single</option>
-															<option value="Partnership">Partnership</option>
-															<option value="Corporation">Corporation</option>
-															<option value="Cooperative">Cooperative</option>
-														</select>
-													</div>
-												</div>
-												<!-- end form-group -->
-
-												<!-- begin form-group -->
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Applicant/Tax Payer Name<span class="text-danger">*</span><span class="text-danger">&nbsp;</span></label>
-													<div class="col-md-6">
-														<div class="row row-space-6">
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="First Name" data-parsley-group="step-1" class="form-control" id="txt_firstname" data-parsley-required="true"/>
-																{{-- </div> --}}
-															</div>
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Middle Name" data-parsley-group="step-1"  class="form-control" id="txt_middlename" />
-																{{-- </div> --}}
-															</div>
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Last Name" data-parsley-group="step-1"  class="form-control" id="txt_lastname" data-parsley-required="true"/>
-																{{-- </div> --}}
-															</div>
-														</div>
-													</div>
-												</div>
-												<!-- end form-group -->
-												<!-- begin form-group -->
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">TIN No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_tin_no" data-mask="00/00/0000" data-mask-clearifnotmatch="true"/>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">DTI/SEC/CDA Registration No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_dti_no" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10" hidden>
-													<label class="col-md-3 col-form-label text-md-right">Business Address<span class="text-danger">*</span></label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_business_address" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Address<span class="text-danger">*</span><span class="text-danger">&nbsp;</span></label>
-													<div class="col-md-6">
-														<div class="row row-space-6">
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Building Number" data-parsley-group="step-1" class="form-control" id="txt_bldg_no">
-																{{-- </div> --}}
-															</div>
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Building Name" data-parsley-group="step-1"  class="form-control" id="txt_bldg_name" />
-																{{-- </div> --}}
-															</div>
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Unit Number" data-parsley-group="step-1"  class="form-control" id="txt_unit_no">
-																{{-- </div> --}}
-															</div>
-														</div>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right"><span class="text-danger"></span><span class="text-danger">&nbsp;</span></label>
-													<div class="col-md-6">
-														<div class="row row-space-6">
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Street" data-parsley-group="step-1" class="form-control" id="txt_street">
-																{{-- </div> --}}
-															</div>
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Sitio" data-parsley-group="step-1"  class="form-control" id="txt_sitio" />
-																{{-- </div> --}}
-															</div>
-															<div class="col-4">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Subdivision" data-parsley-group="step-1"  class="form-control" id="txt_subdivision"/>
-																{{-- </div> --}}
-															</div>
-														</div>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Postal<span class="text-danger">*</span></label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_business_postal" data-parsley-required="true"/>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Email Address</label>
-													<div class="col-md-6">
-														<input type="email" name="email" placeholder="someone@example.com" data-parsley-type="email" class="form-control" data-parsley-group="step-1" id="txt_business_email"/>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Telephone No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_business_telephone" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Mobile No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_business_mobile" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Owner Address</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_owner_address" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Owner Postal</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_owner_postal"/>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Owner Email Address</label>
-													<div class="col-md-6">
-														<input type="email" name="email" placeholder="someone@example.com" data-parsley-type="email" class="form-control" data-parsley-group="step-1" id="txt_owner_email" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Owner Telephone No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_owner_telephone" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Owner Mobile No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_owner_mobile" />
-													</div>
-												</div>
-												<!-- begin form-group -->
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Number of Employees<span class="text-danger">&nbsp;</span></label>
-													<div class="col-md-6">
-														<div class="row row-space-6">
-
-															<div class="col-6">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Total number of employees in Establishment" data-parsley-group="step-1" class="form-control" id="txt_employee_establishment" />
-																{{-- </div> --}}
-															</div>
-															<div class="col-6">
-																{{-- <div class="col-md-6"> --}}
-																	<input type="text" placeholder="Number of employees residing within LGU" data-parsley-group="step-1"  class="form-control" id="txt_employee_lgu" />
-																{{-- </div> --}}
-															</div>
-														</div>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Business Area</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_business_area" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Emergency Contact Person</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_emergency_contact_person" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Emergency Contact Person's Contact No</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_emergency_person_contact" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Emergency Contact Person's Email</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_emergency_person_email" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Date Acquired</label>
-													<div class="col-md-6">
-														<input type="date" placeholder="" class="form-control" data-parsley-group="step-1" id="txt_date_acquired" />
-													</div>
-												</div>
-												<!-- end form-group -->
-											</div>
-											<!-- end col-8 -->
-
-											<div class="col-md-8 offset-md-2">
-
-											</div>
-										</div>
-
-										<!-- end row -->
-									</fieldset>
-									<!-- end fieldset -->
-								</div>
-								<!-- end step-1 -->
-								<!-- begin step-2 -->
-								<div id="step-2">
-									<!-- begin fieldset -->
-									<fieldset>
-										<!-- begin row -->
-										<div class="row">
-											<div class="col-md-8 offset-md-2">
-												<legend class="no-border f-w-700 p-b-0 m-t-0 m-b-20 f-s-16 text-inverse">Business Activity</legend>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right" data-parsley-required="true">Line of Business<span class="text-danger">*</span></label>
-													<div class="col-md-6">
-														<select class="form-control" id="sel_line_of_business">
-															<option>-- Line of Business --</option>
-															@foreach($line_of_business as $row)
-															<option id="{{$row->LINE_OF_BUSINESS_ID}}">{{$row->LINE_OF_BUSINESS_NAME}}</option>
-															@endforeach
-
-														</select>
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">No of. Unit</label>
-													<div class="col-md-6">
-														<input type="number" placeholder="" class="form-control" data-parsley-group="step-2" id="txt_no_unit" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Capitalization (New Business)</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-2" id="txt_capitalization" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Gross/Sales Receipts Essential(For Renewal)</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-2" id="txt_sales_receipt_essential" readonly hidden />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Gross/Sales Receipts Non-Essential (For Renewal)</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-2" id="txt_sales_receipt_nonessential" readonly hidden />
-													</div>
-												</div>
-											</div>
-										</div>
-										<!-- end row -->
-									</fieldset>
-									<!-- end fieldset -->
-								</div>
-								<!-- end step-2 -->
-								<!-- begin step-3 -->
-								<div id="step-3">
-									<!-- begin fieldset -->
-									<fieldset>
-										<!-- begin row -->
-										<div class="row">
-											<!-- begin col-8 -->
-											<div class="col-md-8 offset-md-2">
-												<legend class="no-border f-w-700 p-b-0 m-t-0 m-b-20 f-s-16 text-inverse">Note:  Fill up only if business place is rented/not owned</legend>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Lessor Full Name</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_lessor_name" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Lessor/Owner Address</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_lessor_address" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Lessor/Owner Postal</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_lessor_postal" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Lessor/Owner Email Address</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_lessor_email" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Lessor/Owner Telephone No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_lessor_telephone" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Lessor/Owner Mobile No.</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_lessor_mobile" />
-													</div>
-												</div>
-												<div class="form-group row m-b-10">
-													<label class="col-md-3 col-form-label text-md-right">Monthly Rental</label>
-													<div class="col-md-6">
-														<input type="text" placeholder="" class="form-control" data-parsley-group="step-3" id="txt_monthly_rental" />
-													</div>
-												</div>
-											</div>
-											<!-- end col-8 -->
-										</div>
-										<!-- end row -->
-									</fieldset>
-									<!-- end fieldset -->
-								</div>
-								<!-- end step-3 -->
-								<!-- begin step-4 -->
-								<div id="step-4">
-									<div class="jumbotron m-b-0 text-center">
-										<h2 class="text-inverse">Register Successfully</h2>
-										<p class="m-b-30 f-s-16">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Mauris consequat commodo porttitor. <br />Vivamus eleifend, arcu in tincidunt semper, lorem odio molestie lacus, sed malesuada est lacus ac ligula. Aliquam bibendum felis id purus ullamcorper, quis luctus leo sollicitudin. </p>
-										<p><a id="btnSubmitBusiness" href="#" class="btn btn-primary btn-lg">Proceed to Business Profile</a></p>
-									</div>
-								</div>
-								<!-- end step-4 -->
-							</div>
-							<!-- end wizard-content -->
-						</div>
-						<!-- end wizard -->
-					</form>
-					<!-- end wizard-form -->
+					{{-- Business Form --}}
+					@include('business.form.business_form')
 				</div>
 				<!-- end panel-body -->
 			</div> 
-		</div>
-
-		
+		</div>		
 
 	</div>
-	{{-- TAB CONTENT --}}
+
 	<div class="modal fade" id="modal-Renew" data-backdrop="static">
 		<div class="modal-dialog" style="max-width: 50%">
 			<form id="EditForm">
@@ -804,40 +384,7 @@
 								</div>
 							</div>
 						</div> <br>
-						<h4>Business Activity</h4>
-						<div class="row">
-							<div class="col-lg-3 col-md-8">
-								<div class="stats-content">
-									<label for="txt_">Line of Business<span class="text-danger"></span></label> 
-									{{-- <input class="form-control" id="txt_"  placeholder=""  /> --}}
-									<select class="form-control" id="sel_line_of_business_renew">
-                                        <option>-- Line of Business --</option>
-                                        @foreach($line_of_business as $row)
-                                        <option id="{{$row->LINE_OF_BUSINESS_ID}}">{{$row->LINE_OF_BUSINESS_NAME}}</option>
-                                        @endforeach
-
-                                    </select>
-								</div>
-							</div>
-							<div class="col-lg-3 col-md-8">
-								<div class="stats-content">
-									<label for="txt_">No of. Unit<span class="text-danger"></span></label> 
-									<input class="form-control" id="txt_no_unit_renew"  placeholder=""  />
-								</div>
-							</div>
-							<div class="col-lg-3 col-md-8">
-								<div class="stats-content">
-									<label for="txt_">Gross/Sales Receipts Essential<span class="text-danger"></span></label> 
-									<input class="form-control" id="txt_gross_essential_renew"  placeholder=""  />
-								</div>
-							</div>
-							<div class="col-lg-3 col-md-8">
-								<div class="stats-content">
-									<label for="txt_">Gross/Sales Receipts Non-Essential<span class="text-danger"></span></label> 
-									<input class="form-control" id="txt_gross_nonessential_renew"  placeholder=""  />
-								</div>
-							</div>
-						</div> <br>
+						
 						<h4>Rented Business Place</h4>
 						<div class="divRent">
 							<div class="row">
@@ -898,21 +445,148 @@
 		</div>
 	</div>
 	<!-- end #content -->
-
-
-
 @endsection
 
 @section('page-js')
 
 <script>
-	$(document).ready(function() {
-		App.init();
-		FormWizardValidation.init();
-		TableManageDefault.init();
-			// FormPlugins.init();
+$(document).ready(function() {
+	App.init();
+	FormWizardValidation.init();
+	TableManageDefault.init();
+	// FormPlugins.init();
+	$('#tbl_business_lst').DataTable();
 
-		$('#tbl_business_lst').DataTable();
+});
+
+
+
+$('#btnSubmitBusinessRegistration').on('click', function(){
+		// alert('here');
+
+		var   BusinessNumber = $('#txt_business_number').val()
+			, BusinessName = $('#txt_business_name').val()
+			, TradeName = $('#txt_tradename').val()
+			, BusinessType  = $('#sel_business_type option:selected').text()
+			, BusinessNature  = $('#sel_business_nature').children(':selected').attr("id")
+			, FirstName =  $('#txt_firstname').val()
+			, MiddleName =  $('#txt_middlename').val()
+			, LastName =  $('#txt_lastname').val()
+			, TinNo =  $('#txt_tin_no').val()
+			, DtiNo =  $('#txt_dti_no').val()
+			, DtiNoDate = $('#txt_dti_no_date').val()
+			, BusinessPostal =  $('#txt_business_postal').val()
+			, BusinessEmail =  $('#txt_business_email').val()
+			, BusinessTelNo =  $('#txt_business_telephone').val()
+			, BusinessMobileNo =  $('#txt_business_mobile').val()
+			, OwnerAddress =  $('#txt_owner_address').val()
+			, OwnerPostal =  $('#txt_owner_postal').val()
+			, OwnerEmail =  $('#txt_owner_email').val()
+			, OwnerTelNo =  $('#txt_owner_telephone').val()
+			, OwnerMobileNo =  $('#txt_owner_mobile').val()
+			
+			, NoFemaleEmployee = $('#txt_female_establishment').val()
+			, NoMaleEmployee = $('#txt_male_establishment').val()
+			, NoFemaleLGU = $('#txt_female_lgu').val()
+			, NoMaleLGU = $('#txt_male_lgu').val()
+			, BusinessArea =  $('#txt_business_area').val()
+			, EmergencyPerson = $('#txt_emergency_person').val()
+			, EmergencyPersonContact = $('#txt_emergency_contact').val()
+			, EmergencyPersonEmail =$('#txt_emergency_email').val()
+
+			, LessorName = $('#txt_lessor_name').val()
+			, LessorAddress =  $('#txt_lessor_address').val()
+			, LessorEmail =  $('#txt_lessor_email').val()
+			, LessorTelephone =  $('#txt_lessor_telephone').val()
+			, MonthlyRental = $('#txt_monthly_rental').val()
+			// Business Address
+			, BuildingNumber = $('#txt_building_no').val()
+			, BuildingName = $('#txt_building_name').val()
+			, UnitNo = $('#txt_unit_no').val()
+			, Street = $('#txt_street').val()
+
+			;
+
+	let data = {
+		'_token' : " {{ csrf_token() }}"
+		,'BUSINESS_NAME' : BusinessName
+		,'TRADE_NAME' : TradeName
+		,'BUSINESS_NATURE_ID' : BusinessNature
+		,'BUSINESS_OWNER_FIRSTNAME' : FirstName
+		,'BUSINESS_OWNER_MIDDLENAME' : MiddleName
+		,'BUSINESS_OWNER_LASTNAME' : LastName
+		// ,'BUSINESS_ADDRESS' : BusinessAddress
+		,'BUSINESS_OR_NUMBER' : BusinessNumber
+		,'TIN_NO' : TinNo
+		,'DTI_REGISTRATION_NO' : DtiNo
+		, 'DTI_NO_DATE' : DtiNoDate
+		,'TYPE_OF_BUSINESS' : BusinessType
+		,'BUSINESS_POSTAL_CODE' : BusinessPostal
+		,'BUSINESS_EMAIL_ADD' : BusinessEmail
+		,'BUSINESS_TELEPHONE_NO' : BusinessTelNo
+		,'BUSINESS_MOBILE_NO' : BusinessMobileNo
+		,'OWNER_ADDRESS' : OwnerAddress
+		,'OWNER_POSTAL_CODE' : OwnerPostal
+		,'OWNER_EMAIL_ADD' : OwnerEmail
+		,'OWNER_TELEPHONE_NO' : OwnerTelNo
+		,'OWNER_MOBILE_NO' : OwnerMobileNo
+		,'EMERGENCY_CONTACT_PERSON' : EmergencyPerson
+		,'EMERGENCY_PERSON_CONTACT_NO' : EmergencyPersonContact
+		,'EMERGENCY_PERSON_EMAIL_ADD' : EmergencyPersonEmail
+		,'BUSINESS_AREA' : BusinessArea
+		// ,'NO_EMPLOYEE_ESTABLISHMENT' : EmployeeEstablishment
+		// ,'NO_EMPLOYEE_LGU' : EmployeeLgu
+		,'NO_FEMALE_EMPLOYEE' : NoFemaleEmployee
+		,'NO_MALE_EMPLOYEE' : NoFemaleLGU
+		,'NO_FEMALE_LGU' : NoFemaleLGU
+		,'NO_MALE_LGU' : NoMaleLGU
+		,'LESSOR_NAME' : LessorName
+		,'LESSOR_ADDRESS' : LessorAddress
+		,'LESSOR_CONTACT_NO' : LessorTelephone
+		
+		// ,'LESSOR_MOBILE_NO' : LessorMobile
+		,'LESSOR_EMAIL_ADD' : LessorEmail
+		,'MONTHLY_RENTAL' : MonthlyRental
+		// ,'BUSINESS_OR_ACQUIRED_DATE' : DateAcquired
+		,'BUILDING_NUMBER' : BuildingNumber
+		,'BUILDING_NAME' : BuildingName
+		,'UNIT_NO' : UnitNo
+		,'STREET' : Street
+		,'NEW_RENEW_STATUS': 'New'
+	};
+
+	$.ajax({
+		url : "{{ route('CRUDBusinessApplication') }}",
+		method : 'POST',
+		data : data,
+		success : function(response) {
+			swal({
+				title: 'Success',
+				text: 'Saved Record!',
+				icon: 'success',
+			});
+			window.location.reload();
+			
+
+		},
+		error : function(error){
+			console.log("error: " + error);
+		}
+	});	
+
+
+});
+
+	$('#btnAddBusinessActivity').on('click', function(){
+		$('#tbl_business_acitivity').find('tbody').append(
+			'<tr class="classTrBusinessActivity">\n'
+			+ '<td><input type="text" id="" name="lineofbusiness" class="form-control"></td> \n'
+			+ '<td><input type="text" id="" name="noofunit" class="form-control"></td> \n'
+			+ '<td><input type="text" id="" name="capitalization" class="form-control"></td> \n'
+			+ '<td><input type="text" id="" name="grossreceipt" class="form-control"></td> \n'
+			+ '<td><a class="btn btn-danger" onclick="if($(\'#tbl_business_acitivity tbody tr\').length>1)$(this).closest(\'tr\').remove()"><i class="fa fa-minus text-white"></i></a></td>\n' 
+			+ '</tr> \n'
+			);
 	});
 
 	$('#btnBusinessRenewal').on('click', function(){
@@ -941,10 +615,7 @@
 			, EmergencyPerson = $('#txt_emergency_contact_person_renew').val()
 			, EmergencyPersonContact = $('#txt_emergency_person_contact_renew').val()
 			, EmergencyPersonEmail =$('#txt_emergency_person_email_renew').val()
-			, LineOfBusiness  = $('#sel_line_of_business_renew').children(':selected').attr("id")
-			, NoUnit =  $('#txt_no_unit_renew').val()
-			, SalesReceiptEssential =  $('#txt_gross_essential_renew').val()
-			, SalesReceiptNonEssential =  $('#txt_gross_nonessential_renew').val()
+			
 			, LessorName = $('#txt_lessor_name_renew').val()
 			, LessorAddress =  $('#txt_lessor_Address_renew').val()
 			, LessorPostal =  $('#txt_lessor_postal_renew').val()
@@ -1024,136 +695,11 @@
 					icon: 'success',
 				});
 				window.location.reload();
-				
-
 			},
 			error : function(error){
 				console.log("error: " + error);
 			}
 		});	
-	});
-
-
-	$('#frm_Business').on('click', '#btnSubmitBusiness', function(){
-		var   BusinessNumber = $('#txt_business_number').val()
-		, BusinessName = $('#txt_business_name').val()
-		, TradeName = $('#txt_trade_name').val()
-		, BusinessType  = $('#sel_business_type option:selected').text()
-		, BusinessNature  = $('#sel_business_nature').children(':selected').attr("id")
-		, FirstName =  $('#txt_firstname').val()
-		, MiddleName =  $('#txt_middlename').val()
-		, LastName =  $('#txt_lastname').val()
-		, TinNo =  $('#txt_tin_no').val()
-		, DtiNo =  $('#txt_dti_no').val()
-		, BusinessAddress =  $('#txt_business_address').val()
-		, BusinessPostal =  $('#txt_business_postal').val()
-		, BusinessEmail =  $('#txt_business_email').val()
-		, BusinessTelNo =  $('#txt_business_telephone').val()
-		, BusinessMobileNo =  $('#txt_business_mobile').val()
-		, OwnerAddress =  $('#txt_owner_address').val()
-		, OwnerPostal =  $('#txt_owner_postal').val()
-		, OwnerEmail =  $('#txt_owner_email	').val()
-		, OwnerTelNo =  $('#txt_owner_telephone').val()
-		, OwnerMobileNo =  $('#txt_owner_mobile').val()
-		, EmployeeEstablishment =  $('#txt_employee_establishment').val()
-		, EmployeeLgu =  $('#txt_employee_lgu').val()
-		, BusinessArea =  $('#txt_business_area').val()
-		, EmergencyPerson = $('#txt_emergency_contact_person').val()
-		, EmergencyPersonContact = $('#txt_emergency_person_contact').val()
-		, EmergencyPersonEmail =$('#txt_emergency_person_email').val()
-		, LineOfBusiness  = $('#sel_line_of_business').children(':selected').attr("id")
-		, NoUnit =  $('#txt_no_unit').val()
-		, Capitalization =  $('#txt_capitalization').val()
-		, SalesReceiptEssential =  $('#txt_sales_receipt_essential').val()
-		, SalesReceiptNonEssential =  $('#txt_sales_receipt_nonessential').val()
-		, LessorName = $('#txt_lessor_name').val()
-		, LessorAddress =  $('#txt_lessor_address').val()
-		, LessorPostal =  $('#txt_lessor_postal').val()
-		, LessorEmail =  $('#txt_lessor_email').val()
-		, LessorTelephone =  $('#txt_lessor_telephone').val()
-		, LessorMobile =  $('#txt_lessor_mobile').val()
-		, MonthlyRental =  $('#txt_monthly_rental').val()
-		, DateAcquired = $('#txt_date_acquired').val()
-		// Business Address
-		, BuildingNumber = $('#txt_bldg_no').val()
-		, BuildingName = $('#txt_bldg_name').val()
-		, UnitNo = $('#txt_unit_no').val()
-		, Street = $('#txt_street').val()
-		, Sitio = $('#txt_sitio').val()
-		, Subdivision = $('#txt_subdivision').val()
-		;
-
-		
-		let data = {
-			'_token' : " {{ csrf_token() }}"
-			,'BUSINESS_NAME' : BusinessName
-			,'TRADE_NAME' : TradeName
-			,'BUSINESS_NATURE_ID' : BusinessNature
-			,'BUSINESS_OWNER_FIRSTNAME' : FirstName
-			,'BUSINESS_OWNER_MIDDLENAME' : MiddleName
-			,'BUSINESS_OWNER_LASTNAME' : LastName
-			,'BUSINESS_ADDRESS' : BusinessAddress
-			,'BUSINESS_OR_NUMBER' : BusinessNumber
-			,'TIN_NO' : TinNo
-			,'DTI_REGISTRATION_NO' : DtiNo
-			,'TYPE_OF_BUSINESS' : BusinessType
-			,'BUSINESS_POSTAL_CODE' : BusinessPostal
-			,'BUSINESS_EMAIL_ADD' : BusinessEmail
-			,'BUSINESS_TELEPHONE_NO' : BusinessTelNo
-			,'BUSINESS_MOBILE_NO' : BusinessMobileNo
-			,'OWNER_ADDRESS' : OwnerAddress
-			,'OWNER_POSTAL_CODE' : OwnerPostal
-			,'OWNER_EMAIL_ADD' : OwnerEmail
-			,'OWNER_TELEPHONE_NO' : OwnerTelNo
-			,'OWNER_MOBILE_NO' : OwnerMobileNo
-			,'EMERGENCY_CONTACT_PERSON' : EmergencyPerson
-			,'EMERGENCY_PERSON_CONTACT_NO' : EmergencyPersonContact
-			,'EMERGENCY_PERSON_EMAIL_ADD' : EmergencyPersonEmail
-			,'BUSINESS_AREA' : BusinessArea
-			,'NO_EMPLOYEE_ESTABLISHMENT' : EmployeeEstablishment
-			,'NO_EMPLOYEE_LGU' : EmployeeLgu
-			,'LESSOR_NAME' : LessorName
-			,'LESSOR_ADDRESS' : LessorAddress
-			,'LESSOR_CONTACT_NO' : LessorTelephone
-			,'LESSOR_TELEPHONE' : LessorTelephone
-			,'LESSOR_MOBILE_NO' : LessorMobile
-			,'LESSOR_EMAIL_ADD' : LessorEmail
-			,'MONTHLY_RENTAL' : MonthlyRental
-			,'BUSINESS_OR_ACQUIRED_DATE' : DateAcquired
-			,'LINE_OF_BUSINESS_ID' : LineOfBusiness		
-			,'NO_OF_UNITS' : NoUnit
-			,'CAPITALIZATION' : Capitalization
-			,'GROSS_RECEIPTS_ESSENTIAL' : SalesReceiptEssential
-			,'GROSS_RECEIPTS_NON_ESSENTIAL' : SalesReceiptNonEssential
-			// BUSINESS ADDRESS
-			,'BUILDING_NUMBER' : BuildingNumber
-			,'BUILDING_NAME' : BuildingName
-			,'UNIT_NO' : UnitNo
-			,'STREET' : Street
-			,'SITIO' : Sitio
-			,'SUBDIVISION' : Subdivision 
-			,'NEW_RENEW_STATUS': 'New'
-		};
-
-		$.ajax({
-			url : "{{ route('CRUDBusinessApplication') }}",
-			method : 'POST',
-			data : data,
-			success : function(response) {
-				swal({
-					title: 'Success',
-					text: 'Saved Record!',
-					icon: 'success',
-				});
-				window.location.reload();
-				
-
-			},
-			error : function(error){
-				console.log("error: " + error);
-			}
-		});	
-	
 	});
 
 
@@ -1222,7 +768,6 @@
 					$('#txt_business_area_renew').val(this["BUSINESS_AREA"]);
 					// $('#txt_lessor_postal_renew').val(this["LESSOR_POSTAL"]);
 				});
-
 			},
 			error : function(error){
 				console.log("error: " + error);
@@ -1230,8 +775,6 @@
 		});	
 			
 	});
-		
-
 
 </script>
 
@@ -1255,7 +798,10 @@
 <script src="{{asset('assets/plugins/jquery-smart-wizard/src/js/jquery.smartWizard.js')}}"></script>
 <script src="{{asset('assets/js/demo/form-wizards-validation.demo.min.js')}}"></script>
 
-
+{{-- SELECT 2 --}}
+<script src="{{asset('assets/plugins/select2/dist/js/select2.min.js')}}"></script>
+<script src="{{asset('assets/js/demo/form-plugins.demo.min.js')}}"></script>
+<link href="{{ asset('assets/plugins/pace/pace.min.js')}}"/>
 
 @endsection
 

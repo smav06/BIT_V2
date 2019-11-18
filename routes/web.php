@@ -38,6 +38,8 @@ Route::group(['' => ''], function (){
         ->name('ResolvedBlotter');
     Route::POST('/UpdateBlotter', 'BlottersController@update')
         ->name('UpdateBlotter');
+    Route::POST('/RemoveBlotter', 'BlottersController@remove')
+        ->name('RemoveBlotter');
     Route::POST('/Patawag', 'BlottersController@patawag')
         ->name('Patawag');
         Route::POST('/PrintPatawag', 'PatawagController@printSummon')
@@ -538,7 +540,7 @@ Route::group(['prefix' => '/HealthServices'], function(){
                 ->defaults('typeofview', 'RequestPermit')
                 ->name('RequestPermit');
 
-             Route::get('/Permit/Add', 'PCC\RequestController@BusinessIssuanceRequest')
+             Route::post('/Permit/Add', 'PCC\RequestController@BusinessIssuanceRequest')
                 ->name('BusinessIssuanceRequest');
 
             Route::get('/Certification', 'PCC\RequestController@index')

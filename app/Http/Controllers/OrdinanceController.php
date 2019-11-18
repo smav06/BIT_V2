@@ -12,11 +12,11 @@ class OrdinanceController extends Controller
         $barangay_id = session('session_brgy_id');
 
         $ordinances = COLLECT(\DB::SELECT("SELECT O.ORDINANCE_ID, CONCAT(RBI.LASTNAME,' ', RBI.FIRSTNAME, ' ', RBI.MIDDLENAME) AS FULLNAME,
-                                            O.ORDINANCE_AUTHOR, O.ORDINANCE_TITLE, OC.ORDINANCE_CATEGORY_NAME, O.ORDINANCE_SANCTION, O.ORDINANCE_REMARKS, O.FILE_NAME,   O.ORDINANCE_DESCRIPTION, O.ACTIVE_FLAG
+                                            O.ORDINANCE_AUTHOR, O.ORDINANCE_TITLE, O.ORDINANCE_SANCTION, O.ORDINANCE_REMARKS, O.FILE_NAME,   O.ORDINANCE_DESCRIPTION, O.ACTIVE_FLAG
                                             FROM T_ORDINANCE AS O
                                             INNER JOIN T_BARANGAY_OFFICIAL BO ON O.BARANGAY_OFFICIAL_ID = BO.BARANGAY_OFFICIAL_ID
                                             INNER JOIN T_RESIDENT_BASIC_INFO RBI ON BO.RESIDENT_ID = RBI.RESIDENT_ID
-                                            INNER JOIN R_ORDINANCE_CATEGORY OC ON O.ORDINANCE_CATEGORY_ID = OC.ORDINANCE_CATEGORY_ID"));
+                                            "));
 
         $category = \DB::TABLE('R_ORDINANCE_CATEGORY')
                     ->PLUCK('ORDINANCE_CATEGORY_NAME','ORDINANCE_CATEGORY_ID');
@@ -46,8 +46,7 @@ class OrdinanceController extends Controller
                     'ORDINANCE_SANCTION'   => request('santion'),
 
                     'ORDINANCE_REMARKS'    => request('remarks'),
-                    'ORDINANCE_CATEGORY_ID'         => request('category'),
-                    'BARANGAY_OFFICIAL_ID' => request('assignoff'),
+                    'BARANGAY_OFFICIAL_ID' => db::table('t_barangay_official')->where('BARANGAY_ID',session('session_user_id'))->value(''),
                     "FILE_NAME" => $ordinance_file->getClientOriginalName(),
                     'ACTIVE_FLAG' => 1
                 ]

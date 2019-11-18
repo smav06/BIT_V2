@@ -441,38 +441,50 @@ header('Content-Type: text/html');?>
 
 
 
- <li class="has-sub ">
+ <li class="has-sub {{ Route::currentRouteName() == 'BusinessApplication' || Route::currentRouteName() == 'BusinessEvaluation'  ? 'active' : '' }} ">
         <a href="javascript:;">
             <b class="caret"></b>
             <i class="fas fa-file-alt"></i>
             <span>Business</span>
         </a>
         <ul class="sub-menu">
-            <li class="{{ session('session_permis_businesses') == 1 ? '' : 'hide'}}"> <a href="{{route('BusinessApplication')}}">Registration</a></li>
-            <li class="{{ session('session_permis_business_approval') == 1 ? '' : 'hide'}}"><a href="{{route('BusinessEvaluation')}}">Evaluation</a></li>
+            <li class="{{ session('session_permis_businesses') == 1 ? '' : 'hide'}} {{ Route::currentRouteName() == 'BusinessApplication' ? 'active' : '' }}"> <a href="{{route('BusinessApplication')}}">Registration</a></li>
+            <li class="{{ session('session_permis_business_approval') == 1 ? '' : 'hide'}} {{ Route::currentRouteName() == 'BusinessEvaluation' ? 'active' : '' }}"><a href="{{route('BusinessEvaluation')}}">Evaluation</a></li>
         </ul>
     </li>
 
- <li class="has-sub {{session('session_permis_barangay_application_form') == 1 ? '' : 'hide'}}">
+ <li class="has-sub {{session('session_permis_barangay_application_form') == 1 ? '' : 'hide'}}
+                    {{ Route::currentRouteName() == 'RequestPermit' ||
+                        Route::currentRouteName() == 'RequestCertification' ||
+                        Route::currentRouteName() == 'RequestClearance' ||
+                        Route::currentRouteName() == 'PCCEvaluation' ||
+                        Route::currentRouteName() == 'Issuance'
+                    ? 'active' : ''}} 
+                    
+
+ ">
         <a href="javascript:;">
             <b class="caret"></b>
             <i class="fas fa-file-alt"></i>
             <span>Permit / Certification / Clearance</span>
         </a>
         <ul class="sub-menu">
-            <li class="has-sub">
+            <li class="has-sub {{   Route::currentRouteName() == 'RequestPermit' ||
+                                    Route::currentRouteName() == 'RequestCertification' ||
+                                    Route::currentRouteName() == 'RequestClearance'
+                                    ? 'active' : ''}}">
                 <a href="javascript:;">
                     <b class="caret"></b>
                     Application
                 </a>
-                <ul class="sub-menu">
-                    <li><a href="{{ route('RequestPermit') }}">Permit</a></li>
-                    <li><a href="{{ route('RequestCertification') }}">Certification</a></li>
-                    <li><a href="{{ route('RequestClearance') }}">Clearance</a></li>
+                <ul class="sub-menu ">
+                    <li class="{{Route::currentRouteName() == 'RequestPermit' ? 'active' : ''}}"><a href="{{ route('RequestPermit') }}">Permit</a></li>
+                    <li class="{{Route::currentRouteName() == 'RequestCertification' ? 'active' : ''}}"><a href="{{ route('RequestCertification') }}">Certification</a></li>
+                    <li class="{{Route::currentRouteName() == 'RequestClearance' ? 'active' : ''}}"><a href="{{ route('RequestClearance') }}">Clearance</a></li>
                 </ul>
             </li>            
-            <li class="{{session('session_permis_barangay_application_evaluation') == 1 ? '' : 'hide' }}"><a href="{{route('PCCEvaluation')}}">Evaluation</a></li>
-            <li ><a href="{{route('Issuance')}}">Issuance </a></li>
+        <li class="{{session('session_permis_barangay_application_evaluation') == 1 ? '' : 'hide'  }} {{Route::currentRouteName() == 'PCCEvaluation' ? 'active' : ''}}"><a href="{{route('PCCEvaluation')}}">Evaluation</a></li>
+        <li  class="{{Route::currentRouteName() == 'Issuance' ? 'active' : ''}}" ><a href="{{route('Issuance')}}">Issuance </a></li>
         </ul>
     </li>
     
@@ -601,10 +613,11 @@ Route::currentRouteName() == 'DisplayResidentElderly'
 <script src="{{asset('assets/js/theme/default.min.js')}}"></script>
 <script src="{{asset('assets/js/apps.min.js')}}"></script>
 <!-- ================== END BASE JS ================== -->
-
+<script src="{{asset('assets/js/moment.js')}}"></script>
 <script type="text/javascript" src="{{asset('node_modules/jquery-form-validator/form-validator/jquery.form-validator.min.js')}}"></script>
 
 <script type="text/javascript" src="{{asset('node_modules/jquery-form-validator/form-validator/jquery.additional-methods.min.js')}}"></script>
+
 
 
 @section('page-js')

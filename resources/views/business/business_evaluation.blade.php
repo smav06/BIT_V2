@@ -60,7 +60,7 @@
 							@foreach($businessNotApproved as $row)
 							<tr class="gradeC" id="{{$row->BUSINESS_ID}}">
 								<td>{{$row->BUSINESS_OR_NUMBER}}</td>
-								<td>{{$row->BUSINESS_NAME}} <br> ( {{$row->LINE_OF_BUSINESS_NAME}})</td>
+								<td>{{$row->BUSINESS_NAME}} <br> ( {{$row->BUSINESS_NATURE_NAME}})</td>
 								<td>{{$row->BUSINESS_ADDRESS}}</td>
 								<td>{{$row->BUSINESS_OWNER_LASTNAME}}, {{$row->BUSINESS_OWNER_FIRSTNAME}}, {{$row->BUSINESS_OWNER_MIDDLENAME}}</td>
 								{{-- <td>{{$row->BUSINESS_OR_ACQUIRED_DATE}}</td> --}}

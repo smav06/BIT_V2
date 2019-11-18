@@ -78,7 +78,8 @@ class BlottersController extends Controller
                                 , 'R.lastname'
                                 , 'R.middlename'
                                 , 'R.firstname')
-                            ->where(['B.status' => 'Closed'])
+                            ->where(['B.status' => 'Resolved'])
+                            ->orWhere(['B.status' => 'For Referral'])                            
                             ->orderBy('B.closed_date', 'desc')
                             ->get();
 
@@ -141,12 +142,15 @@ class BlottersController extends Controller
      */
     public function edit(Request $request)
     {
-        $getID = $request->input('EditBlotterID');
+        $getID = request('blotter_id');
+        $status_name = request('status_name');
+        $remarks = request('remarks');
+        
         
         $resolveBlot=DB::table('t_blotter')
                         ->where('blotter_id',$getID)
-                        ->update([ 'resolution'=>$request->input('EditResolution'), 
-                            'status' => 'Closed', 
+                        ->update([ 'resolution'=>request('remarks'), 
+                            'status' => $status_name == 1 ? 'Resolved' : 'For Referral', 
                             'closed_date'=>Carbon::today()->toDateString() ]);
     }
 
@@ -193,5 +197,18 @@ class BlottersController extends Controller
                             ->get()->toArray();
                             
         return response()->json(['result' => $disppatawag]);
+    }
+
+    public function remove()
+    {
+        $blotter_id =  request('blotter_id');
+
+        db::table('t_blotter')
+            ->where('BLOTTER_ID',$blotter_id)
+            ->update([
+                'IS_ACTIVE' => 0
+            ]);
+            
+        
     }
 }

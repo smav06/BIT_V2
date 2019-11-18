@@ -67,7 +67,7 @@
 					<tr class="gradeC" id="{{$row->BUSINESS_ID}}">
 						<td>{{$row->BUSINESS_OR_NUMBER}}</td>
 						<td>{{$row->BUSINESS_NAME}}</td>
-						<td>{{$row->LINE_OF_BUSINESS_NAME}}</td>
+						<td>{{$row->BUSINESS_NATURE_NAME}}</td>
 						<td>{{$row->BUSINESS_ADDRESS}}</td>
 						<td>{{$row->BUSINESS_OWNER_FIRSTNAME}} {{$row->BUSINESS_OWNER_MIDDLENAME}} {{$row->BUSINESS_OWNER_LASTNAME}} </td>
 						{{-- <td>{{$row->NEW_RENEW_STATUS}}</td> --}}
@@ -84,7 +84,7 @@
 						@endif
 						<td>
 							<button type="button" class="btn btn-primary" id="btnChooseApplication"  data-toggle="modal">
-								<i class="fa fa-circle"></i> Request Business Clearance
+								<i class="fa fa-file-alt">&nbsp</i> Request Business Clearance
 							</button>
 						</td>
 						<td hidden> {{$row->BUSINESS_AREA}}</td>
@@ -404,7 +404,10 @@
 	$(document).ready(function() {
 		App.init();
 		TableManageDefault.init();
-		$("table[id='tbl_business_lst']").DataTable();
+		// $("table[id='tbl_business_lst']").DataTable();
+		$("table[id='tbl_business_lst']").DataTable({
+			"bSort" : false
+		});
 
 		//hide
 		$('#divBusinessPermit').hide();

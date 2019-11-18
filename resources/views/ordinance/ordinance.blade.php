@@ -163,142 +163,7 @@ $(document).ready(function() {
 </script>
 
 {{--FOR EDIT FORM--}}
-<script>
-var Editform = document.getElementById("EditForm");
 
-$("#EditBTN").on('click',function (event) {
-
-    event.preventDefault()
-    var catid = $('#EditCatID').val()
-    var firstname  = $('#EditF').val()
-    var middlename = $('#EditM').val()
-    var lastname   = $('#EditL').val()
-    var businessname = $('#EditBusinessName').val()
-    var location   = $("#EditBusinessLoc").children(":selected").attr("id")
-    var businessnature = $('#EditBusinessNature').children(":selected").attr("id")
-    var businessaddress = $('#EditBusinessAdd').val()
-    var businessnumber = $('#EditBusinessNum').val()
-    var businessdate = $('#EditBusinessDate').val()
-
-    if ( firstname == "" )
-    {
-        ErrorAlert();
-        $('#lblfirstname').html('Required field!').css('color', 'red');
-    }
-    else
-        if ( middlename == "" )
-        {
-            ErrorAlert();
-            $('#lblmiddlename').html('Required field!').css('color', 'red'); 
-        }
-        else
-            if ( lastname == "" )
-            {
-                ErrorAlert();
-                $('#lbllastname').html('Required field!').css('color', 'red'); 
-            }
-            else
-                if ( location == "" )
-                {
-                    ErrorAlert();
-                    $('#lblbusinessloc').html('Required field!').css('color', 'red'); 
-                }
-                else
-                    if ( businessname == "" )
-                    {
-                        ErrorAlert();
-                        $('#lblbusinessname').html('Required field!').css('color', 'red'); 
-                    }
-                    else
-                        if ( businessnature == "" )
-                        {
-                            ErrorAlert();
-                            $('#lblbusinessnature').html('Required field!').css('color', 'red'); 
-                        }
-                        else
-                            if ( businessaddress == "" )
-                            {
-                                ErrorAlert();
-                                $('#lblbusinessadd').html('Required field!').css('color', 'red'); 
-                            }
-                            else
-                                if ( businessnumber == "" )
-                                {
-                                    ErrorAlert();
-                                    $('#lblbusinessnum').html('Required field!').css('color', 'red'); 
-                                }
-                                else
-                                {
-                                    swal({
-                                        title: "Wait!",
-                                        text: "Are you sure you want to edit this?",
-                                        icon: "warning",
-                                        buttons: true,
-                                        dangerMode: true,
-                                    })
-                                    .then((willDelete) => 
-                                    {
-                                        if (willDelete) 
-                                        {
-                                            UpdateAlert();
-                                            var fd = new FormData();
-                                            fd.append('EditCatID',catid);
-                                            fd.append('EditF',firstname);
-                                            fd.append('EditM',middlename);
-                                            fd.append('EditL',lastname);
-                                            fd.append('EditBusinessName',businessname);
-                                            fd.append('EditBusinessLoc',location);
-                                            fd.append('EditBusinessNature',businessnature);
-                                            fd.append('EditBusinessAdd',businessaddress);
-                                            fd.append('EditBusinessNum',businessnumber);
-                                            fd.append('EditBusinessDate',businessdate);
-                                            fd.append('_token',"{{csrf_token()}}");
-
-                                            $.ajax({
-
-                                                url:"{{route('BusinessStore')}}",
-                                                type:'post',
-                                                processData:false,
-                                                contentType:false,
-                                                cache:false,
-                                                data:fd,
-                                                success:function()
-                                                {
-
-                                                    setTimeout(loadTbl,500); 
-
-                                                }   
-                                            })
-
-                                        } 
-                                        else 
-                                        {
-                                            OperationCancel();    
-                                        }
-                                    });
-
-}
-
-
-function loadTbl() {
-    $('#LoadTable').load("Businesses")
-}
-
-function UpdateAlert() {
-    swal("Data have been successfully updated!", {
-        icon: "success",
-    });
-}
-
-function OperationCancel()
-{
-    swal("Operation Cancelled.", {
-        icon: "error",
-    });
-}
-
-});
-</script>
 
 @endsection
 
@@ -317,8 +182,8 @@ $('#AddBtn').click(function(e) {
 
     title = $('#title_txt').val();
     author = $('#author_txt').val();
-    assignoff = $('#assign_official').children(":selected").attr("id");
-    category = $('#categname').children(":selected").attr("id");
+    
+    // category = $('#categname').children(":selected").attr("id");
     sanction = $('#sanction_txt').val();
     description = $('#desc_txt').val();
     remarks = $('#remarks_txt').val();
@@ -327,8 +192,8 @@ $('#AddBtn').click(function(e) {
     var fd = new FormData();
     fd.append('title',title);
     fd.append('author',author);
-    fd.append('assignoff',assignoff);
-    fd.append('category',category);
+    
+    // fd.append('category',category);temporary commented
     fd.append('santion',sanction);
     fd.append('description',description);
     fd.append('remarks',remarks);
@@ -523,7 +388,6 @@ $(document).ready(function()
                                     <thead>
                                         <tr>
                                             <th hidden>Ordinance ID</th>
-                                            <th >Assigned Official</th>
                                             <th >Author</th>
                                             <th >Title</th>
                                             <th >Category</th>                                          
@@ -540,10 +404,8 @@ $(document).ready(function()
                                      @foreach($ordinances as $record)
                                      <tr >
                                         <td hidden>{{ $record->ORDINANCE_ID }} </td>
-                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->FULLNAME }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}"> {{ $record->ORDINANCE_AUTHOR }}</td>
-                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_TITLE }}</td>
-                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_CATEGORY_NAME }}</td>
+                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_TITLE }}</td>                                        
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_REMARKS }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_SANCTION }}</td>
                                         <td hidden>{{ $record->FILE_NAME }}</td>
@@ -600,7 +462,8 @@ $(document).ready(function()
 
                                         </div>
                                         <br>
-                                        <div class="row">
+                                        {{-- temporary commented start--}}
+                                        {{-- <div class="row">
                                             <div  class="col-lg-12 col-md-12">
                                                 <div class="stats-content">
                                                     <label style="display: block; text-align: left">Assigned official</label>
@@ -613,10 +476,13 @@ $(document).ready(function()
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><br>
+                                        </div> --}}
+                                        {{-- temporary commented end--}}
 
+                                        <br>
 
-                                        <div class="row">
+                                        {{-- temporary commented start--}}
+                                        {{-- <div class="row">
                                             <div class="col-lg-12 col-md-12">
                                                 <label style="display: block; text-align: left">Category</label>
 
@@ -631,7 +497,8 @@ $(document).ready(function()
 
                                             </div>
 
-                                        </div>
+                                        </div> --}}
+                                        {{-- temporary commented end--}}
                                         <br>
                                         <div class="row">
                                          <div class="col-lg-12">
