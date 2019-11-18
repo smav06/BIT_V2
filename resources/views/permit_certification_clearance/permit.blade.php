@@ -229,7 +229,7 @@
 						<a onclick="hideModal()" class="btn btn-white m-r-5" >Close</a>
 						<button  class="btn btn-lime m-r-9" style="background: #2A72B5" id="btnRequest">Request</button>
 
-						<ul class="nav nav-pills">
+						<ul class="nav nav-pills" hidden>
 							<li class="nav-items">
 								<a href="#nav-pills-tab-2" data-toggle="tab" class="nav-link" >
 
