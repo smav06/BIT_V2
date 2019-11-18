@@ -437,46 +437,42 @@ $(document).ready(function()
                                         <div class="modal-body">
                                             {{--modal body start--}}
                                             {{--<h2 id="ViewBarangayName" align="center"></h2>--}}
-                                            <input type="text" name="BusinessIDTxt" id="BusinessIDTxt" hidden>
-
+                                            <input type="text" name="BusinessIDTxt" id="BusinessIDTxt" hidden>                                            
                                             <div class="row">
                                                 <div class="col-lg-12 col-md-6">
                                                     <div class="stats-content">
                                                      <label style="display: block; text-align: left">Title</label>
                                                      <input type="text" id="title_txt" name="title_txt" style="display: block; text-align: left; color:black; background-color:white; "  placeholder='' class="form-control" >
-
                                                  </div>
                                              </div>
-
-
                                          </div> <br>
                                          <div class="row">
-
                                             <div class="col-lg-12 col-md-6">
                                                 <div class="stats-content">
                                                     <label style="display: block; text-align: left">Author</label>
                                                     <input type="text" id="author_txt" name="author_txt" style="display: block; text-align: left; color:black; background-color:white;" placeholder='' class="form-control" >
                                                 </div>
                                             </div>
-
-
                                         </div>
                                         <br>
+
                                         {{-- temporary commented start--}}
-                                        {{-- <div class="row">
-                                            <div  class="col-lg-12 col-md-12">
-                                                <div class="stats-content">
-                                                    <label style="display: block; text-align: left">Assigned official</label>
-                                                    <select id="assign_official" class="form-control" name="assign_official" data-style="select-with-transition">
 
-                                                        @foreach($assign_official as $row)
-                                                        <option id ="{{ $row->BARANGAY_OFFICIAL_ID }}">{{$row->FULLNAME}}</option> 
-                                                        @endforeach
+                                        {{-- 
+                                            <div class="row">
+                                                <div  class="col-lg-12 col-md-12">
+                                                    <div class="stats-content">
+                                                        <label style="display: block; text-align: left">Assigned official</label>
+                                                        <select id="assign_official" class="form-control" name="assign_official" data-style="select-with-transition">
 
-                                                    </select>
+                                                            @foreach($assign_official as $row)
+                                                            <option id ="{{ $row->BARANGAY_OFFICIAL_ID }}">{{$row->FULLNAME}}</option> 
+                                                            @endforeach
+                                                        </select>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div> --}}
+                                            </div> 
+                                        --}}
                                         {{-- temporary commented end--}}
 
                                         <br>
@@ -485,20 +481,15 @@ $(document).ready(function()
                                         {{-- <div class="row">
                                             <div class="col-lg-12 col-md-12">
                                                 <label style="display: block; text-align: left">Category</label>
-
                                                 <select id="categname" class="form-control" name="categname" data-style="select-with-transition">
-
                                                     @foreach($category as $key => $categ_name)
                                                     <option id ="{{ $key }}">{{$categ_name}}</option> 
                                                     @endforeach
-
                                                 </select>
-
-
                                             </div>
-
                                         </div> --}}
                                         {{-- temporary commented end--}}
+
                                         <br>
                                         <div class="row">
                                          <div class="col-lg-12">
