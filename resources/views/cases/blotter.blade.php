@@ -220,7 +220,7 @@
             schedDate = get_convert.split(", ")[0];
             schedTime = get_convert.split(", ")[1];
         //     var schedTime = $('#AddScheduledTime').val()
-            alert(schedDate);
+            
             var schedPlace = $('#addScheduledPlace').val()
 
             var blotterID = $('#EditBlotterIDH').val()
@@ -272,7 +272,7 @@
                         data:fd,
                         success:function()
                         {
-                            // location.reload();
+                            location.reload();
                         }
 
                     })
@@ -1186,12 +1186,7 @@
                                                             <input type="datetime-local" id="AddScheduledDate" name="AddScheduledDate" class="form-control" required="true" placeholder="yyyy-mm-dd">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>Scheduled Time</label> <span id='reqScheduledTimeAdd'></span>
-                                                            <input type="text" id="AddScheduledTime" name="AddScheduledTime" class="form-control" placeholder="h:m" required="true">
-                                                        </div>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                             <div class="col-lg-12">
