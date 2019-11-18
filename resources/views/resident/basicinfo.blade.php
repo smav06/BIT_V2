@@ -48,7 +48,7 @@
         App.init();
         FormWizard.init();
         Notification.init();
-        // $('#resident_table').DataTable();
+        //$('#resident_table').DataTable();
         $("#wizard-mic").smartWizard();
         $('#nbody').show();
     });
@@ -59,10 +59,10 @@
 
     $('#ArrivalReason').change(function () {
         var arrivalreason = $('#ArrivalReason').children(":selected").attr("id");
-        if(arrivalreason == 3) { 
-            $('#div_transient').show(); 
+        if(arrivalreason == 3) {
+            $('#div_transient').show();
             $('#showmigrants').hide();
-        } else if (arrivalreason == 2) { 
+        } else if (arrivalreason == 2) {
             $('#showmigrants').show();
             $('#div_transient').hide();
             $('#fromwhat').attr('placeholder','Enter Country');
@@ -70,7 +70,7 @@
             $('#showmigrants').hide();
             $('#div_transient').hide();
         }
-        
+
     });
     $('#migrants').change(function() {
         var migrants = $('#migrants').val()
@@ -92,7 +92,7 @@
 
     $('#dateofbirth').change(function () {
         var dtest = new Date();
-        var ndate = dtest.toJSON().slice(0, 10); 
+        var ndate = dtest.toJSON().slice(0, 10);
         $('#dateofbirth').val() > ndate ? $('#dateofbirth').val(ndate) : $('#dateofbirth').val()
         validatedate("fordisplay");
         checkage()
@@ -102,14 +102,14 @@
         var dobselect = "#dateofbirth";
         checkage(dobselect)
     });
-    
+
     $('#civilstatus').change(function () {
         checkage()
     });
 
     $(document).on('keyup change','#multidoba',function(){
         var dtest = new Date();
-        var ndate = dtest.toJSON().slice(0, 10); 
+        var ndate = dtest.toJSON().slice(0, 10);
         $('#multidoba').val() > ndate ? $('#multidoba').val(ndate) : $('#multidoba').val()
         var multidoba = $(this).val();
         checkmultiage(multidoba);
@@ -130,13 +130,13 @@
         if(value == 'Migrants') {
             $('#multifromwhat').attr('placeholder','Enter Country');
             $('#multishowmigrants').show()
-            $('.div_multi_transient').hide(); 
+            $('.div_multi_transient').hide();
         }else if(value == 'Transients') {
-            $('.div_multi_transient').show(); 
+            $('.div_multi_transient').show();
             $('#multishowmigrants').hide();
         } else {
             $('#multishowmigrants').hide()
-            $('.div_multi_transient').hide(); 
+            $('.div_multi_transient').hide();
         }
     });
 
@@ -149,16 +149,16 @@
         } else if(migrants == "Province") {
             $('#multifromwhat').attr('placeholder','Enter Province');
         }
-        
+
     });
 
     function checkmultiage(multidoba) {
         var dtext = $('#multidoba').val();
-        
+
         var cdate = new Date(dtext);
         var dtest = new Date();
-        
-        var ndate = dtest.toJSON().slice(0, 10); 
+
+        var ndate = dtest.toJSON().slice(0, 10);
         var arr = [];
         var arrcs = [];
         $('#multicvstat option').each(function() {
@@ -168,10 +168,10 @@
             arrcs.push($(this).val())
         });
         var age = dtest.getFullYear() - cdate.getFullYear();
-        
+
         if(dtext == ndate || age < 5 ) {
             $('#multicvstat').val(arr[0]);
-            $('#multieducatt').val(arrcs[6  ]);        
+            $('#multieducatt').val(arrcs[6  ]);
         }
         if (age >= 1 ) {
             $('#multioccup').show();
@@ -184,7 +184,7 @@
     var cdate = new Date(dobselect);
     var dtest = new Date();
 
-    var ndate = dtest.toJSON().slice(0, 10); 
+    var ndate = dtest.toJSON().slice(0, 10);
     var arr = [];
     var arrcs = [];
     var age = dtest.getFullYear() - cdate.getFullYear();
@@ -196,20 +196,20 @@
         if(age >= 0 && age <= 18  ) {
             $(doboption).val(arrcs[0]);
         }
-    
+
     }
     function checkage(dobselect) {
         var dtext = "";
         if(dobselect == "#dateofbirth") {
            dtext  = $(dobselect).val();
-       } 
+       }
        else {
         dtext = $('#dateofbirth').val()
     }
     var cdate = new Date(dtext);
     var dtest = new Date();
 
-    var ndate = dtest.toJSON().slice(0, 10); 
+    var ndate = dtest.toJSON().slice(0, 10);
     var arr = [];
     var arrcs = [];
     $('#educationatt option').each(function() {
@@ -266,14 +266,14 @@ $(document).on('click','.sw-btn-prev', function() {
     $("#smryadolescent").css("background-color", "");
     $("#smryelderly").css("background-color", "");
 
-    n = []; inf = []; c = []; a = []; e = []; dobs = []; age = []; cdate = []; rgdate = []; ryear = []; rmont = []; rday = []; 
+    n = []; inf = []; c = []; a = []; e = []; dobs = []; age = []; cdate = []; rgdate = []; ryear = []; rmont = []; rday = [];
     cyear = []; cmon = []; cday = []; current_year = []; days = []; dob_year = [];
     start = []; end = []; fnames = []; mnames = []; lnames = []; multireltohead = [];
     $(".sw-btn-next").attr("disabled", false);
     $('#step-3').hide();
    // window.location.href = '#step-1';
 });
- 
+
  ;(function ($, window, document, undefined) {
     "use strict";
     // Default options
@@ -523,7 +523,7 @@ _setElements: function () {
                     onfocusout: false,
                     invalidHandler: function(form, validator) {
                         var errors = validator.numberOfInvalids();
-                        if (errors) {                    
+                        if (errors) {
                             validator.errorList[0].element.focus();
                         }
                     },
@@ -554,8 +554,8 @@ _setElements: function () {
                       },
                       placeofbirth: {
                           required: true,
-                        
-                          
+
+
                       },
                       Citizenship: {
                         required: true,
@@ -601,7 +601,7 @@ _setElements: function () {
                   },
                   placeofbirth: {
                       required: 'This field is required',
-                      
+
                   },
                   Citizenship: {
                       required: 'This field is required',
@@ -610,17 +610,17 @@ _setElements: function () {
                   },
               },
 
-              errorPlacement: function(error, element) 
+              errorPlacement: function(error, element)
               {
-                if (element.is(":radio")) 
+                if (element.is(":radio"))
                 {
                     error.appendTo(element.parents('.gender'));
                 }
                 else if(element.is(":checkbox")){
                     error.appendTo(element.parents('.hobbies'));
                 }
-                else 
-                { 
+                else
+                {
                     error.insertAfter( element );
                 }
             }
@@ -635,7 +635,7 @@ _setElements: function () {
                 }
             }
 
-            
+
 
         });
 
@@ -984,11 +984,11 @@ theme: function (v) {
 })(jQuery, window, document);
 function loadsummary() {
 
- 
-   
+
+
   var $multirelstohead = [];
 
-     
+
     $('#step-3').show();
 
     $("input[name=firstname]").each(function() {
@@ -998,7 +998,7 @@ function loadsummary() {
     $("input[name=middlename]").each(function() {
         mnames.push($(this).val())
     });
-    
+
     $("input[name=lastname]").each(function() {
         lnames.push($(this).val())
     });
@@ -1008,11 +1008,11 @@ function loadsummary() {
     });
 
     if(fnames.length >= 1) {
-       
+
     }
     $multirelstohead[0] = "Household Head";
      $(".multireltohead option:selected").each(function(){
-                
+
              $multirelstohead.push($(this).val())
         });
 
@@ -1027,18 +1027,18 @@ function loadsummary() {
         $(".multilname").each(function() {
             lnames.push($(this).val())
         });
-    
+
 
         $(".multidoba").each(function() {
             dobs.push($(this).val())
         });
-   
-    
 
-    
+
+
+
 
     console.log($multirelstohead)
-    
+
 
 
     for(var i=0; i<dobs.length; i++) {
@@ -1057,15 +1057,15 @@ function loadsummary() {
 
         current_year[i] = new Date(cyear[i],cmon[i],cday[i]);
         dob_year[i] = new Date(ryear[i],rmont[i],rday[i]);
-        const oneDay = 1000 * 60 * 60 * 24; 
+        const oneDay = 1000 * 60 * 60 * 24;
             //days[i] = DaysBetween(dob_year,current_year);
-            start[i] = Date.UTC(current_year[i].getFullYear(), current_year[i].getMonth(), current_year[i].getDate()); 
-            end[i] = Date.UTC(dob_year[i].getFullYear(), dob_year[i].getMonth(), dob_year[i].getDate()); 
+            start[i] = Date.UTC(current_year[i].getFullYear(), current_year[i].getMonth(), current_year[i].getDate());
+            end[i] = Date.UTC(dob_year[i].getFullYear(), dob_year[i].getMonth(), dob_year[i].getDate());
             days[i] = Math.round(Math.abs((start[i] - end[i] ) / oneDay));
 
             if (age[i]==0 || age[i]<0) {
 
-                if (days[i] <= 28 && days[i] >= 0) { 
+                if (days[i] <= 28 && days[i] >= 0) {
                      //fcolors[i]="#ffcdcc";
                      n[i]="Yes";inf[i]="No";c[i]="No";a[i]="No";e[i]="No";
                  }
@@ -1121,7 +1121,7 @@ function loadsummary() {
             if(n[i] != undefined || i[i] != undefined || c[i] != undefined || a[i] != undefined || e[i] != undefined ) {
             $('#summary_tabl').closest('table').find('tbody').append(
                 '<tr>\n'
-                
+
                 +'<td colspan="1" style="font-weight:bold" id="multimembers" name="multimembers">'
                 +j++ +'.    '+fnames[i] +' '+mnames[i]+' '+lnames[i]
                 +'</td> \n'
@@ -1133,7 +1133,7 @@ function loadsummary() {
                 +'<td id="smryelderly" style="background-color:'+ecolors[i]+'">'+e[i]+'</td>\n'
 
 
-                ); 
+                );
             length+=1;
             }
 
@@ -1159,11 +1159,11 @@ function loadsummary() {
             +'<td style="font-weight: bold"></td>\n'
             +'<td></td>\n'
             +'<td></td>\n'
-            +'<td></td>\n' 
+            +'<td></td>\n'
             +'<tr>\n'
             +'<tr>\n'+'<tr>\n'+'<tr>\n'+'<tr>\n'+'<tr>\n'+'<tr>\n'+'<tr>\n'+'<tr>\n'
 
-            );  
+            );
 
 
         $('#summary_housing').closest('table').find('tbody').append(
@@ -1180,7 +1180,7 @@ function loadsummary() {
             +'<td>With Kitchen</td>\n'
             +'<tr>\n'
             +'<tr>\n'
-            );              
+            );
 
         if($("#cssCheckbox1Toilet").is(":checked")){smrytoilet="&#10003;"}else{smrytoilet="&times;"}
         if($("#cssCheckbox2Playarea").is(":checked")){smryparea="&#10003;"}else{smryparea="&times;"}
@@ -1200,7 +1200,7 @@ function loadsummary() {
     +'<td id="" style="background-color:"><span id="smrydroom" style="font-weight: bold; font-size: 20px">'+smrydroom+'</span></td>\n'
     +'<td id="" style="background-color:"><span id="smrysala" style="font-weight: bold; font-size: 20px">'+smrysala+'</span></td>\n'
     +'<td id="" style="background-color:"><span id="smrykitcheb" style="font-weight: bold; font-size: 20px">'+smrykitcheb+'</span></td>\n'
-    );              
+    );
 
 
    $('#summary_utility').closest('table').find('tbody').append(
@@ -1220,7 +1220,7 @@ function loadsummary() {
     +'<td>Radio</td>\n'
     +'<tr>\n'
     +'<tr>\n'
-    );              
+    );
 
    if($("#cssCheckboxRunningwater").is(":checked")){smrytoilet="&#10003;"}else{smrytoilet="&times;"}
    if($("#cssCheckboxElectricity").is(":checked")){smryparea="&#10003;"}else{smryparea="&times;"}
@@ -1247,7 +1247,7 @@ function loadsummary() {
     +'<td id="" style="background-color:"><span id="smrykitcheb" style="font-weight: bold; font-size: 20px">'+smrytv+'</span></td>\n'
     +'<td id="" style="background-color:"><span id="smrykitcheb" style="font-weight: bold; font-size: 20px">'+smryplayer+'</span></td>\n'
     +'<td id="" style="background-color:"><span id="smrykitcheb" style="font-weight: bold; font-size: 20px">'+smryradio+'</span></td>\n'
-    );              
+    );
 
    $('#summary_entertainment').closest('table').find('tbody').append(
 
@@ -1266,7 +1266,7 @@ function loadsummary() {
 
     +'<tr>\n'
     +'<tr>\n'
-    );              
+    );
 
    if($("#cssCheckboxradio").is(":checked")){smrytoilet="&#10003;"}else{smrytoilet="&times;"}
    if($("#cssCheckboxcomics").is(":checked")){smryparea="&#10003;"}else{smryparea="&times;"}
@@ -1277,7 +1277,7 @@ function loadsummary() {
 
    if($("#cssCheckboxboardgames").is(":checked")){smrytv="&#10003;"}else{smrytv="&times;"}
    if($("#cssCheckboxpuzzles").is(":checked")){smryplayer="&#10003;"}else{smryplayer="&times;"}
-   
+
    // val="&#10003;"
 
    $('#summary_entertainment').closest('table').find('tbody').append(
@@ -1293,8 +1293,8 @@ function loadsummary() {
     +'<td id="" style="background-color:"><span id="smrykitcheb" style="font-weight: bold; font-size: 20px">'+smrytv+'</span></td>\n'
     +'<td id="" style="background-color:"><span id="smrykitcheb" style="font-weight: bold; font-size: 20px">'+smryplayer+'</span></td>\n'
 
-    );   
-   
+    );
+
 }
 
 
@@ -1323,7 +1323,7 @@ function validatedate(value,fd) {
         rmont = 1;
     }
     var current_year = new Date(cyear,cmon,cday);
-    var dob_year = new Date(ryear,rmont,rday); 
+    var dob_year = new Date(ryear,rmont,rday);
     var days = DaysBetween(dob_year,current_year);
     console.log(age)
     if(value == "fordisplay") {
@@ -1385,26 +1385,26 @@ function validatedate(value,fd) {
         }
 
 
-       
+
     }
 
      function DaysBetween(DateofBirth, CurrentYear) {
 
-            const oneDay = 1000 * 60 * 60 * 24; 
-            const start = Date.UTC(CurrentYear.getFullYear(), CurrentYear.getMonth(), CurrentYear.getDate()); 
-            const end = Date.UTC(DateofBirth.getFullYear(), DateofBirth.getMonth(), DateofBirth.getDate()); 
+            const oneDay = 1000 * 60 * 60 * 24;
+            const start = Date.UTC(CurrentYear.getFullYear(), CurrentYear.getMonth(), CurrentYear.getDate());
+            const end = Date.UTC(DateofBirth.getFullYear(), DateofBirth.getMonth(), DateofBirth.getDate());
             return Math.round(Math.abs((start - end ) / oneDay));
         }
     async function Add(fd) {
 
-     
+
 
      try
      {
         result = await $.ajax({
             url:"{{route('BasicInfoAdd')}}",
             type:'post',
-            
+
             data:fd,
             success:function(data)
             {
@@ -1412,12 +1412,12 @@ function validatedate(value,fd) {
                 if (data == "good")
                 {
                     swal("Data have been successfully added!", {
-                        icon: "success", 
+                        icon: "success",
                     });
                         //window.location.reload();
                 }
-                    
-            }    
+
+            }
         })
     }
     catch(error)
@@ -1445,7 +1445,7 @@ function validatedate(value,fd) {
               } else {
                 return birthSpan.year + ' year' + (birthSpan.year > 1 ? 's' : '')
               }
-              
+
             }
      // 15 POB 16 unitNO 17 PHASE 18 HOUSENO 19 STREET 20 SUBDIVI 21 BUILDING
 
@@ -1458,15 +1458,15 @@ function titleCase(str) {
    for (var i = 0; i < splitStr.length; i++) {
        // You do not need to check if i is larger than splitStr length, as your for does that for you
        // Assign it back to the array
-       splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);     
+       splitStr[i] = splitStr[i].charAt(0).toUpperCase() + splitStr[i].substring(1);
    }
    // Directly return the joined string
-   return splitStr.join(' '); 
+   return splitStr.join(' ');
 }
     $(document).ready(function(){
         $('#EditBTN').on('click', function(){
 
-       
+
             var resident_id = $('#EditCatID').val();
             var fname = $('#editfname').val().toUpperCase();
             var mname = $('#editmname').val().toUpperCase();
@@ -1477,10 +1477,10 @@ function titleCase(str) {
             var cstatus = $('#editcstatus').children(":selected").attr("value");
             var occupation = titleCase($('#editoccu').val());
             gender == 'Male' ? gender = 'Male' : gender = 'Female';
-            
+
             //var wstatus = $('#editwstatus').children(":selected").attr("value");
             //var educationatt = $('#editeducationatt').children(":selected").attr("value");
-           
+
             //var startwork = $('#editsworking').val();
             //var is_ofw = $("input:radio[name=edit_isofw]:checked").val();
             //var is_inde = $("input:radio[name=edit_isinde]:checked").val();
@@ -1491,7 +1491,7 @@ function titleCase(str) {
             //var arrstat = $('#editareason').children(":selected").attr("id");
 
             var place_birth =  $('#editpbirth').val();
-            
+
             var house_no =  $('#edit_houseno').val();
             var streetno =  $('#edit_street_no').val();
             var street =  $('#edit_street').val();
@@ -1534,11 +1534,11 @@ function titleCase(str) {
             let result;
 
             warning(fd);
-            
+
         });
 
 
-      
+
 
         function warning(fd) {
 
@@ -1580,8 +1580,8 @@ function titleCase(str) {
                        if (data == "good")
                        {
                         window.location.reload();
-                    }        
-                }   
+                    }
+                }
             })
            }
            catch(error)
@@ -1613,7 +1613,7 @@ function titleCase(str) {
        .then((willDelete) => {
         if (willDelete) {
             Disable(fd);
-            
+
         } else {
             swal("Operation Cancelled.", {
                 icon: "error",
@@ -1622,7 +1622,7 @@ function titleCase(str) {
     });
        let result;
 
-       async function Disable(fd) {  
+       async function Disable(fd) {
 
          swal("Resident have been successfully Deactivated!", {
            icon: "success",
@@ -1631,7 +1631,7 @@ function titleCase(str) {
          {
            result = await $.ajax({
                url:"{{route('BasicInfoDelete')}}",
-               type:'post', 
+               type:'post',
                processData:false,
                contentType:false,
                cache:false,
@@ -1642,11 +1642,11 @@ function titleCase(str) {
                 if (data == "good")
                 {
                     location.reload();
-                }        
-            }   
+                }
+            }
         })
        }
-       catch(error)    
+       catch(error)
        {
            console.error(error);
        }
@@ -1676,8 +1676,8 @@ $(document).ready(function(){
    });
 
    $("#resident_table tbody").on('click', 'tr', function () {
-        
-       
+
+
 
         var parse_numer, housenum;
         var res_id = table.cell( this, 0).data();
@@ -1701,11 +1701,11 @@ $(document).ready(function(){
         var building = table.cell( this, 21).data();
 
         var gender = table.cell( this, 14).data();
-       
-        gender == 'Male' ? $("#radiogenderm").prop("checked", true) : $("#radiogenderf").prop("checked", true)  
+
+        gender == 'Male' ? $("#radiogenderm").prop("checked", true) : $("#radiogenderf").prop("checked", true)
         // var unit_no = table.cell( this, 15).data();
         // var phase = table.cell( this, 16).data();
-        
+
         // var street = table.cell( this, 18).data();
         // var subdivi = table.cell( this, 19).data();
         // var building = table.cell( this, 20).data();
@@ -1713,7 +1713,7 @@ $(document).ready(function(){
         // var date_arrival = table.cell( this, 22).data();
         var fullname = lastname + ", " + firstname + " " + middlename;
 
-      
+
         var cdate = new Date(Date.now());
         var rgdate = new Date(bdate);
         var ryear = parseInt(rgdate.getFullYear());
@@ -1728,7 +1728,7 @@ $(document).ready(function(){
         if (rday >= 32){ rday = 1; }
         if (rmont >= 13){ rmont = 1; }
         var current_year = new Date(cyear,cmon,cday);
-        var dob_year = new Date(ryear,rmont,rday); 
+        var dob_year = new Date(ryear,rmont,rday);
         var days = DaysBetween(dob_year,current_year);
         var parse_number = 0;
 
@@ -1736,7 +1736,7 @@ $(document).ready(function(){
         //if (house_no != null) { housenum = parseInt(house_no); }
         if(age >= 1) { $('#edit_age').text(age); } else if (age < 1) {get_bday=displayAge(bdate,moment());$('#edit_age').text(get_bday);}
 
-        
+
         $('#edit_db_name').text(fullname);
         $('#EditCatID').val(res_id);
         $('#editlname').val(lastname);
@@ -1777,11 +1777,11 @@ $(document).ready(function(){
         dangerMode: true,
     })
     .then((willDelete) => {
-        if (willDelete) 
+        if (willDelete)
         {
             window.location.href = "{{route('ResidentsExport')}}";
         }
-        else 
+        else
         {
            Cancelled('Operation Cancelled!');
        }
@@ -1816,7 +1816,7 @@ $(document).ready(function(){
         }
         else
         {
-            fd.append("file", property);    
+            fd.append("file", property);
             fd.append('_token', "{{ csrf_token() }}");
             swal({
                 title: "Are you sure?",
@@ -1826,7 +1826,7 @@ $(document).ready(function(){
                 dangerMode: true,
             })
             .then((willDelete) => {
-                if (willDelete) 
+                if (willDelete)
                 {
                     $.ajax({
                         url : "{{ route('ResidentsImport') }}",
@@ -1846,9 +1846,9 @@ $(document).ready(function(){
                         console.log("error: " + error);
 
                     }
-                }); 
+                });
                 }
-                else 
+                else
                 {
                    Cancelled('Operation Cancelled!');
                }
@@ -1879,10 +1879,10 @@ $(document).ready(function(){
     } else {
         $('#childrendiv').hide()
     }
-    
-    
 
-}); 
+
+
+});
 
 
 
@@ -1893,7 +1893,7 @@ $(document).ready(function(){
     get_count_1 = count_1++;
     get_count_2 = count_2++;
     $(this).closest('table').find('tbody').append(
-        '<tr>\n' 
+        '<tr>\n'
 
         +'<td><label style="text-align: left">&nbspFirst Name</label><input type="text" id=multifname name=multifname class="form-control multifname" placeholder="John">&nbsp\n'
         +'<label style="text-align: left">&nbspMiddle Name</label><input id=multimname name=multimname class="form-control multimname" placeholder="Doe">&nbsp\n'
@@ -1911,8 +1911,8 @@ $(document).ready(function(){
 
 
         +'</td>&nbsp\n'
-        
-        
+
+
 
         +'<td> <label style="text-align: left">&nbspCivil Status</label><select id=multicvstat name=multicvstat class="form-control multicvstat">\n'
         +'<option value="Single" selected>Single</option>\n'
@@ -1944,16 +1944,16 @@ $(document).ready(function(){
         +'<label class="col-md-3 col-form-label text-md-right">Birth Attendant</label><textarea  id="multibattendant" name="multibattendant" placeholder="e.g , doctor, nurse, midwife, hilot" class="form-control"  ></textarea>\n'
 
         +'<label class="col-md-3 col-form-label text-md-right">Place of school</label><input type="text" id="multipschool" name="multipschool" class="form-control" />\n'
-        
+
 
 
 
         +'<div style="display: none" id="multioccup"><label style="text-align: left">&nbspOccupation</label><input id=multioccupation name=multioccupation class="form-control multioccupation" placeholder="e.g programmer" >&nbsp\n <div style="display: none" class="multi_showwork"><label style="text-align: left">&nbsp\n\nWork Status</label><select class="form-control multiws" data-style="btn-lime" name="multiws" id="multiws"><option value="NotApplicable" selected>Not Applicable</option><option value="Employed">Employed</option><option value="Unemployed">Unemployed</option><option value="Retired">Retired</option></select><label style="text-align: left">Date Started Working </label><input type="date" id="multidsw" name="multidsw" class="form-control multidsw"  /><label style="text-align: left">Is an OFW? <span class="text-danger">&nbsp;</span></label><div class="radio radio-css radio-inline"><input type="radio" name="multisofw" class="multisofw" id="MultiinlineCssRadioNo'+get_count_1+'" value="0" checked /> <label for="MultiinlineCssRadioNo'+get_count_1+'">No</label></div><div class="radio radio-css radio-inline"><input type="radio" class="multisofw" name="multisofw" id="MultiinlineCssRadioYes'+get_count_2+'" value="1" /><label for="MultiinlineCssRadioYes'+get_count_2+'">Yes</label></div></div></td>&nbsp\n'
 
 
-        
+
         +'</div>\n'
-        +'</td>&nbsp\n' 
+        +'</td>&nbsp\n'
 
 
         +'<td><label style="text-align: left">&nbspRelation to Household head</label><select id=multireltohead name=multireltohead class="form-control multireltohead">&nbsp\n'
@@ -1995,7 +1995,7 @@ $(document).ready(function(){
         +'<option value="Country">From Other Country</option>\n'
         +'<option value="Barangay">From Other Barangay</option>\n'
         +'<option value="Province">From Other Province</option>\n'
-        +'\n' 
+        +'\n'
         + '</select>&nbsp\n'
         +'<input id=multifromwhat name=multifromwhat class="form-control multifromwhat" placeholder="">\n'
         +'<label class="col-md-3 col-form-label text-md-right">Type of document</label><input type="text" id="multimdocument" name="multimdocument" placeholder="" class="form-control"/>\n'
@@ -2032,14 +2032,14 @@ $(document).ready(function(){
 
         +'</select>&nbsp\n'
         +'<label style="text-align: left">Is Registered Voter? <span class="text-danger">&nbsp;</span></label><div class="radio radio-css radio-inline"><input type="radio" name="multiirv" class="multiirv" id="MultiinlineRegisteredVoterNo" value="0" checked /><label for="MultiinlineRegisteredVoterNo">No</label></div><div class="radio radio-css radio-inline"><input type="radio" class="multiirv" name="multiirv" id="MultiinlineRegisteredVoterYes" value="1" /><label for="MultiinlineRegisteredVoterYes">Yes</label>\n'
-        +'<td><a class="btn btn-danger" onclick="if($(\'#prodvartable tbody tr\').length>1)$(this).closest(\'tr\').remove()"><i class="fa fa-minus text-white"></i></a></td>\n' 
+        +'<td><a class="btn btn-danger" onclick="if($(\'#prodvartable tbody tr\').length>1)$(this).closest(\'tr\').remove()"><i class="fa fa-minus text-white"></i></a></td>\n'
         +'</tr>\n'
 
         );
 });
-    
 
-    
+
+
 </script>
 <script type="text/javascript">
 
@@ -2064,7 +2064,7 @@ $(document).ready(function(){
         onfocusout: false,
         invalidHandler: function(form, validator) {
             var errors = validator.numberOfInvalids();
-            if (errors) {                    
+            if (errors) {
                 validator.errorList[0].element.focus();
             }
         },
@@ -2153,7 +2153,7 @@ $("#register-btn").click(function(e){
     var mage = mcyear - mryear;
     var mar_status =  $('#mfn').children(":selected").attr("value");
 
-    
+
     if (mrday >= 32){
         mrday = 1;
     }
@@ -2161,11 +2161,11 @@ $("#register-btn").click(function(e){
         mrmont = 1;
     }
     var current_year = new Date(mcyear,mcmon,mcday);
-    var dob_year = new Date(mryear,mrmont,mrday); 
+    var dob_year = new Date(mryear,mrmont,mrday);
     var days = DaysBetween(dob_year,current_year);
-    
-   
-        
+
+
+
 
             if (mage==0 || mage<0) {
                 if ( days <= 28 && days >= 0 ) {
@@ -2183,15 +2183,15 @@ $("#register-btn").click(function(e){
                 status = "adolescent";
             }
             else if ( mage >= 60 ) {
-                
+
                 status = "elderly";
-                
+
             }
-            
+
             //alert(status);
-        
+
               //resident
-              var typeofdocument, wctcissued, wherectcissued; 
+              var typeofdocument, wctcissued, wherectcissued;
               var fname = $('#firstname').val();
               var mname = $('#middlename').val();
               var lname = $('#lastname').val();
@@ -2257,7 +2257,7 @@ $("#register-btn").click(function(e){
                 wctcissued = "";
                 wherectcissued = "";
               }
-              
+
 
               if ($("#cssCheckbox1Toilet").is(":checked")){ var toilet = 1; } else if ($("#cssCheckbox1Toilet").is(":not(:checked)")) { var toilet = 0; }
 
@@ -2308,7 +2308,7 @@ $("#register-btn").click(function(e){
 
                 if ($("#cssCheckboxpuzzles").is(":checked")){ var puzzles = 1; } else if ($("#cssCheckboxpuzzles").is(":not(:checked)")) { var puzzles = 0; }
 
-                
+
 
                     // start multiple textbox
                     var multi_fname = [];
@@ -2320,7 +2320,7 @@ $("#register-btn").click(function(e){
                     var multi_ctizi = [];
                     var multi_cvstat = [];
                     var multi_sex = [];
-                    
+
                     var multi_educatt = [];
                     var multi_is_ofw = [];
                     var multi_occupation = [];
@@ -2338,16 +2338,16 @@ $("#register-btn").click(function(e){
                     var multi_migrants = [];
                     var multi_fromwhat = [];
                     var multi_res = [];
-                    
-                    
+
+
                     // if (document.getElementById("childrendiv").style.display == "none") {
                     //      ifshow = "true";
                     // }
-                   
+
                     // swal("Please insert atleast one member!", {
-                    //     icon: "error", 
+                    //     icon: "error",
                     // });
-                        
+
                      $(".multifname").each(function(){
                         multi_fname.push($(this).val());
                     });
@@ -2381,7 +2381,7 @@ $("#register-btn").click(function(e){
                     $(".multictizi").each(function(){
                         multi_ctizi.push($(this).val());
                     });
-                    
+
                     $(".multieducatt option:selected").each(function(){
                         multi_educatt.push($(this).val());
                     });
@@ -2455,7 +2455,7 @@ $("#register-btn").click(function(e){
                console.log("multidoba length :" + multi_doba.length)
                 var multistatus = [];
 
-                for(var i=0; i<multi_doba.length; i++) 
+                for(var i=0; i<multi_doba.length; i++)
                 {
                         cdate.push(new Date(Date.now()));
                         rgdate.push(new Date(multi_doba[i]));
@@ -2472,15 +2472,15 @@ $("#register-btn").click(function(e){
 
                         current_year[i] = new Date(cyear[i],cmon[i],cday[i]);
                         dob_year[i] = new Date(ryear[i],rmont[i],rday[i]);
-                        const oneDay = 1000 * 60 * 60 * 24; 
+                        const oneDay = 1000 * 60 * 60 * 24;
                         //days[i] = DaysBetween(dob_year,current_year); Date.UTC(current_year[i].getFullYear(), current_year[i].getMonth(), current_year[i].getDate());  Date.UTC(dob_year[i].getFullYear(), dob_year[i].getMonth(), dob_year[i].getDate());
                         start[i] = new Date(cyear[i],cmon[i],cday[i]);
-                        end[i] =  new Date(ryear[i],rmont[i],rday[i]);  
+                        end[i] =  new Date(ryear[i],rmont[i],rday[i]);
                         days[i] = DaysBetween(dob_year[i],current_year[i]);
 
                         if (age[i]==0 || age[i]<0) {
 
-                            if (days[i] <= 28 && days[i] >= 0) { 
+                            if (days[i] <= 28 && days[i] >= 0) {
                                  //fcolors[i]="#ffcdcc";
                                //multistatus[i] = "newborn";
                                multistatus.push("newborn");
@@ -2506,7 +2506,7 @@ $("#register-btn").click(function(e){
                     //multistatus.push("newborn");
                 console.log("multi status: " + multistatus)
                 console.log("multistatus length :" + multistatus.length)
-                
+
 
                 get_data = {
 
@@ -2517,7 +2517,7 @@ $("#register-btn").click(function(e){
                 qualifier: qualifier,
                 sex_gender: selectedsex,
                 dateofbirth: dateofbirth,
-                
+
                 civilstatus: civilstatus,
                 placeofbirth: placeofbirth,
                 is_ofw: is_ofw,
@@ -2528,7 +2528,7 @@ $("#register-btn").click(function(e){
                 dateofstartwork: dateofstartwork,
                 relationtohead: relationtohead,
                 dateofarrive: dateofarrive,
-                
+
                 is_indegenous: is_indegenous,
                 firstname: fname,
                 contactnumber: contactnumber,
@@ -2597,7 +2597,7 @@ $("#register-btn").click(function(e){
                 multi_mname :multi_mname,
                 multi_lname:multi_lname,
                 multi_poba:multi_poba,
-               
+
                 multi_doar:multi_doar,
                 multi_ctizi:multi_ctizi,
                 multi_cvstat:multi_cvstat,
@@ -2623,16 +2623,16 @@ $("#register-btn").click(function(e){
                 status: status,
                 _token: "{{ csrf_token() }}"
                 };
-           
+
                 let result;
-                
+
                Add(get_data);
 
 
     // end main household
 
 
-    
+
 
 });
 
@@ -2645,7 +2645,7 @@ $("#register-btn").click(function(e){
     $(document).on('change','.rbi-homeownership',function(){
         if($(this).find('option:selected').val() != 'Owned')
         {
-                
+
                 $('.rbi-RelToHead-show'+$(this).attr('target')).show();
         }else{
                 $('.rbi-RelToHead-show'+$(this).attr('target')).hide();
@@ -2657,8 +2657,8 @@ $("#register-btn").click(function(e){
     function RemoveRBI(count)
     {
         $(".srow"+count).remove();
-      
-        
+
+
     }
     multi_form_count = 0;
     multi_form_count_radio_1 = 4;
@@ -2671,11 +2671,11 @@ $("#register-btn").click(function(e){
         get_multi_form_count_increment_1 = multi_form_count_radio_1++;
         get_multi_form_count_increment_2 = multi_form_count_radio_2++;
             $(".rbi-list-form").append(
-                   
+
                 '<fieldset class="srow'+get_multi_form_count_increment+'"><div class="alert alert-primary fade show">&nbsp;'
                     +'<button type="button" class="btn btn-sm btn-success add-rbi-btn" style="float: right"><i class="fa fa-plus"></i></button>'
                     +'<button type="button" class="btn btn-sm btn-danger "  onclick="RemoveRBI('+get_multi_form_count_increment+')" style="float: right" id="delete-rbi-btn"><i class="fa fa-times"></i></button></div>'
-                    +'<div class="row"><div class="col-md-6 multi-form-resident " > '                  
+                    +'<div class="row"><div class="col-md-6 multi-form-resident " > '
                         +'<div class="form-group row m-b-10">'
                             +'<label class="col-md-3 col-form-label text-md-right">First Name <span class="text-danger">*</span></label>'
                                 +'<div class="col-md-6">'
@@ -2699,7 +2699,7 @@ $("#register-btn").click(function(e){
                                 +'<div class="col-md-6">'
                                     +'<input type="text" id="rbi-qualifier" name="rbi-qualifier" class="form-control rbi-qualifier" />'
                                 +'</div>'
-                        +'</div>' 
+                        +'</div>'
                         +'<div class="form-group row m-b-10">'
                             +'<label class="col-md-3 col-form-label text-md-right">Sex <span class="text-danger">&nbsp;</span></label>'
                                 +'<div class="col-md-6">'
@@ -2718,19 +2718,19 @@ $("#register-btn").click(function(e){
                                 +'<div class="col-md-6">'
                                     +'<input type="date" id="rbi-dateofbirth"  target="'+get_multi_form_count_increment_2+'" name="rbi-dateofbirth" placeholder="" class="form-control rbi-dateofbirth"  />'
                                 +'</div>'
-                        +'</div>'   
+                        +'</div>'
                         +'<div class="form-group row m-b-10 ">'
                             +'<label class="col-md-3 col-form-label text-md-right">Age<span class="text-danger">*</span></label>'
                                 +'<div class="col-md-6">'
                                     +'<input type="text" id="rbi-age'+get_multi_form_count_increment_2+'" name="rbi-age" class="form-control rbi-age" style="background-color: white;" readonly  />'
                                 +'</div>'
-                        +'</div>' 
+                        +'</div>'
                         +'<div class="form-group row m-b-10">'
                             +'<label class="col-md-3 col-form-label text-md-right">Place of Birth<span class="text-danger">*</span></label>'
                                 +'<div class="col-md-6">'
                                     +'<input type="text" id="rbi-placeofbirth" name="rbi-placeofbirth" class="form-control rbi-placeofbirth" style="background-color: white;"  />'
                                 +'</div>'
-                        +'</div>'   
+                        +'</div>'
                         +'<div class="form-group row m-b-10">'
                             +'<label class="col-md-3 col-form-label text-md-right">Civil Status <span class="text-danger">*</span></label>'
                                 +'<div class="col-md-6">'
@@ -2745,8 +2745,8 @@ $("#register-btn").click(function(e){
                                         +'<option value="Single Parent" >Single Parent</option>'
                                     +'</select>'
                                 +'</div>'
-                        +'</div>'   
-                    +'</div>'    
+                        +'</div>'
+                    +'</div>'
 
 
                     +'<div class="col-md-6 " >'
@@ -2755,8 +2755,8 @@ $("#register-btn").click(function(e){
                                 +'<div class="col-md-6">'
                                     +'<input type="text" id="rbi-Occupation" name="rbi-Occupation" placeholder="Indicate None if so" class="form-control rbi-Occupation"  />'
                                 +'</div>'
-                        +'</div>'  
-                        
+                        +'</div>'
+
                         +'<div class="form-group row m-b-10">'
                             +'<label class="col-md-3 col-form-label text-md-right">Ownership Status<span class="text-danger">*</span></label>'
                                 +'<div class="col-md-6">'
@@ -2765,17 +2765,17 @@ $("#register-btn").click(function(e){
                                         +'<option value="Rented">Rented</option>'
                                         +'<option value="With Parents" >With Parents</option>'
                                         +'<option value="With Relatives" >With Relatives</option>'
-                             
+
                                     +'</select>'
                                 +'</div>'
-                        +'</div>'  
+                        +'</div>'
 
                         +'<div class="form-group row m-b-10 rbi-RelToHead-show'+get_count_m+'"  style="display:none">'
                             +'<label class="col-md-3 col-form-label text-md-right">Relationship to Household Head<span class="text-danger">*</span></label>'
                                 +'<div class="col-md-6">'
                                     +'<input type="text" id="rbi-RelationToHead"  name="rbi-RelationToHead" placeholder="Indicate Household Head if so" class="form-control rbi-RelationToHead "/>'
                                 +'</div>'
-                        +'</div>' 
+                        +'</div>'
 
 
 
@@ -2804,30 +2804,30 @@ $("#register-btn").click(function(e){
                                     +'<input type="text" id="rbi-Citizenship" name="rbi-Citizenship" placeholder="Filipino" class="form-control rbi-Citizenship" />'
                                 +'</div>'
                         +'</div> '
-                        
+
                     +'</div>'
                     +'</div>'
                     +'</fieldset>'
             );
         });
-    
-    
+
+
     function check_multi_age(dateofbirth){
         birthDate = new Date(dateofbirth);
         today = new Date();
 
         var years = (today.getFullYear() - birthDate.getFullYear());
 
-        if (today.getMonth() < birthDate.getMonth() || 
+        if (today.getMonth() < birthDate.getMonth() ||
             today.getMonth() == birthDate.getMonth() && today.getDate() < birthDate.getDate()) {
         years--;
     }
 
     return years;
-      
+
 
     }
-    
+
     $(document).on('change','#rbi-dateofbirth', function(){
         get_age =check_multi_age($(this).val());
         var cdate = new Date(Date.now());
@@ -2848,23 +2848,23 @@ $("#register-btn").click(function(e){
                 rmont = 1;
             }
             var current_year = new Date(cyear,cmon,cday);
-            var dob_year = new Date(ryear,rmont,rday); 
+            var dob_year = new Date(ryear,rmont,rday);
             var days = DaysBetween(dob_year,current_year);
-            
 
-            
+
+
                 if (age >= 1 ) {
-                    
+
                     age == 1 ? $("#rbi-age").val(age + " year old") : $("#rbi-age").val(age + " year's old")
                 }
                 else if ( age < 1 ){
                     days <= 1 ? $("#rbi-age").val(days + " day old") : $("#rbi-age").val(days + " day's old")
                 }
 
-            
 
-        
-    
+
+
+
     });
     $(document).on('change','.rbi-dateofbirth', function(){
         get_age =check_multi_age($(this).val());
@@ -2886,26 +2886,26 @@ $("#register-btn").click(function(e){
                 rmont = 1;
             }
             var current_year = new Date(cyear,cmon,cday);
-            var dob_year = new Date(ryear,rmont,rday); 
+            var dob_year = new Date(ryear,rmont,rday);
             var days = DaysBetween(dob_year,current_year);
-            
 
-            
+
+
                 if (age >= 1 ) {
-                    
+
                     age == 1 ? $("#rbi-age"+$(this).attr('target')).val(age + " year old") :$("#rbi-age"+$(this).attr('target')).val(age + " year's old")
                 }
                 else if ( age < 1 ){
                     days <= 1 ? $("#rbi-age"+$(this).attr('target')).val(days + " day old") :$("#rbi-age"+$(this).attr('target')).val(days + " day's old")
                 }
 
-            
 
-        
-    
+
+
+
     });
-   
-    
+
+
     $(document).on('click','.sw-btn-next',function(){
         $multi_rbi_first_name = [];
         $multi_rbi_middle_name = [];
@@ -2980,7 +2980,7 @@ $("#register-btn").click(function(e){
             $multi_rbi_hstreet.push($(this).val());
         });
 
-        
+
 
         $(".rbi-hbuilding").each(function(){
             $multi_rbi_hbuilding.push($(this).val());
@@ -3006,28 +3006,28 @@ $("#register-btn").click(function(e){
             $multi_rbi_occupation.push($(this).val());
         });
 
-        
+
 
         $("#rbi-summary-table tbody tr:eq(3)").remove();
         for(i = 0 ; i < $multi_rbi_first_name.length ; i++)
-        {   
+        {
 
             $("#rbi-summary-table tbody").append(
                     '<tr>'
-                    +'<td>'+$multi_rbi_last_name[i].toUpperCase()+'</td>' 
-                    +'<td>'+$multi_rbi_first_name[i].toUpperCase()+'</td>' 
-                    +'<td>'+$multi_rbi_middle_name[i].toUpperCase()+'</td>' 
-                    +'<td>'+$multi_rbi_qualifier[i].toUpperCase()+'</td>' 
-                    +'<td>'+($multi_rbi_houseno[i] == '' ? $multi_rbi_hunitno[i] :  $multi_rbi_houseno[i] )+'</td>' 
-                    +'<td>'+$multi_rbi_hstreet[i]+'</td>' 
-                    +'<td>'+($multi_rbi_hphase[i]+' '+$multi_rbi_hsubdivision[i] == '' ? $multi_rbi_hbuilding : $multi_rbi_hsubdivision )+' </td>' 
-                    +'<td>'+$multi_rbi_place_of_birth[i]+'</td>' 
-                    +'<td>'+$multi_rbi_date_of_birth[i]+'</td>' 
-                    +'<td>'+$multi_rbi_sex[i]+'</td>' 
+                    +'<td>'+$multi_rbi_last_name[i].toUpperCase()+'</td>'
+                    +'<td>'+$multi_rbi_first_name[i].toUpperCase()+'</td>'
+                    +'<td>'+$multi_rbi_middle_name[i].toUpperCase()+'</td>'
+                    +'<td>'+$multi_rbi_qualifier[i].toUpperCase()+'</td>'
+                    +'<td>'+($multi_rbi_houseno[i] == '' ? $multi_rbi_hunitno[i] :  $multi_rbi_houseno[i] )+'</td>'
+                    +'<td>'+$multi_rbi_hstreet[i]+'</td>'
+                    +'<td>'+($multi_rbi_hphase[i]+' '+$multi_rbi_hsubdivision[i] == '' ? $multi_rbi_hbuilding : $multi_rbi_hsubdivision )+' </td>'
+                    +'<td>'+$multi_rbi_place_of_birth[i]+'</td>'
+                    +'<td>'+$multi_rbi_date_of_birth[i]+'</td>'
+                    +'<td>'+$multi_rbi_sex[i]+'</td>'
                     +'<td>'+$multi_rbi_civil_status[i]+'</td>'
                     +'<td>'+$multi_rbi_citizenship[i]+'</td>'
                     +'<td>'+$multi_rbi_occupation[i]+'</td>'
-                    +'<td>'+$multi_rbi_rel_to_head[i]+'</td>' 
+                    +'<td>'+$multi_rbi_rel_to_head[i]+'</td>'
                     +'</tr>'
             );
 
@@ -3101,9 +3101,9 @@ $("#register-btn").click(function(e){
                 rmont = 1;
             }
             var current_year = new Date(cyear,cmon,cday);
-            var dob_year = new Date(ryear,rmont,rday); 
+            var dob_year = new Date(ryear,rmont,rday);
             var days = DaysBetween(dob_year,current_year);
-            
+
 
             $("#rbi-age").val(age)
                         if (age==0 || age<0) {
@@ -3111,7 +3111,7 @@ $("#register-btn").click(function(e){
 
                     var status = "newborn";
                     multi_rbi_status.push(status);
-                    
+
                 }
                 else if ( days >= 29 ) {
 
@@ -3137,10 +3137,10 @@ $("#register-btn").click(function(e){
                 var status = "elderly";
                 multi_rbi_status.push(status);
                 }
-                
+
 
         });
-        
+
         $(".rbi-age").each(function(){
             multi_rbi_age.push($(this).val());
         });
@@ -3199,7 +3199,7 @@ $("#register-btn").click(function(e){
             multi_rbi_last_name      : multi_rbi_last_name,
             multi_rbi_qualifier      : multi_rbi_qualifier,
             multi_rbi_sex            : multi_rbi_sex,
-            multi_rbi_date_of_birth  : multi_rbi_date_of_birth, 
+            multi_rbi_date_of_birth  : multi_rbi_date_of_birth,
             multi_rbi_age            : multi_rbi_age,
             multi_rbi_place_of_birth : multi_rbi_place_of_birth,
             multi_rbi_civil_status   : multi_rbi_civil_status,
@@ -3245,7 +3245,7 @@ $("#register-btn").click(function(e){
 
                     });
                     // location.reload();
-                    
+
                 } else {
                     swal("Operation Cancelled.", {
                         icon: "error",
@@ -3254,16 +3254,18 @@ $("#register-btn").click(function(e){
             });
 
     });
-    
+
     // END RBI FORM
 
- 
+
 </script>
 <script type="text/javascript">
 
     // SEARCH RESIDENTS SCRIPT START
-    table = $("#resident_table").DataTable({"bFilter": false
-        ,columnDefs: [{
+    table = $("#resident_table").DataTable({
+
+        bFilter: false, 
+        columnDefs: [{
             "targets": [0],
             "visible": false
         },{
@@ -3314,12 +3316,13 @@ $("#register-btn").click(function(e){
         },{
             "targets": [21],
             "visible": false
-        }]});
+        }]
+    });
 
   $('.search_btn').on('click',function() {
             //$('#resident_table').closest('tbody tr').find('td').remove();
             var searchval = $('#stext').val()
-            
+            var addresshno, addressstno, addressstreet;
             $.ajax({
                url:  "{{ route('LoadResidents') }}",
                type: 'get',
@@ -3327,8 +3330,10 @@ $("#register-btn").click(function(e){
                success:function(data){
                     table.clear().draw();
                     data['data'].map((val)=>{
-
-                    table.row.add([ 
+                    val['ADDRESS_HOUSE_NO'] == null ? addresshno = '' : addresshno = val['ADDRESS_HOUSE_NO'];
+                    val['ADDRESS_STREET_NO'] == null ? addressstno = '' : addressstno = val['ADDRESS_STREET_NO'];
+                    val['ADDRESS_STREET'] == null ? addressstreet = '' : addressstreet = val['ADDRESS_STREET'];
+                    table.row.add([
 
                         val['RESIDENT_ID'],
                         val['LASTNAME'],
@@ -3343,7 +3348,8 @@ $("#register-btn").click(function(e){
                         val['ADDRESS_STREET_NO'],
                         val['ADDRESS_STREET'],
                         val['LASTNAME'] + ',' +  (val['QUALIFIER'] == null ? '' : val['QUALIFIER']) + ' ' + val['FIRSTNAME'] + ' ' + val['MIDDLENAME'] + ' / ' +val['SEX'],
-                        val['ADDRESS_HOUSE_NO'] + ', '+val['ADDRESS_STREET_NO'] + ' ' + val['ADDRESS_STREET'] + ' ' + val['ADDRESS_SUBDIVISION'],
+
+                        addresshno +' '+ addressstno +' '+ addressstreet,
                         val['SEX'],
                         val['DATE_OF_BIRTH'] + ' , ' +val['PLACE_OF_BIRTH'],
                         val['CIVIL_STATUS'],
@@ -3355,17 +3361,17 @@ $("#register-btn").click(function(e){
                         '<button type="button" class="btn btn-success edit-modal-btn" data-toggle="modal" data-target="#UpdateModal"><i class="fas fa-edit"></i> Edit</button>'
                         ]).draw();
 
-                        
+
                 })
-            
+
                },
                error: function(error){
 
 
                }
             });
-             
-            
+
+
     })
     // SEARCH RESIDENTS SCRIPT END
 
@@ -3383,8 +3389,8 @@ $("#register-btn").click(function(e){
     //            type: 'get',
     //            data: { searchval: searchval, _token : "{{ csrf_token() }}"}
     //         },
-            
-    //         columns: [  
+
+    //         columns: [
     //         { data: "RESIDENT_ID", name: "RESIDENT_ID", visible: false, searchable: true,  },
     //         { data: "LASTNAME", name: "LASTNAME" , visible: false, searchable: true, },
     //         { data: "FIRSTNAME", name: "FIRSTNAME" , visible: false, searchable: true, },
@@ -3398,36 +3404,36 @@ $("#register-btn").click(function(e){
     //         { data: "ADDRESS_HOUSE_NO", name: "ADDRESS_HOUSE_NO", visible: false, searchable: false},
     //         { data: "ADDRESS_STREET_NO", name: "ADDRESS_STREET_NO", visible: false, searchable: false},
     //         { data: "ADDRESS_STREET", name: "ADDRESS_STREET", visible: false, searchable: false},
-            
-    //         { 
+
+    //         {
 
     //            render: function ( data, type, full, meta, row ) {
     //                         full.MIDDLENAME == null ? middlename = '' : middlename = full.MIDDLENAME
     //                         full.QUALIFIER == null ? qualifier = '' : qualifier = full.QUALIFIER;
-                                
+
     //                         return full["FIRSTNAME"] + ' ' + middlename +' '+ full["LASTNAME"] + ', ' +qualifier +'<br>' + '('+full["SEX"]+')';
     //                     }, class: 'fontstyling',
-                
+
     //         },
-    //         { 
+    //         {
 
     //            render: function ( data, type, full, meta, row ) {
-                            
+
     //                         full["ADDRESS_STREET_NO"] == null ? streetno  = '' : streetno = full["ADDRESS_STREET_NO"]
     //                         return full["ADDRESS_HOUSE_NO"] + ', ' + streetno +  '<br>' + full["ADDRESS_STREET"];
     //                     }, class: 'fontstyling',
-                
+
     //         },
-            
+
     //         { data: "SEX",name: "SEX", searchable: false, visible: false},
-    //         { 
+    //         {
 
     //            render: function ( data, type, full, meta, row ) {
-                            
+
     //                         designer = full["PLACE_OF_BIRTH"] + '<br>' + full["DATE_OF_BIRTH"];
     //                         return designer;
     //                     }, searchable: false, class: 'fontstyling',
-                
+
     //         },
     //         { data: "CIVIL_STATUS", name:"CIVIL_STATUS",searchable:false, class: 'fontstyling'},
     //         { data: "OCCUPATION", name: "OCCUPATION", searchable: false, class: 'fontstyling'},
@@ -3435,7 +3441,7 @@ $("#register-btn").click(function(e){
     //         { data: "ADDRESS_UNIT_NO", name: "ADDRESS_UNIT_NO", visible: false, searchable: false},
     //         { data: "ADDRESS_SUBDIVISION", name: "ADDRESS_SUBDIVISION", visible: false, searchable: false},
     //         { data: "ADDRESS_BUILDING", name: "ADDRESS_BUILDING", visible: false, searchable: false},
-            
+
     //         {render:function(data, type, full, meta){
 
     //             output = "<button  type='button' class='btn btn-success editCategory' data-toggle='modal' data-target='#UpdateModal'><i class='fa fa-edit'></i> Edit&nbsp;";
@@ -3448,9 +3454,31 @@ $("#register-btn").click(function(e){
     //             // }
 
     //             return output;
-    //         }, searchable: false, class: 'fontstyling'}, 
+    //         }, searchable: false, class: 'fontstyling'},
     //         ]
     //     });
+$(".btns").hover(function(){
+  $(this).css("background-color", "gray");
+  
+  }, function(){
+  $(this).css("background-color", "#348fe2");
+  
+});
+
+
+</script>
+<script>
+$('.add_class').click(function() {
+    $('.search_header').hide();
+    //alert('hello')
+});
+
+$('.record_class').click(function() {
+    $('.search_header').show();
+    //alert('hello')
+});
+
+
 </script>
 
 @endsection
@@ -3458,7 +3486,7 @@ $("#register-btn").click(function(e){
 @section('content')
 <style type="text/css">
 label {
-    display: block;   
+    display: block;
 }
 
 input.error {
@@ -3485,37 +3513,39 @@ label.error {
     <!-- end breadcrumb -->
     <!-- begin row -->
                 <br><br><br><div class="row">
-               
+
             </div>
             <!-- end row -->
     <!-- begin page-header -->
     <h1 class="page-header">Basic Information  <small>DILG Requirements</small></h1>
     <!-- end page-header -->
-     <div class="input-group input-group-lg m-b-20">
-                    <input type="text" class="form-control input-white" placeholder="Search Resident/Inhabitant" id="stext"/>
-                    <div class="input-group-append">
-                        <button class="btn btn-primary search_btn"><i class="fa fa-search fa-fw"></i> Search</button>
-                    </div>
-                </div>
+     
                 <!-- end input-group -->
     <!-- begin nav-pills -->
     <ul class="nav nav-pills">
         <li class="nav-items">
-            <a href="#nav-pills-tab-1" data-toggle="tab" class="nav-link active">
+            <a href="#nav-pills-tab-1" data-toggle="tab" class="nav-link active record_class">
 
                 <span class="d-sm-block d-none">Records</span>
             </a>
         </li>
         <li class="nav-items">
-            <a href="#nav-pills-tab-2" data-toggle="tab" class="nav-link" >
+            <a href="#nav-pills-tab-2" data-toggle="tab" class="nav-link add_class" >
 
                 <span class="d-sm-block d-none">Add New</span>
             </a>
         </li>
     </ul>
 
-    <button type='button' class='btn btn-primary' style="width: 160px" data-toggle='modal' data-target='#Export_Import'><i class='fa fa-test'></i> Export/Import</button>
+    <button type='button' class='btn btn-primary' style="width: 160px" data-toggle='modal' data-target='#Export_Import'><i class='fa fa-test'></i> Export/Import</button><br><br>
+    <div class="input-group input-group-lg m-b-20 search_header" >
+                    <input type="text" class="form-control input-white" placeholder="Search Resident/Inhabitant" id="stext"/>
+                    <div class="input-group-append">
+                        <button class="btn btn-primary search_btn"><i class="fa fa-search fa-fw"></i> Search</button>
 
+
+                    </div>
+                </div>
     <div class="modal fade" id="Export_Import" data-backdrop="static">
         <div class="modal-dialog" style="max-width: 25%">
 
@@ -3563,15 +3593,15 @@ label.error {
     </div>
     <!-- end nav-pills -->
     <!-- begin tab-content -->
-    
-                <!-- begin dropdown -->
-                
 
-                
-    <br><br>
+                <!-- begin dropdown -->
+
+
+
+    
     <div class="tab-content" >
         <!-- begin tab-pane -->
-        
+
         <div class="tab-pane fade active show" id="nav-pills-tab-1">
             {{--Nav Pill Body Start--}}
             <!-- EXISTING RECORDS START -->
@@ -3597,7 +3627,7 @@ label.error {
                 </div> -->
                 <!-- end alert -->
                 <!-- begin panel-body -->
-                
+
                 <div class="panel-body">
 
                     <table id="resident_table" class="table table-hover table-striped table-bordered data-table" cellspacing="0" width="100%">
@@ -3621,12 +3651,12 @@ label.error {
                                 <th >Birth Details </th>
                                 <th >Civil Status </th>
                                 <th >Occupation</th>
-                               
+
                                 <th hidden>Citizenship</th>
                                 <th hidden>unit no</th>
                                 <th hidden>subdivision</th>
                                 <th hidden>building</th>
-                                
+
 
                                 <th style="width: 16%">Actions </th>
 
@@ -3774,7 +3804,7 @@ label.error {
                                                 <input type="text" name="edit_street" id="edit_street" placeholder="Street" class="form-control"  style="text-transform: capitalize;"/>
                                             </div>
                                         </div>
-                                    </div> 
+                                    </div>
                                     <div class="row">
                                         <div class="col-lg-4 col-md-6">
                                             <div class="stats-content">
@@ -3833,7 +3863,7 @@ label.error {
                                     <label style="display: block; text-align: left">&nbspOccupation</label>
                                     <input type="text" id="editoccu" name="editoccu" style="display: block; text-align: left; color:black; background-color:white; text-transform: capitalize;" class="form-control">
                                 </div>
-                                
+
                                 {{--<div class="col-lg-4 col-md-6">
                                     <label style="display: block; text-align: left">&nbspWork Status</label>
                                     <select class="form-control" data-style="btn-lime" id="editwstatus">
@@ -3871,11 +3901,11 @@ label.error {
                         <div class="col-lg-4 col-md-6">
                             <label style="display: block; text-align: left">&nbspContact #</label>
                             <input type="number" id="editcontact" name="editcontact" class="form-control" data-parsley-required="true" />
-                        </div> 
+                        </div>
                         <div class="col-lg-4 col-md-6">
                             <label style="display: block; text-align: left">&nbspReason of Arrival</label>
                             <select class="form-control " data-style="btn-lime" name="editareason" id="editareason">
-                              
+
                            </select>
                        </div>
 
@@ -3894,17 +3924,20 @@ label.error {
 </div>
         <!-- end tab-pane -->
         <!-- begin tab-pane -->
-        
+
         <div class="tab-pane fade " id="nav-pills-tab-2">
             {{--Nav Pill Body Start--}}
             {{--Table--}}
 
 
-                <ul class="nav nav-tabs nav-tabs-inverse">
+                <ul  class="nav nav-tabs nav-tabs-inverse" style="background-color:#348fe2">
+
                     
-                    <li class="nav-item"><a href="#nav-tab-1" data-toggle="tab" class="nav-link active">RBI Form</a></li>
-                    <li class="nav-item"><a href="#nav-tab-2" data-toggle="tab" class="nav-link ">MIC Form</a></li>
-              
+                        <li class="nav-item"><a href="#nav-tab-1" data-toggle="tab" style="background-color:#348fe2; color:white" class="nav-link active btns">RBI Form</a></li>
+                    <li class="nav-item"><a href="#nav-tab-2" data-toggle="tab" style="background-color:#348fe2; color:white" class="nav-link btns">MIC Form</a></li>
+        
+                    
+                    
                 </ul>
          <br>
          <div class="tab-content">
@@ -3919,11 +3952,11 @@ label.error {
                                     <h4 class="panel-title">RBI Form</h4>
                                 </div>
                                 <div class="panel-body">
-                
+
                                     <form id="AddForm" name="AddForm">
                                         @csrf
-                
-                
+
+
                                         <div id="wizard">
                                             <!-- begin wizard-step -->
                                             <ul>
@@ -3945,23 +3978,23 @@ label.error {
                                                         </span>
                                                     </a>
                                                 </li>
-                
+
                                             </ul>
-                
+
                                             <div>
                                                 <div id="step-1" class="rbi-list-form" >
-                
+
                                                     <!-- begin fieldset -->
                                                     <fieldset><br>
-                                                        
+
                                                         <div class="alert alert-primary fade show">Basic information about the resident <button type="button" class="btn btn-sm btn-success add-rbi-btn" style="float: right" id="add-rbi-btn"><i class="fa fa-plus"></i></button></div>
-                                                            
+
                                                         <!-- begin row -->
                                                         <div class="row">
                                                                 <br><br>
-                                                            
+
                                                             <div class="col-md-6">
-                                                                
+
                                                                     <!-- begin form-group -->
                                                                 <div class="form-group row m-b-10">
                                                                     <label class="col-md-3 col-form-label text-md-right">First Name <span class="text-danger">*</span></label>
@@ -4014,15 +4047,15 @@ label.error {
                                                                     <label class="col-md-3 col-form-label text-md-right">Date of Birth <span class="text-danger">*</span></label>
                                                                     <div class="col-md-6">
                                                                         <input type="date" id="rbi-dateofbirth" name="rbi-dateofbirth" placeholder="" class="form-control rbi-dateofbirth"  />
-                
+
                                                                     </div>
-                
+
                                                                 </div>
                                                                 <div class="form-group row m-b-10">
                                                                 <label class="col-md-3 col-form-label text-md-right">Age</label>
                                                                 <div class="col-md-6">
                                                                     <input type="text" id="rbi-age"  name="rbi-age" class="form-control rbi-age" style="background-color: white; font-size: 15px; color: black" readonly />
-                
+
                                                                 </div>
                                                             </div>
                                                             <!-- end form-group -->
@@ -4051,18 +4084,18 @@ label.error {
                                                                     </select>
                                                                 </div>
                                                             </div>
-                
+
                                                             <!-- end form-group -->
-                                                           
+
                                                         </div>
-                
+
                                                         <div class="col-md-6">
-                
-                                                         
-                
-                                                          
+
+
+
+
                                                             <!-- begin form-group -->
-                
+
                                                             <div class="form-group row m-b-10 showoccu"  id="showoccu">
                                                                 <label class="col-md-3 col-form-label text-md-right">Occupation </label>
                                                                 <div class="col-md-6">
@@ -4071,11 +4104,11 @@ label.error {
                                                             </div>
                                                             <!-- end form-group -->
                                                             <!-- begin form-group -->
-                                                            
-                
+
+
                                                             <!-- end form-group -->
                                                             <!-- begin form-group -->
-                                                            
+
 
 
                                                               <!-- begin form-group -->
@@ -4098,8 +4131,8 @@ label.error {
                                                                             <input type="text" id="rbi-RelationToHead" name="rbi-RelationToHead" placeholder="Indicate Household Head if so" class="form-control rbi-RelationToHead" style="text-transform: capitalize;"/>
                                                                         </div>
                                                                     </div>
-                                           
-                                            
+
+
                                             <br>
                                             <!-- begin form-group -->
                                             <div class="form-group row m-b-10">
@@ -4108,14 +4141,14 @@ label.error {
                                                     <input type="number" name="rbi-houseno" id="rbi-houseno" placeholder="146" class="form-control rbi-houseno"/>
                                                     <input type="text" name="rbi-hstreet_no" id="rbi-hstreet_no" placeholder="Area 3 Oriole Street*" class="form-control rbi-hstreet_no" style="text-transform: capitalize;" />
                                                     <input type="text" name="rbi-hstreet" id="rbi-hstreet" placeholder="Sitio Veterans" class="form-control rbi-hstreet" style="text-transform: capitalize;"/>
-                    
-                    
+
+
                                                 </div>
                                             </div>
                                             <div class="form-group row m-b-10">
                                                 <label class="col-md-3 col-form-label text-md-right">Optional<span class="text-danger"></span></label>
                                                 <div class="col-md-6">
-                    
+
                                                     <input type="text" name="rbi-hbuilding" id="rbi-hbuilding" placeholder="Building" class="form-control rbi-hbuilding" style="text-transform: capitalize;"/>
                                                     <input type="text" name="rbi-hunitno" id="rbi-hunitno" placeholder="Unit No." class="form-control rbi-hunitno" style="text-transform: capitalize;"/>
                                                     <input type="text" name="rbi-hsubdivision" id="rbi-hsubdivision" placeholder="Subdivision" class="form-control rbi-hsubdivision" style="text-transform: capitalize;"/>
@@ -4130,25 +4163,25 @@ label.error {
                                                         <input type="text" id="rbi-Citizenship" name="rbi-Citizenship" placeholder="Filipino" class="form-control rbi-Citizenship" style="text-transform: capitalize;"/>
                                                     </div>
                                                 </div>
-                                                
+
                                                 <!-- end form-group -->
                                         </div>
-                                    </div>                  
+                                    </div>
                             </fieldset>
 
-                            
-                     
+
+
                         </div>
-                        
-                
-                
+
+
+
                         <!-- end fieldset -->
                         <div id="step-2">
-                
-                
+
+
                             <fieldset  >
-                
-                        
+
+
                                 <div style="overflow-x:auto">
                             <table id="rbi-summary-table" class="table table-bordered" style="font-size: 15px">
                                     <tr>
@@ -4170,37 +4203,37 @@ label.error {
                                      <th>NUMBER</th>
                                      <th>STREET NAME</th>
                                      <th>NAME OF SUBD./PUROK/ZONE/SITIO</th>
-                                 
+
                                     </tr>
-                 
-                                   
+
+
                                    </table>
-                        
+
                                 </div>
-                
-                            
-                
-                
-                
-                            
+
+
+
+
+
+
                                    <center><button type="button" class="btn btn-lg btn-lime" style="margin-right: 1100px;" id="register-rbi-btn">Register Resident</button></center>
-                
+
                         </fieldset>
 
                 </div>
-                
+
                 </div>
-                
+
                 </div>
                 </form><br><br>
-                
-                
+
+
                 {{--<div class="text-center" >
-                
+
                     <p class="m-b-2 f-s-12">Please double check the provided information. Click the proceed button to finish registration.</p><br><br>
                     <p><a id="AddBTN" href="javascript:;" class="btn btn-primary">Proceed</a></p>
                 </div>--}}
-                
+
                 </div>
                 </div>
                 </div>
@@ -4223,7 +4256,7 @@ label.error {
 
                         <ul>
                             <li class="col-md-6 col-sm-3 col-6">
-                                <a href="#step-1">
+                                <a href="">
                                     <span class="number">1</span>
                                     <span class="info text-ellipsis">
                                         Personal Information
@@ -4243,8 +4276,8 @@ label.error {
 
                         </ul>
 
-                        <div id="step-1"  style="display: none" id="nbody">
-                            
+                        <div id="step-1"  style="" id="nbody">
+
                             <!-- begin fieldset -->
                             <fieldset><br>
                                 <div class="row">
@@ -4484,30 +4517,30 @@ label.error {
                             </div>
                             <!-- end form-group -->
                             <!-- begin form-group -->
-                            <div class="form-group row m-b-10">
-                                <label class="col-md-3 col-form-label text-md-right">Date Started Working </label>
-                                <div class="col-md-6">
-                                    <input type="date" id="dateofstartwork" name="dateofstartwork" class="form-control"  />
-                                </div>
-                            </div>
-                            <div class="form-group row m-b-10">
-                                <label class="col-md-3 col-form-label text-md-right">Place of work</label>
-                                <div class="col-md-6">
-                                    <input type="text" id="placeofwork" name="placeofwork" class="form-control"  />
-                                </div>
-                            </div>
-                            <div class="form-group row m-b-10" >
-                                <label class="col-md-3 col-form-label text-md-right">Occupation Status<span class="text-danger"></span></label>
-                                <div class="col-md-6" >
+                                                    <div class="form-group row m-b-10">
+                                                        <label class="col-md-3 col-form-label text-md-right">Date Started Working </label>
+                                                        <div class="col-md-6">
+                                                            <input type="date" id="dateofstartwork" name="dateofstartwork" class="form-control"  />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row m-b-10">
+                                                        <label class="col-md-3 col-form-label text-md-right">Place of work</label>
+                                                        <div class="col-md-6">
+                                                            <input type="text" id="placeofwork" name="placeofwork" class="form-control"  />
+                                                        </div>
+                                                    </div>
+                                                    <div class="form-group row m-b-10" >
+                                                        <label class="col-md-3 col-form-label text-md-right">Occupation Status<span class="text-danger"></span></label>
+                                                        <div class="col-md-6" >
 
-                                    <select class="form-control " data-style="btn-lime" name="workstatus" id="workstatus">
-                                        <option value="Permanent" selected>Permanent</option>
-                                        <option value="Casual">Casual</option>
+                                                            <select class="form-control " data-style="btn-lime" name="workstatus" id="workstatus">
+                                                                <option value="Permanent" selected>Permanent</option>
+                                                                <option value="Casual">Casual</option>
 
-                                        <option value="Contractual">Contractual</option>
-                                    </select>
-                                </div>
-                            </div>
+                                                                <option value="Contractual">Contractual</option>
+                                                            </select>
+                                                        </div>
+                                                    </div>
                             <div class="form-group row m-b-10">
                                 <label class="col-md-3 col-form-label text-md-right">Monthly income</label>
                                 <div class="col-md-6">
@@ -4698,8 +4731,8 @@ label.error {
 </div>
 <div style="display: block;" id="childrendiv">
     <div class="alert alert-danger fade show">List of household members</div>
-    
-    
+
+
 
     <div class="row" style="padding: 10px; ">
 
@@ -4728,7 +4761,7 @@ label.error {
 
 
 </div><br><br>
-<div class="alert alert-yellow fade show">Housing information</div> 
+<div class="alert alert-yellow fade show">Housing information</div>
 
 <div class="row">
 
@@ -4970,23 +5003,23 @@ label.error {
 <div id="step-3" style="display: none">
 
 
-    
+
 
   <table id="summary_tabl" class="table table-bordered" style="font-size: 15px">
-    <tbody></tbody>                                 
+    <tbody></tbody>
 </table>
 
 <table id="summary_utility" class="table table-bordered" style="font-size: 15px">
-    <tbody></tbody>                                 
+    <tbody></tbody>
 </table>
 <table id="summary_housing" class="table table-bordered" style="font-size: 15px">
-    <tbody></tbody>                                 
+    <tbody></tbody>
 </table>
 
 
 
 <table id="summary_entertainment" class="table table-bordered" style="font-size: 15px">
-    <tbody></tbody>                                 
+    <tbody></tbody>
 </table>
 
 
@@ -4996,21 +5029,21 @@ label.error {
 
 
 </div><br><br>
-                
-                
+
+
                 {{--<div class="text-center" >
-                
+
                     <p class="m-b-2 f-s-12">Please double check the provided information. Click the proceed button to finish registration.</p><br><br>
                     <p><a id="AddBTN" href="javascript:;" class="btn btn-primary">Proceed</a></p>
                 </div>--}}
-                
+
                 </div>
                 </div>
                 </div>
                 </div>
 
          </div>
-            
+
 <!-- end tab-content -->
 
 </div>
