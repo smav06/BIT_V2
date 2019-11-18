@@ -850,22 +850,22 @@
                                 <td hidden>{{$blotter->complaint_statement}}</td>
                                 <td hidden>{{$blotter->resolution}}</td>
                                 <td hidden>{{$blotter->status}}</td>
-                                <td>
-                                    <button type='button' class='btn btn-warning viewCategory' data-toggle='modal' data-target='#ViewModal' >
+                                <td style="width: 39%">
+                                    <button type='button' class='btn btn-warning viewCategory form-control' data-toggle='modal' data-target='#ViewModal' >
                                         <i class='fa fa-eye'></i> View
                                     </button>
 
                                     
-                                    <button type='button' id="HearingBTN" class='btn btn-yellow addHearing' data-toggle='modal' data-target='#HearingModal'>
+                                    <button type='button' id="HearingBTN" class='btn btn-yellow addHearing form-control' data-toggle='modal' data-target='#HearingModal'>
                                         <i class='fa fa-bell'></i> Patawag
                                     </button>
-
-                                    <button type='button'  class='btn btn-lime viewResolve' data-toggle='modal' data-target='#ResolveModal'>
+                                    
+                                    <button type='button'  class='btn btn-lime viewResolve form-control' data-toggle='modal' data-target='#ResolveModal'>
                                         <i class='fa fa-check'></i> Close Case
                                     </button>
 
-                                    <button type='button'  class='btn btn-danger remove-btn' >
-                                        <i class='fa fa-times'></i> Remove
+                                    <button type='button'  class='btn btn-danger remove-btn form-control' >
+                                        <i class='fa fa-times'></i> Remove&nbsp&nbsp
                                     </button>
                                 </td>
                             </tr>
