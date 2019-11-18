@@ -390,7 +390,7 @@ $(document).ready(function()
                                             <th hidden>Ordinance ID</th>
                                             <th >Author</th>
                                             <th >Title</th>
-                                            <th >Category</th>                                          
+                                            
                                             <th >Remarks</th>
                                             <th >Sanction</th>
                                             <th hidden>file</th>
@@ -413,6 +413,9 @@ $(document).ready(function()
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}" >
                                             <button type='button' class='btn btn-warning form-control ViewModal' data-toggle='modal' data-target='#ViewModal' id="" >
                                                 <i class='fa fa-eye'></i> View
+                                            </button>
+                                            <button type='button' class='btn btn-danger form-control remove-btn' data-toggle='modal' data-target='#ViewModal' id="" >
+                                                <i class='fa fa-times'></i> Remove
                                             </button>
                                         </td>
 

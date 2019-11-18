@@ -55,6 +55,7 @@ class BlottersController extends Controller
                                 , 'R.middlename'
                                 , 'R.firstname')
                             ->where(['B.status' => 'Pending'])
+                            ->where(['B.ACTIVE_FLAG' => 1])
                             ->orderBy('B.complaint_date', 'desc')
                             ->get();
 
@@ -205,7 +206,7 @@ class BlottersController extends Controller
 
        db::table('t_blotter')
             ->where('blotter_id', $blotter_id)
-            ->update(['IS_ACTIVE' => 0]);
+            ->update(['ACTIVE_FLAG' => 0]);
 
             
 
