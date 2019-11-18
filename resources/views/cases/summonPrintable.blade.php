@@ -40,7 +40,7 @@
 		<p style="margin-bottom: 2px; padding: -2px;">&nbsp;</p>
 		<br>
 		<br>
-		<p style="text-align: left; margin-bottom: 2px; margin-left: 50px; margin-right: 50px; font-size: large;">&emsp;&emsp; Sa pamamagitan nito, kayo ay aking tinatawagan upang humarap sa akin ng personal sa ika- <u>(araw)</u> ng <u>(buwan at taon)</u>, sa takdang oras na <u>(oras)</u> sa <u id="lbl_place"></u></p> 
+		<p style="text-align: left; margin-bottom: 2px; margin-left: 50px; margin-right: 50px; font-size: large;">&emsp;&emsp; Sa pamamagitan nito, kayo ay aking tinatawagan upang humarap sa akin ng personal sa ika- <u class="day">(araw)</u> ng <u id="month-year">(buwan at taon)</u>, sa takdang oras na <u id="time">(oras)</u> sa <u id="lbl_place"></u></p> 
 		<p style="margin-bottom: 2px; padding: -2px;">&nbsp;</p>
 		<p style="text-align: left; margin-bottom: 2px; margin-left: 50px; margin-right: 50px; font-size: large;">&emsp;&emsp; Sa pamamagitan nito, kayo ay aking pinaaalalahanan na sa inyong hindi pagtalima o kusang pag-iwas sa <strong>PATAWAG</strong> na ito ay mahahadlangan kayong makapagtrabaho ng kontra-demanda sa Hukuman / Tanggapan ng Pamahalaan.</p> 
 		<p style="margin-bottom: 2px; padding: -2px;">&nbsp;</p>

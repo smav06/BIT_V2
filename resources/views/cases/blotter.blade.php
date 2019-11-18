@@ -800,7 +800,7 @@
 
                                     
                                     <button type='button' id="HearingBTN" class='btn btn-yellow addHearing' data-toggle='modal' data-target='#HearingModal'>
-                                        <i class='fa fa-bell'></i> Summon
+                                        <i class='fa fa-bell'></i> Patawag
                                     </button>
 
                                     <button type='button'  class='btn btn-lime viewResolve' data-toggle='modal' data-target='#ResolveModal'>
@@ -883,7 +883,7 @@
                                         <i class='fa fa-eye'></i> View
                                     </button>
                                     <button type='button' id="ViewHearingBTN" class='btn btn-yellow addHearing' data-toggle='modal' data-target='#ViewHearingModal'>
-                                        <i class='fa fa-bell'></i> Summon
+                                        <i class='fa fa-bell'></i> Patawag
                                     </button>  
                                 </td>
                             </tr>
@@ -934,7 +934,7 @@
                                             <label>Complain Statement</label>
                                             <h4 id="ViewResolveComplainStatement"></h4>
                                         <br>
-                                            <label>Summon History</label>
+                                            <label>Patawag History</label>
                                             <table id="view-hearing-table" class="table table-striped table-bordered view-hearing-table">
                                                 <thead>
                                                 <tr>
@@ -1014,7 +1014,7 @@
                                             <label>Complain Statement</label>
                                             <h4 id="ViewComplainStatement"></h4>
                                         <br>
-                                            <label>Summon History</label>
+                                            <label>Patawag History</label>
                                             <table id="view-hearing-table" class="table table-striped table-bordered view-hearing-table">
                                                 <thead>
                                                 <tr>
@@ -1161,7 +1161,7 @@
 
                                     <div class="modal-content">
                                         <div class="modal-header" style="background-color:#F5CD30;">
-                                            <h4 class="modal-title" style="color: white">Schedule Summon</h4>
+                                            <h4 class="modal-title" style="color: white">Schedule Patawag</h4>
                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white">×</button>
                                         </div>
                                         <div class="modal-body">
@@ -1192,7 +1192,7 @@
                                                 </div>
                                             </div>
                                             <div class="col-lg-12">
-                                                <label>Summon History</label>
+                                                <label>Patawag History</label>
                                                 <table id="hearing-table" class="table table-striped table-bordered">
                                                     <thead>
                                                     <tr>
@@ -1231,7 +1231,7 @@
 
                                     <div class="modal-content">
                                         <div class="modal-header" style="background-color:#F5CD30;">
-                                            <h4 class="modal-title" style="color: white">Summon History</h4>
+                                            <h4 class="modal-title" style="color: white">Patawag History</h4>
                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white">×</button>
                                         </div>
                                         <div class="modal-body">

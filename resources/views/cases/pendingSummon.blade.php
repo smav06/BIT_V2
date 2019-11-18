@@ -50,28 +50,45 @@
                     contentType: false,
                     success:function(response) {
 
+                    cname = '';
+                    fname = '';
+                    lname = '';
+
+                    name = '';
+                    bsubject = '';
+                    place = '';
+                    datetime = '';
+                    split = '';
+                    
                     //get data here
                     $.each(response["for_print"], function(){
                         cname = this["complaint_name"];
 
                         fname = this["firstname"];
                         lname = this["lastname"]
-                        name = fname + ' ' + lname;
+                        name = this["Respondent"];
 
                         bsubject = this["blotter_name"];
-
+                        
                         datetime = this["patawag_sched_datetime"];
-                        split = datetime.split(" ");
+                        get_convert = moment(datetime).format('MMMM d, YYYY h:mm a');
+                        
+                        date = get_convert.split(" ")[0];
+                        time = get_convert.split(" ")[1];
 
                         place = this["patawag_sched_place"];
                     });
                     
                     //set value here
+                    
                     $("#lbl_complainant").text(cname);
                     $("#lbl_accused").text(name);
                     $("#lbl_place").text(place);
                     $("#lbl_blotsub").text(bsubject);
-
+                    $("#time").text(time);
+                    $("#month-year").text(date);
+                    
+                    
                     //print here
                     $("#print_form").printThis({
                          debug: false,               // show the iframe for debugging

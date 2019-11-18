@@ -613,10 +613,11 @@ Route::currentRouteName() == 'DisplayResidentElderly'
 <script src="{{asset('assets/js/theme/default.min.js')}}"></script>
 <script src="{{asset('assets/js/apps.min.js')}}"></script>
 <!-- ================== END BASE JS ================== -->
-
+<script src="{{asset('assets/js/moment.js')}}"></script>
 <script type="text/javascript" src="{{asset('node_modules/jquery-form-validator/form-validator/jquery.form-validator.min.js')}}"></script>
 
 <script type="text/javascript" src="{{asset('node_modules/jquery-form-validator/form-validator/jquery.additional-methods.min.js')}}"></script>
+
 
 
 @section('page-js')

@@ -84,19 +84,16 @@ class PatawagController extends Controller
         $getID = $request->input('patawagIDP');
         
         $for_print= DB::table('t_patawag AS P')
-                            ->join('t_blotter AS B', 'P.blotter_id', '=', 'B.blotter_id')
-                            ->join('t_resident_basic_info AS R', 'B.accused_resident', '=', 'R.resident_id')
-                            ->join('r_blotter_subjects AS BS', 'B.blotter_subject_id', '=', 'BS.blotter_subject_id')
+                            ->join('t_blotter AS B', 'P.blotter_id', '=', 'B.blotter_id')                            
                             ->select('P.patawag_id'
                                 , 'P.patawag_sched_datetime'
                                 , 'P.patawag_sched_place'
                                 , 'P.status'
                                 , 'B.blotter_id'
                                 , 'B.blotter_code'
-                                , 'B.complaint_name'
-                                , 'BS.blotter_name'
-                                , 'R.firstname'
-                                , 'R.lastname')
+                                , 'B.complaint_name'                                
+                                , 'B.Respondent'
+                                )
                             ->where(['P.patawag_id' => $getID])
                             ->get();
         
