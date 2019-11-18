@@ -136,7 +136,51 @@
 
         });
     </script>
+    {{-- FOR REMOVE BTN --}}
+    <script>
+        
+        $(".remove-btn").click(function(){
+            var blotterID = $(this).closest("tr").find("td").first().text();
+            
 
+            swal({
+                    title: "Wait!",
+                    text: "Are you sure you want to remove this data?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                    .then((willResolve) => {
+                        if (willResolve) {
+                            swal("Data have been successfully remove!", {
+                                icon: "success",
+
+                            });
+
+                            $.ajax({
+                                    url:"{{route('RemoveBlotter')}}",
+                                    type:'POST',
+                                    processData:false,
+                                    contentType:false,
+                                    cache:false,
+                                    data:fd,
+                                    success:function()
+                                    {
+                                        location.reload();
+                                    }
+
+                                })
+                        }
+
+                        else {
+                           swal("Operation Cancelled.", {
+                               icon: "error",
+                           });
+                        }
+                    });
+        });
+    
+    </script>
     {{--For Resolved button--}}
     <script>
         var Editform = document.getElementById("EditForm");
@@ -805,6 +849,9 @@
 
                                     <button type='button'  class='btn btn-lime viewResolve' data-toggle='modal' data-target='#ResolveModal'>
                                         <i class='fa fa-check'></i> Close Case
+                                    </button>
+                                    <button type='button'  class='btn btn-danger remove-btn'>
+                                        <i class='fa fa-times'></i> Remove
                                     </button>
                                 </td>
                             </tr>

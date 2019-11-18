@@ -198,4 +198,17 @@ class BlottersController extends Controller
                             
         return response()->json(['result' => $disppatawag]);
     }
+
+    public function remove()
+    {
+        $blotter_id =  request('blotter_id');
+
+        db::table('t_blotter')
+            ->where('BLOTTER_ID',$blotter_id)
+            ->update([
+                'IS_ACTIVE' => 0
+            ]);
+            
+        
+    }
 }
