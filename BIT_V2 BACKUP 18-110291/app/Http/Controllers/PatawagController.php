@@ -39,9 +39,9 @@ class PatawagController extends Controller
         $date = $request->input('AddScheduledDate');
         $intime = $request->input('AddScheduledTime');
         $time = date("H:i:s", strtotime($intime));
-        $datetime = Carbon::createFromTimestamp(strtotime($date.' '.$time));
+        $datetime = Carbon::createFromTimestamp(strtotime($date . $time));
         
-        
+
         // $insertPatawag = new patawag();
         
         DB::table('t_patawag')->insert([

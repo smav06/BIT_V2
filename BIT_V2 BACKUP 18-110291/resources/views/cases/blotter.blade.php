@@ -216,11 +216,11 @@
 
         $("a[id='ScheduleBTN']").on('click',function () {
             var my_date = $('#AddScheduledDate').val()
-            get_convert = moment(my_date).format('YYYY-MM-DD, h:m A');
+            get_convert = moment(my_date).format('YYYY-MM-DD, hh:mm A');
             schedDate = get_convert.split(", ")[0];
             schedTime = get_convert.split(", ")[1];
         //     var schedTime = $('#AddScheduledTime').val()
-            alert(schedDate);
+        
             var schedPlace = $('#addScheduledPlace').val()
 
             var blotterID = $('#EditBlotterIDH').val()
