@@ -55,8 +55,8 @@
 						<td>{{ $row->SEX }}</td>
 						<td>{{ $row->CIVIL_STATUS }}</td>
 						<td>
-							<a id="btnViewForms" class="btn btn-inverse m-r-5 m-b-5" data-toggle="modal" data-target="#modal-SelectCertificate" style="color: #fff">
-								<i class="fa fa-edit" style="color:#fff"></i>&nbsp;Request Certification</a>	
+							<a id="btnViewForms" class="btn btn-primary m-r-5 m-b-5" data-toggle="modal" data-target="#modal-SelectCertificate" style="color: #fff">
+								<i class="fa fa-file-alt" style="color:#fff">&nbsp;</i>Request Certification</a>	
 							</td>
 						</tr>
 						@endforeach
@@ -239,8 +239,10 @@
 	$(document).ready(function() {
 		App.init();
 		TableManageDefault.init();
-		$("table[id='tbl_resident_lst']").DataTable();	
-
+		// $("table[id='tbl_resident_lst']").DataTable();	
+		$("table[id='tbl_resident_lst']").DataTable({
+			"bSort" : false
+		});
 		$('#divResidency').hide();
 		$('#divLoanSSSGSIS').hide();
 		$('#divLoanOFW').hide();

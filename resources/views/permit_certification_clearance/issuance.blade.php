@@ -65,7 +65,7 @@
 								<th>Business Name</th>
 								<th>Address</th>
 								<th>Owner's Name</th>
-								<th>Period</th>
+								<th>Requested Date</th>
 								<th>Requested Clearance</th>
 								<th >Action</th>
 								<th hidden>FORM_ID</th>
@@ -74,24 +74,16 @@
 						</thead>
 						<tbody>
 							@foreach($approved_application_form as $row)
-							<tr class="gradeC" id="{{$row->BUSINESS_ID}}">
+							<tr class="gradeC" id="	">
 								<td>{{$row->BUSINESS_OR_NUMBER}}</td> {{-- 0 --}}
 								<td>{{$row->BUSINESS_NAME}}</td> {{-- 1 --}}
 								<td>{{$row->BUSINESS_ADDRESS}}</td> {{-- 2 --}}
 								<td>{{$row->BUSINESS_OWNER_FIRSTNAME}} {{$row->BUSINESS_OWNER_MIDDLENAME}} {{$row->BUSINESS_OWNER_LASTNAME}} </td> {{-- 3 --}}
-								@if($row->BUSINESS_PERIOD_YEAR != 0)
-								<td>	{{$row->BUSINESS_PERIOD_YEAR}} year/s <br>
-								</td>	{{-- 4 --}}	
-								@else
-								<td>
-									{{$row->BUSINESS_PERIOD_MONTH}} month/s
-								</td> {{-- 4 --}}
-
-								@endif
+								<td>{{$row->FORM_DATE}}</td>
 								<td>{{$row->REQUESTED_PAPER_TYPE}}</td>{{-- 5 --}}
 								<td>
 									<button type="button" class="btn btn-yellow" id="btnPrintClearance"  data-toggle="modal">
-										<i class="fa fa-circle"></i> Print {{$row->REQUESTED_PAPER_TYPE}}
+										<i class="fa fa-file-alt">&nbsp</i> Print {{$row->REQUESTED_PAPER_TYPE}}
 									</button>
 								</td> {{-- 6 --}}
 								<td hidden>{{$row->FORM_ID}}</td> {{-- 7 --}}
@@ -141,6 +133,7 @@
 								<th hidden >FORM_PAPER_TYPE</th>
 								<th hidden >FORM_ID</th>
 								<th hidden >REQUESTED_PAPER_TYPE</th>
+								<t
 							</tr>
 						</thead>
 						<tbody>
@@ -223,7 +216,10 @@
 		App.init();
 		TableManageDefault.init();
 		$("table[id='tbl_pending_issuance']").DataTable();
-		$("table[id='tbl_business_approved_lst']").DataTable();
+		$("table[id='tbl_business_approved_lst']").DataTable({
+			"bSort" : false
+
+		});
 		$("table[id='tbl_approved_issuance_resident']").DataTable();
 	});
 

@@ -94,7 +94,7 @@
 								@endif
 								<td>
 									<button type="button" class="btn btn-primary" id="btnChooseApplication"  data-toggle="modal">
-										<i class="fa fa-circle"></i> Request Business Permit
+										<i class="fa fa-file-alt">&nbsp</i> Request Business Permit
 									</button>
 								</td>
 								<td hidden> {{$row->BUSINESS_AREA}}</td>
@@ -158,7 +158,6 @@
 									<option>Barangay Business Permit</option>
 									<option>Permit Use of Barangay Property Facility</option>
 									<option>Display of Outdoor Advertisement</option>
-
 								</select>
 							</div>
 							{{-- Business Permit --}}
@@ -170,35 +169,76 @@
 									<div class="col-md-6">
 										<div class="form-group m-b-10 p-t-5">
 											<label>Tax Year</label>
-											<input type="text" id="txt_tax_year" class="form-control" value="<?php echo date("Y"); ?>">
+											<input type="text" id="txt_tax_year" class="form-control input-group mb-3"  value="<?php echo date("Y"); ?>" readonly>
 
 										</div>
-										<div class="form-group m-b-10">
+										<div class="form-group m-b-10 p-t-5">
 											<label>Quarter</label>
-											<input type="text" id="txt_quarter" class="form-control">
+											<select class="form-control s" id="sel_quarter" style="color: black;" >
+												<option selected disabled value=""></option>
+												<option>1st</option>
+												<option>2nd</option>
+												<option>3rd</option>
+												<option>4th</option>
+											</select>
 
 										</div>
-										<div class="form-group m-b-10">
-											<label>Barangay Permit</label>
-											<input type="text" id="txt_barangay_permit" class="form-control">
+
+										<div class="form-group m-b-10 p-t-5">
+											<label>Barangay Permit Fee</label>
+											{{-- <input type="number" id="txt_barangay_permit" class="form-control"> --}}
+											<div class="input-group mb-3 ">
+												<div class="input-group-prepend">
+													<span class="input-group-text">₱</span>
+												</div>
+												<input type="number" id="txt_barangay_permit" class="form-control">
+												
+											</div>
 										</div>
-										<div class="form-group m-b-10">
-											<label>Business Tax</label>
-											<input type="text" id="txt_business_tax" class="form-control">
+										<div class="form-group m-b-10 p-t-5">
+											<label>Business Tax Fee</label>
+											<div class="input-group mb-3">
+												<div class="input-group-prepend">
+													<span class="input-group-text">₱</span>
+												</div>
+												<input type="number" id="txt_business_tax" class="form-control">
+												
+												
+											</div>
 										</div>
 									</div>
 									<div class="col-md-6">
 										<div class="form-group m-b-10 p-t-5">
 											<label>Garbage Fee</label>
-											<input type="text" id="txt_garbage_fee" class="form-control">
+											<div class="input-group mb-3">
+												<div class="input-group-prepend">
+													<span class="input-group-text">₱</span>
+												</div>
+												<input type="number" id="txt_garbage_fee" class="form-control">
+												
+											</div>
 										</div>
-										<div class="form-group m-b-10">
-											<label>Signboard</label>
-											<input type="text" id="txt_signboard" class="form-control">
+										<div class="form-group m-b-10 p-t-5">
+											<label>Signboard Fee</label>
+											<div class="input-group mb-3">
+												<div class="input-group-prepend">
+													<span class="input-group-text">₱</span>
+												</div>
+												<input type="number" id="txt_signboard" class="form-control">
+												
+											</div>
 										</div>
-										<div class="form-group m-b-10">
-											<label>CTC</label>
-											<input type="text" id="txt_ctc" class="form-control">
+										<div class="form-group m-b-10 p-t-5">
+											<label>CTC Fee</label>
+											<div class="input-group mb-3">
+												<div class="input-group-prepend">
+													<span class="input-group-text">₱</span>
+												</div>
+												<input type="number" id="txt_ctc" class="form-control">
+												
+												
+												
+											</div>
 										</div>
 									</div>
 								</div>
@@ -257,7 +297,9 @@
 	$(document).ready(function() {
 		App.init();
 		TableManageDefault.init();
-		$("table[id='tbl_business_lst']").DataTable();
+		$("table[id='tbl_business_lst']").DataTable({
+			"bSort" : false
+		});
 		// $("table[id='tbl_business_acitivity']").DataTable();
 		// $("table[id='tbl_document_verifications']").DataTable();
 		// $("table[id='tbl_main_form']").DataTable();
@@ -266,6 +308,8 @@
 		//hide
 		$('#divBusinessPermit').hide();
 		$('#divBusinessClearance').hide()
+
+
 		
 	});
 
@@ -352,13 +396,14 @@
 		var business_id = $('#txt_business_id').val();
 		// Business Permit Requirement
 		var tax_year = $('#txt_tax_year').val()
-		, quarter = $('#txt_quarter').val()
+		, quarter = $('#sel_quarter option:selected').text()
 		, barangay_permit = $('#txt_barangay_permit').val()
 		, garbage_fee = $('#txt_garbage_fee').val()
 		, signboard = $('#txt_signboard').val()
 		, ctc = $('#txt_ctc').val()
 		, business_tax = $('#txt_business_tax').val()
 		;
+		// console.log(quarter);
 		
 		let data = {
 			'_token' : " {{ csrf_token() }}"

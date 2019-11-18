@@ -135,7 +135,7 @@
 								<th>Business Name</th>
 								<th>Address</th>
 								<th>Owner's Name</th>
-								<th>Period</th>
+								<th>Requested Date</th>
 								<th>Requested Clearance</th>
 								<th >Action</th>
 								<th hidden >REQUESTED_PAPER_TYPE</th>
@@ -153,15 +153,7 @@
 								<td>{{$row->BUSINESS_NAME}}</td> {{-- 1 --}}
 								<td>{{$row->BUSINESS_ADDRESS}}</td> {{-- 2 --}}
 								<td>{{$row->BUSINESS_OWNER_FIRSTNAME}} {{$row->BUSINESS_OWNER_MIDDLENAME}} {{$row->BUSINESS_OWNER_LASTNAME}} </td> {{-- 3 --}}
-								@if($row->BUSINESS_PERIOD_YEAR != 0)
-								<td>	{{$row->BUSINESS_PERIOD_YEAR}} year/s <br>
-								</td>	{{-- 4 --}}	
-								@else
-								<td>
-									{{$row->BUSINESS_PERIOD_MONTH}} month/s
-								</td> {{-- 4 --}}
-
-								@endif
+								<td>{{$row->FORM_DATE}}</td>
 								<td >{{$row->REQUESTED_PAPER_TYPE}}</td>{{-- 5 --}}
 								<td>
 									<button type="button" class="btn btn-primary" id="btnEvaluateApplication"  data-toggle="modal">
@@ -409,7 +401,16 @@
 							<div class="form-group row m-b-10">
 								<label class="col-sm-3 col-form-label">OR Amount</label>
 								<div class="col-sm-9">
+									<div class="input-group mb-3">
+  <div class="input-group-prepend">
+    <span class="input-group-text">₱</span>
+  </div>
 									<input type="text" class="form-control"  id="txt_or_amount">
+  
+  <div class="input-group-append">
+    <span class="input-group-text">.00</span>
+  </div>
+</div>
 								</div>
 							</div>
 							<div class="form-group row m-b-10">
@@ -470,7 +471,9 @@
 		App.init();
 		TableManageDefault.init();
 		$("table[id='tbl_business_lst']").DataTable();
-		$("table[id='tbl_pending_issuance']").DataTable();
+		$("table[id='tbl_pending_issuance']").DataTable({
+			"bSort" : false
+		});
 		$("table[id='tbl_pending_issuance_resident']").DataTable();
 		// tbl_pending_issuance_resident
 	});

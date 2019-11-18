@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\DB;
 class IssuanceController extends Controller
 {
     public function index(){
-    	$approved_application_form = DB::table('v_approved_application_form')->get();
+    	$approved_application_form = DB::table('v_approved_application_form')
+            ->orderBy('FORM_DATE', 'desc')
+            ->get();
     	$business_nature = DB::table('v_business_nature')->get();
         $application_form_resident = DB::table('v_application_form_resident')->where('STATUS', 'Approved')->get();
 
