@@ -152,14 +152,30 @@
 						<h3><b><label id="lbl_business_name" >Business:</label></b></h3> <input type="text" id="txt_business_id" hidden> <input type="text" id="txt_form_type" hidden>
 						<form>
 							<div class="col-md-10">
-								<label>Select Permit:</label>
-								<select class="form-control" id="sel_clearance_type" style="color: black;" >
+								<h4>Select Permit:</h4>
+								<select class="form-control" id="sel_clearance_type" style="color: black;" hidden>
 									<option selected disabled value=""></option>
 									<option>Barangay Business Permit</option>
 									<option>Permit Use of Barangay Property Facility</option>
 									<option>Display of Outdoor Advertisement</option>
 								</select>
+
+								<div class="col-md-8 col-sm-8">
+										<div class="form-check">
+											<input type="radio" class="form-check-input" name="radiorequired" value="foo" id="radioBusinessPermit" data-parsley-required="true" data-parsley-multiple="radiorequired">
+											<label class="form-check-label" for="radioBusinessPermit">Barangay Business Permit</label>
+										</div>
+										<div class="form-check">
+											<input type="radio" class="form-check-input" name="radiorequired" id="radioPropertyFacility" value="bar" data-parsley-multiple="radiorequired">
+											<label class="form-check-label" for="radioPropertyFacility">Permit Use of Barangay Property Facility</label>
+										</div>
+										<div class="form-check">
+											<input type="radio" class="form-check-input" name="radiorequired" id="radioOutdoor" value="key" data-parsley-multiple="radiorequired"> 
+											<label class="form-check-label" for="radioOutdoor">Display of Outdoor Advertisement</label>
+										</div>
+									</div>
 							</div>
+
 							{{-- Business Permit --}}
 							<div class="col-md-10" id="divBusinessPermit">
 								<legend class="m-t-10"></legend>
@@ -313,6 +329,52 @@
 		
 	});
 
+	$('#radioBusinessPermit').change(function(ev){
+		// alert('radioBusinessPermit');
+
+		$('#txt_form_type').val('Application Barangay Business Permit Form');
+			//show
+			
+			//if Retailer 
+			var ess, noness, total_gross, business_nature;
+			ess = Number($('#txt_gross_essential').val());
+			noness = Number($('#txt_gross_nonessential').val());
+			total_gross = ess + noness;
+			business_nature = $('#txt_business_nature').val();
+
+			if(business_nature == "Retailer"){
+				if(total_gross < 30000 && total_gross >= 1){
+					$('#divBusinessPermit').show();
+					$('#divBusinessClearance').hide()
+				//	alert(total_gross)
+			}
+			else if(total_gross > 30000){
+				$('#divBusinessPermit').hide();
+				$('#divBusinessClearance').show()
+			}
+				// total gross = 0
+				else if (total_gross == 0){
+					$('#divBusinessPermit').show();
+					
+
+				}
+			}
+			else{
+				$('#divBusinessPermit').show();
+
+			}
+	});
+
+
+	$('#radioPropertyFacility').change(function(ev){
+		alert("radioPropertyFacility");
+	});
+
+	$('#radioOutdoor').change(function(ev){
+		alert("radioOutdoor");
+	});
+
+
 	$('#btnAddBusinessActivity').on('click', function(){
 		$('#tbl_business_acitivity').find('tbody').append(
 			'<tr class="classTrBusinessActivity">\n'
@@ -448,6 +510,9 @@
 	$('#sel_clearance_type').val('').change();
 	$('#divBusinessClearance').hide();
 	$('#divBusinessPermit').hide();
+	// $("input:radioBusinessPermit").removeAttr("unchecked");
+	$( "#radioBusinessPermit" ).prop( "checked", false );
+
 
 }
 </script>
