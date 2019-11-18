@@ -182,8 +182,8 @@ $('#AddBtn').click(function(e) {
 
     title = $('#title_txt').val();
     author = $('#author_txt').val();
-    assignoff = $('#assign_official').children(":selected").attr("id");
-    category = $('#categname').children(":selected").attr("id");
+    
+    // category = $('#categname').children(":selected").attr("id");
     sanction = $('#sanction_txt').val();
     description = $('#desc_txt').val();
     remarks = $('#remarks_txt').val();
@@ -192,8 +192,8 @@ $('#AddBtn').click(function(e) {
     var fd = new FormData();
     fd.append('title',title);
     fd.append('author',author);
-    fd.append('assignoff',assignoff);
-    fd.append('category',category);
+    
+    // fd.append('category',category);temporary commented
     fd.append('santion',sanction);
     fd.append('description',description);
     fd.append('remarks',remarks);
@@ -388,7 +388,6 @@ $(document).ready(function()
                                     <thead>
                                         <tr>
                                             <th hidden>Ordinance ID</th>
-                                            <th >Assigned Official</th>
                                             <th >Author</th>
                                             <th >Title</th>
                                             <th >Category</th>                                          
@@ -405,10 +404,8 @@ $(document).ready(function()
                                      @foreach($ordinances as $record)
                                      <tr >
                                         <td hidden>{{ $record->ORDINANCE_ID }} </td>
-                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->FULLNAME }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}"> {{ $record->ORDINANCE_AUTHOR }}</td>
-                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_TITLE }}</td>
-                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_CATEGORY_NAME }}</td>
+                                        <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_TITLE }}</td>                                        
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_REMARKS }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_SANCTION }}</td>
                                         <td hidden>{{ $record->FILE_NAME }}</td>
@@ -465,7 +462,8 @@ $(document).ready(function()
 
                                         </div>
                                         <br>
-                                        <div class="row">
+                                        {{-- temporary commented start--}}
+                                        {{-- <div class="row">
                                             <div  class="col-lg-12 col-md-12">
                                                 <div class="stats-content">
                                                     <label style="display: block; text-align: left">Assigned official</label>
@@ -478,10 +476,13 @@ $(document).ready(function()
                                                     </select>
                                                 </div>
                                             </div>
-                                        </div><br>
+                                        </div> --}}
+                                        {{-- temporary commented end--}}
 
+                                        <br>
 
-                                        <div class="row">
+                                        {{-- temporary commented start--}}
+                                        {{-- <div class="row">
                                             <div class="col-lg-12 col-md-12">
                                                 <label style="display: block; text-align: left">Category</label>
 
@@ -496,7 +497,8 @@ $(document).ready(function()
 
                                             </div>
 
-                                        </div>
+                                        </div> --}}
+                                        {{-- temporary commented end--}}
                                         <br>
                                         <div class="row">
                                          <div class="col-lg-12">

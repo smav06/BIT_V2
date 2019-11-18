@@ -3495,8 +3495,6 @@ label.error {
                     <input type="text" class="form-control input-white" placeholder="Search Resident/Inhabitant" id="stext"/>
                     <div class="input-group-append">
                         <button class="btn btn-primary search_btn"><i class="fa fa-search fa-fw"></i> Search</button>
-
-                        
                     </div>
                 </div>
                 <!-- end input-group -->
