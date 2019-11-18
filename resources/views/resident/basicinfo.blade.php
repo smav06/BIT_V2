@@ -48,7 +48,7 @@
         App.init();
         FormWizard.init();
         Notification.init();
-        //$('#resident_table').DataTable();
+        // $('#resident_table').DataTable();
         $("#wizard-mic").smartWizard();
         $('#nbody').show();
     });
@@ -3262,7 +3262,8 @@ $("#register-btn").click(function(e){
 <script type="text/javascript">
 
     // SEARCH RESIDENTS SCRIPT START
-    table = $("#resident_table").DataTable({columnDefs: [{
+    table = $("#resident_table").DataTable({"bFilter": false
+        ,columnDefs: [{
             "targets": [0],
             "visible": false
         },{
