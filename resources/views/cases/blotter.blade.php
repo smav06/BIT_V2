@@ -136,51 +136,7 @@
 
         });
     </script>
-    {{-- FOR REMOVE BTN --}}
-    <script>
-        
-        $(".remove-btn").click(function(){
-            var blotterID = $(this).closest("tr").find("td").first().text();
-            
 
-            swal({
-                    title: "Wait!",
-                    text: "Are you sure you want to remove this data?",
-                    icon: "warning",
-                    buttons: true,
-                    dangerMode: true,
-                })
-                    .then((willResolve) => {
-                        if (willResolve) {
-                            swal("Data have been successfully remove!", {
-                                icon: "success",
-
-                            });
-
-                            $.ajax({
-                                    url:"{{route('RemoveBlotter')}}",
-                                    type:'POST',
-                                    processData:false,
-                                    contentType:false,
-                                    cache:false,
-                                    data:fd,
-                                    success:function()
-                                    {
-                                        location.reload();
-                                    }
-
-                                })
-                        }
-
-                        else {
-                           swal("Operation Cancelled.", {
-                               icon: "error",
-                           });
-                        }
-                    });
-        });
-    
-    </script>
     {{--For Resolved button--}}
     <script>
         var Editform = document.getElementById("EditForm");
@@ -259,9 +215,14 @@
         var Hearingform = document.getElementById("schedHearingForm");
 
         $("a[id='ScheduleBTN']").on('click',function () {
-            var schedDate = $('#AddScheduledDate').val()
-            var schedTime = $('#AddScheduledTime').val()
+            var my_date = $('#AddScheduledDate').val()
+            get_convert = moment(my_date).format('YYYY-MM-DD, h:mm A');
+            schedDate = get_convert.split(", ")[0];
+            schedTime = get_convert.split(", ")[1];
+        //     var schedTime = $('#AddScheduledTime').val()
+            
             var schedPlace = $('#addScheduledPlace').val()
+
             var blotterID = $('#EditBlotterIDH').val()
 
             var fd = new FormData();
@@ -270,6 +231,15 @@
             fd.append('addScheduledPlace', schedPlace);
             fd.append('EditBlotterIDH', blotterID)
             fd.append('_token',"{{csrf_token()}}");
+
+
+            data  = {
+                AddScheduledDate:schedDate,
+                AddScheduledTime:schedTime,
+                addScheduledPlace:schedPlace,
+                EditBlotterIDH:blotterID,
+                _token:"{{csrf_token()}}"
+            };
 
            // alert(schedTime)
 
@@ -305,10 +275,9 @@
                     $.ajax({
                         url:"{{route('AddPatawag')}}",
                         type:'POST',
-                        processData:false,
-                        contentType:false,
-                        cache:false,
-                        data:fd,
+                    
+                        async:false,
+                        data:data,
                         success:function()
                         {
                             location.reload();
@@ -850,7 +819,8 @@
                                     <button type='button'  class='btn btn-lime viewResolve' data-toggle='modal' data-target='#ResolveModal'>
                                         <i class='fa fa-check'></i> Close Case
                                     </button>
-                                    <button type='button'  class='btn btn-danger remove-btn'>
+
+                                    <button type='button'  class='btn btn-danger remove-btn' data-toggle='modal' data-target='#ResolveModal'>
                                         <i class='fa fa-times'></i> Remove
                                     </button>
                                 </td>
@@ -1218,18 +1188,13 @@
 
                                             <div class="col-lg-12">
                                                 <div class="row">
-                                                    <div class="col-md-3">
+                                                    <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label>Scheduled Date</label> <span id='reqScheduledDateAdd'></span>
-                                                            <input type="text" id="AddScheduledDate" name="AddScheduledDate" class="form-control" required="true" placeholder="yyyy-mm-dd">
+                                                            <input type="datetime-local" id="AddScheduledDate" name="AddScheduledDate" class="form-control" required="true" placeholder="yyyy-mm-dd">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>Scheduled Time</label> <span id='reqScheduledTimeAdd'></span>
-                                                            <input type="text" id="AddScheduledTime" name="AddScheduledTime" class="form-control" placeholder="h:m" required="true">
-                                                        </div>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                             <div class="col-lg-12">

@@ -227,7 +227,7 @@
             fd.append('EditBlotterIDH', blotterID)
             fd.append('_token',"{{csrf_token()}}");
 
-           // alert(schedTime)
+           
 
             if(schedDate == "" || schedPlace == "")
             {
@@ -1023,12 +1023,7 @@
                                                             <input type="text" id="AddScheduledDate" name="AddScheduledDate" class="form-control" required="true" placeholder="yyyy-mm-dd">
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-3">
-                                                        <div class="form-group">
-                                                            <label>Scheduled Time</label> <span id='reqScheduledTimeAdd'></span>
-                                                            <input type="text" id="AddScheduledTime" name="AddScheduledTime" class="form-control" placeholder="h:m" required="true">
-                                                        </div>
-                                                    </div>
+                                                    
                                                 </div>
                                             </div>
                                             <div class="col-lg-12">

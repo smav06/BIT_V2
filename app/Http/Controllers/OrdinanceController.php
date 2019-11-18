@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
+use db;
 class OrdinanceController extends Controller
 {
     //
@@ -46,7 +46,7 @@ class OrdinanceController extends Controller
                     'ORDINANCE_SANCTION'   => request('santion'),
 
                     'ORDINANCE_REMARKS'    => request('remarks'),
-                    'BARANGAY_OFFICIAL_ID' => db::table('t_barangay_official')->where('BARANGAY_ID',session('session_user_id'))->value(''),
+                    // 'BARANGAY_OFFICIAL_ID' => db::table('t_barangay_official')->where('BARANGAY_ID',session('session_user_id'))->value(''),
                     "FILE_NAME" => $ordinance_file->getClientOriginalName(),
                     'ACTIVE_FLAG' => 1
                 ]
