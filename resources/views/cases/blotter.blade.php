@@ -323,8 +323,64 @@
 
                     });
         });
+
     </script>
 
+    {{--For Resolve button--}}
+    <script>
+        $("#CloseCaseBtn").click(function(){
+
+
+            var blotter_id = $(".resolve-blotter-id").val();
+            var status = $("input[name=status_radio]:checked").val();
+            var remarks = $(".remarks-txt").val();
+
+
+            
+            my_data ={
+                blotter_id : blotter_id,
+                status_name : status,
+                remarks : remarks,
+                _token : "{{csrf_token()}}"
+            };
+
+
+
+            
+            
+            if(remarks == "")
+            {
+                $('#reqResolution').html('Required field!').css('color', 'red');
+                swal({
+                    title: 'Ooops!',
+                    text: 'Please fill out the necessary fields!',
+                    icon: 'error',
+                    buttons: {
+                        confirm: {
+                            visible: true,
+                            className: 'btn btn-danger',
+                            closeModal: true,
+                        }
+                    }
+
+                });
+            }
+            else
+            {
+                $.ajax({
+                                    url:"{{route('ResolvedBlotter')}}",
+                                    type:'POST',                                
+                                    data:my_data,
+                                    success:function()
+                                    {
+                                        location.reload();
+                                    }
+
+                                })
+
+            }
+        });
+    </script>
     {{--For Summon button--}}
     <script>
         var Hearingform = document.getElementById("viewHearingForm");
@@ -497,6 +553,93 @@
                 $("#ViewIncidentArea").text($(this).closest("tbody tr").find("td:eq(7)").html());
                 $("#ViewComplainStatement").text($(this).closest("tbody tr").find("td:eq(8)").html());
                 $("#ViewBlotterCode").text($(this).closest("tbody tr").find("td:eq(1)").html());
+
+                $(".EditBlotterIDH").val($(this).closest("tbody tr").find("td:eq(0)").html());
+
+                var table = $(".view-hearing-table");
+                           table.find("td").remove();
+            var blotterID = $(this).closest("tr").find("td").first().text(); //$('#EditBlotterIDH').val();
+            // alert(blotterID);
+            var fd = new FormData();
+            fd.append('EditBlotterIDH', blotterID);
+            fd.append('_token',"{{csrf_token()}}");
+            console.log(fd);
+                    $.ajax({
+                        url:'Patawag',
+                        type:'POST',
+                        processData:false,
+                        contentType:false,
+                        cache:false,
+                        data:fd,
+                        success:function(response)
+                        {
+                            
+                           $.each(response["result"], function(){
+                                console.log(this);
+                                {
+                                    datetime = this["patawag_sched_datetime"];
+                                    split = datetime.split(" ");
+
+                                    table.append('<tr id="'+this["patawag_id"]+'"> <td hidden>'+this["patawag_id"]+'</td> <td>'+split[0]+'</td> <td>'+split[1]+'</td> <td>'+this["patawag_sched_place"]+"</td> </tr>");
+                                    
+                                }
+
+                                
+                           });
+                           
+                        }
+
+                    });
+            });
+
+            $(".viewResolve").click(function()
+            {
+                $("#ViewResolveBlotterSub").text($(this).closest("tbody tr").find("td:eq(5)").html());
+                $("#ViewResolveComplainDate").text($(this).closest("tbody tr").find("td:eq(2)").html());
+                $("#ViewResolveComplainantName").text($(this).closest("tbody tr").find("td:eq(3)").html());
+                $("#ViewResolveAccusedResident").text($(this).closest("tbody tr").find("td:eq(4)").html());
+                $("#ViewResolveIncidentnDate").text($(this).closest("tbody tr").find("td:eq(6)").html());
+                $("#ViewResolveIncidentArea").text($(this).closest("tbody tr").find("td:eq(7)").html());
+                $("#ViewResolveComplainStatement").text($(this).closest("tbody tr").find("td:eq(8)").html());
+                $("#ViewResolveBlotterCode").text($(this).closest("tbody tr").find("td:eq(1)").html());
+
+
+                $(".EditBlotterIDH").val($(this).closest("tbody tr").find("td:eq(0)").html());
+
+                var table = $(".view-hearing-table");
+                           table.find("td").remove();
+            var blotterID = $(this).closest("tr").find("td").first().text(); //$('#EditBlotterIDH').val();
+            // alert(blotterID);
+            var fd = new FormData();
+            fd.append('EditBlotterIDH', blotterID);
+            fd.append('_token',"{{csrf_token()}}");
+            console.log(fd);
+                    $.ajax({
+                        url:'Patawag',
+                        type:'POST',
+                        processData:false,
+                        contentType:false,
+                        cache:false,
+                        data:fd,
+                        success:function(response)
+                        {
+                            
+                           $.each(response["result"], function(){
+                                console.log(this);
+                                {
+                                    datetime = this["patawag_sched_datetime"];
+                                    split = datetime.split(" ");
+
+                                    table.append('<tr id="'+this["patawag_id"]+'"> <td hidden>'+this["patawag_id"]+'</td> <td>'+split[0]+'</td> <td>'+split[1]+'</td> <td>'+this["patawag_sched_place"]+"</td> </tr>");
+                                    
+                                }
+
+                                
+                           });
+                           
+                        }
+
+                    });
             });
         });
     </script>
@@ -518,6 +661,9 @@
                 $("#ViewClosedBlotterCode").text($(this).closest("tbody tr").find("td:eq(1)").html());
                 $("#ViewClosedResolution").text($(this).closest("tbody tr").find("td:eq(10)").html());
             });
+
+
+            
         });
     </script>
 
@@ -655,7 +801,11 @@
                                     
                                     <button type='button' id="HearingBTN" class='btn btn-yellow addHearing' data-toggle='modal' data-target='#HearingModal'>
                                         <i class='fa fa-bell'></i> Summon
-                                    </button>  
+                                    </button>
+
+                                    <button type='button'  class='btn btn-lime viewResolve' data-toggle='modal' data-target='#ResolveModal'>
+                                        <i class='fa fa-check'></i> Close Case
+                                    </button>
                                 </td>
                             </tr>
                         @endforeach
@@ -678,12 +828,12 @@
                     </div>
                     <!-- end panel-heading -->
                     <!-- begin alert -->
-                    <div class="alert alert-yellow fade show">
-                        <button type="button" class="close" data-dismiss="alert">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                        Resolved Blotter displays all the closed blotters within the barangay.
-                    </div>
+                            <div class="alert alert-yellow fade show">
+                                <button type="button" class="close" data-dismiss="alert">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                Resolved Blotter displays all the closed blotters within the barangay.
+                            </div>
                     <!-- end alert -->
                     <!-- begin panel-body -->
                     <div class="panel-body">
@@ -746,85 +896,82 @@
 
 
                         <!-- #modal-EDIT -->
-                        <div class="modal fade" id="UpdateModal">
-                            <div class="modal-dialog" style="max-width: 30%">
+                        <div class="modal fade" id="ResolveModal">
+                            <div class="modal-dialog "  style="max-width: 50%">
                                 <form id="EditForm" method="POST">
                                     @csrf
 
                                     <div class="modal-content">
-                                        <div class="modal-header" style="background-color: #008a8a">
-                                            <h4 class="modal-title" style="color: white">Update Blotter</h4>
+                                        <div class="modal-header" style="background-color:#8fca4b ">
+                                            <h4 class="modal-title" style="color: white">Do you want to close this case?</h4>
                                             <button type="button" class="close" data-dismiss="modal" aria-hidden="true" style="color: white">×</button>
                                         </div>
                                         <div class="modal-body">
                                             {{--modal body start--}}
                                             <label class="form-label hide">Blotter ID</label>
-                                                <input type="text" id="EditBlotterID" name="EditBlotterID" type="text" class="form-control hide"/>
-                                                <div class="col-lg-12">
-                                                    <div class="form-group">
-                                                        <label>Blotter Code</label> <span id='reqBlotterCodeEdit'></span>
-                                                        <input type="text" id="EditBlotterCode" name="EditBlotterCode" class="form-control" required="true" disabled="true" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="form-group">
-                                                        <label>Incident Date</label> <span id='reqIncidentDateEdit'></span>
-                                                        <input type="text" id="EditIncidentDate" name="EditIncidentDate" class="form-control" required="true" placeholder="yy-mm-dd" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="form-group">
-                                                        <label>Incident Area</label> <span id='reqIncidentAreaEdit'></span>
-                                                        <input type="text" id="EditIncidentArea" name="EditIncidentArea" class="form-control" required="true" placeholder="Where the case happened" >
-                                                    </div>
-                                                </div>
-                                                <div class="col-lg-12">
-                                                    <div class="form-group">
-                                                        <label>Complainant Name</label> <span id='reqComplainantNameEdit'></span>
-                                                        <input type="text" id="EditComplainantName" name="EditComplainantName" class="form-control" required="true" placeholder="Name of the complainant" >
-                                                    </div>
-                                                </div>
-                                         <div class="col-lg-12">
-                                            <div class="form-group">
-                                                <label>Respondent</label> 
-                                                <select id="EditAccusedResident" name="EditAccusedResident" class="form-control">
-                                            @foreach($resident as $r)
-                                                    <option id="{{ $r->resident_id }}">{{ $r->firstname }} {{ $r->middlename }} {{ $r->lastname }}</option>
-                                            @endforeach
-                                                    <option id="">Unidentified</option>
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12">
-                                            <div class="form-group">
-                                                <label>Blotter Subject</label> <span id='reqBlotterSubjectEdit'></span>
-                                                <select id="EditBlotterSubject" name="EditBlotterSubject" class="form-control">
-                                            @foreach($blottersub as $b)
-                                                    <option id="{{ $b->blotter_subject_id }}">{{ $b->blotter_name }}</option>
-                                            @endforeach
-                                                </select>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12">
-                                            <div class="form-group">
-                                                <label>Complain Statement</label> <span id='reqComplainStatementEdit'></span>
-                                                <textarea id="EditComplainStatement" name="EditComplainStatement" class="form-control" required="true"></textarea>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12">
-                                            <div class="form-group">
-                                                <label>Resolution</label><span id="reqResolution"></span>
-                                                <textarea id="EditResolution" name="EditResolution" class="form-control" required="true"></textarea>
-                                            </div>
-                                        </div>
+                                                <input type="text"  name="EditBlotterIDH" type="text" class="form-control hide EditBlotterIDH resolve-blotter-id"/>
+                                            <h2 id="ViewResolveBlotterCode" align="center"></h2>
+                                                <label style="display: block; text-align: center">Blotter Code</label>
+                                        <hr>
+                                            <label>Blotter Subject</label>
+                                            <h4 id="ViewResolveBlotterSub"></h4>
+                                        <br>
+                                            <label>Complain Date</label>
+                                            <h4 id="ViewResolveComplainDate"></h4>
+                                        <br>
+                                            <label>Complainant Name</label>
+                                            <h4 id="ViewResolveComplainantName"></h4>
+                                        <br>
+                                            <label>Respondent Resident</label>
+                                            <h4 id="ViewResolveAccusedResident"></h4>
+                                        <br>
+                                            <label>Incident Date</label>
+                                            <h4 id="ViewResolveIncidentnDate"></h4>
+                                        <br>
+                                            <label>Incident Area</label>
+                                            <h4 id="ViewResolveIncidentArea"></h4>
+                                        <br>
+                                            <label>Complain Statement</label>
+                                            <h4 id="ViewResolveComplainStatement"></h4>
+                                        <br>
+                                            <label>Summon History</label>
+                                            <table id="view-hearing-table" class="table table-striped table-bordered view-hearing-table">
+                                                <thead>
+                                                <tr>
+                                                    <th hidden>Patawag ID </th>
+                                                    <th>Scheduled Date </th>
+                                                    <th>Scheduled Time</th>
+                                                    <th>Scheduled Place </th>
+                                                </tr>
+                                                </thead>
 
-                                            {{--modal body end--}}
+                                                <tbody>
+
+                                                </tbody>
+                                            </table>
+
+                                            <label>Set Status</label>
+                                            <div class="radio radio-css">
+                                                <input type="radio" id="cssRadio1" name="status_radio" checked   value="1"/>
+                                                <label for="cssRadio1" style="font-size: 20px">Resolved</label>
+                                            </div>
+                                            <div class="radio radio-css">
+                                                <input type="radio" name="status_radio" id="cssRadio2" value="0"/>
+                                                <label for="cssRadio2" style="font-size: 20px">For Referral</label>
+                                            </div>
+                                            <br>
+                                            <div class="form-group">
+                                                <label>Remarks</label> <span id='reqScheduledPlaceAdd'></span>
+                                                <input id="remarks-txt" name="remarks_txt" class="form-control remarks-txt" required="true" placeholder="Remarks for the case..." >
+                                            </div>
+                                            
+                                        {{--modal body end--}}
                                         </div>
                                         <div class="modal-footer">
                                         <a href="javascript:;" class="btn btn-white" data-dismiss="modal">Close</a>
-                                        <a id="ResolvedBTN" href="javascript:;" class="btn btn-lime">Resolved</a>
+                                        <a id="CloseCaseBtn" href="javascript:;" class="btn btn-lime">Save</a>
                                         {{--<a id="DeleteBTN" href="javascript:;" class="btn btn-danger">Delete</a>--}}
-                                        <a id="EditBTN" href="javascript:;" class="btn btn-success">Update</a>
+                                        
                                     </div>
                                     </div>
                                 </form>
@@ -841,6 +988,8 @@
                                     </div>
                                     <div class="modal-body">
                                         {{--modal body start--}}
+                                        <label class="form-label hide">Blotter ID</label>
+                                            <input type="text"  name="EditBlotterIDH" type="text" class="form-control hide EditBlotterIDH"/>
                                         <h2 id="ViewBlotterCode" align="center"></h2>
                                             <label style="display: block; text-align: center">Blotter Code</label>
                                         <hr>
@@ -864,7 +1013,23 @@
                                         <br>
                                             <label>Complain Statement</label>
                                             <h4 id="ViewComplainStatement"></h4>
+                                        <br>
+                                            <label>Summon History</label>
+                                            <table id="view-hearing-table" class="table table-striped table-bordered view-hearing-table">
+                                                <thead>
+                                                <tr>
+                                                    <th hidden>Patawag ID </th>
+                                                    <th>Scheduled Date </th>
+                                                    <th>Scheduled Time</th>
+                                                    <th>Scheduled Place </th>
+                                                </tr>
+                                                </thead>
 
+                                                <tbody>
+
+                                                </tbody>
+                                            </table>
+                                            
                                         {{--modal body end--}}
                                     </div>
                                     <div class="modal-footer">
