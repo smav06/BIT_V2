@@ -12,7 +12,7 @@ class OrdinanceController extends Controller
         $barangay_id = session('session_brgy_id');
 
         $ordinances = COLLECT(\DB::SELECT("SELECT O.ORDINANCE_ID,
-                                            O.ORDINANCE_AUTHOR, O.ORDINANCE_TITLE, O.ORDINANCE_SANCTION, O.ORDINANCE_REMARKS, O.FILE_NAME,   O.ORDINANCE_DESCRIPTION, O.ACTIVE_FLAG
+                                            O.ORDINANCE_AUTHOR, O.ORDINANCE_TITLE, O.ORDINANCE_SANCTION, O.ORDINANCE_REMARKS,    O.ORDINANCE_DESCRIPTION, O.ACTIVE_FLAG
                                             FROM T_ORDINANCE AS O                                            
                                             "));
 
@@ -82,11 +82,22 @@ class OrdinanceController extends Controller
 
                     'ORDINANCE_REMARKS'    => request('remarks'),
                     
-                    "FILE_NAME" => $ordinance_file->getClientOriginalName()
+                    
                 ]
             );          
+            foreach($ordinance_file as $value)
+            {   
+                \DB::TABLE('T_ORDINANCE_IMAGES')
+                ->INSERT(
+                    [
+                        'ORDINANCE_ID'      => $ordinance_id,
+                        'FILE_NAME'         => $value->getClientOriginalName(),
+                       
+                    ]
+                );
+                $value->move(public_path('ordinances'), $value->getClientOriginalName());  
+            }   
             
-            $ordinance_file->move(public_path('ordinances'), $ordinance_file->getClientOriginalName());  
             echo "good";
     }
 

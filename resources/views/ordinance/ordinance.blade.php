@@ -197,7 +197,7 @@ $('#AddBtn').click(function(e) {
     fd.append('santion',sanction);
     fd.append('description',description);
     fd.append('remarks',remarks);
-    alert(file);
+    
     for(i=0;i<file.length;i++){
         fd.append('file[]',file[i]);
     }
@@ -241,7 +241,9 @@ category = $('#CategoryViewTxt').children(":selected").attr("id");
 sanction = $('#SanctioNViewTxt').val();
 description = $('#DescriptionViewTxt').val();
 remarks = $('#RemarksViewTxt').val();
-file = $('#file_update_txt')[0].files[0];
+file = $('#file_update_txt')[0].files;
+
+
 
 
 var fd = new FormData();
@@ -253,7 +255,11 @@ fd.append('category',category);
 fd.append('santion',sanction);
 fd.append('description',description);
 fd.append('remarks',remarks);
-fd.append('file',file);
+
+for(i=0;i<file.length;i++){
+        fd.append('file[]',file[i]);
+}
+    
 
 fd.append('_token', "{{ csrf_token() }}")
 
@@ -465,7 +471,7 @@ $(document).ready(function()
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_TITLE }}</td>                                        
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_REMARKS }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_SANCTION }}</td>
-                                        <td hidden>{{ $record->FILE_NAME }}</td>
+                                        <td hidden>HIDDEN</td>
                                         <td hidden>{{ $record->ORDINANCE_DESCRIPTION }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}" >
                                             <button type='button' class='btn btn-warning form-control ViewModal' data-toggle='modal' data-target='#ViewModal'>
@@ -683,7 +689,7 @@ $(document).ready(function()
                         <div class="row">
                             <div class="col-lg-12">
                                 <label style="display: block; text-align: left;">Image Upload</label>
-                                <input type="file" id="file_update_txt" name="file_update_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" <input>
+                                <input type="file" id="file_update_txt" name="file_update_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" multiple>
                             </div>
                         </div>
 
