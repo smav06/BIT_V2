@@ -70,6 +70,7 @@ class RequestController extends Controller
             $PAPER_TYPE_CLEARANCE = $request->PAPER_TYPE_CLEARANCE;
             $PAPER_TYPE_FORM = $request->PAPER_TYPE_FORM;
             $BUSINESS_ID = $request->BUSINESS_ID;
+            $APPLICANT_NAME = $request->APPLICANT_NAME;
 
         $clearance_type_id = DB::table('r_paper_type')
             ->where('PAPER_TYPE_NAME', $PAPER_TYPE_CLEARANCE)
@@ -83,12 +84,13 @@ class RequestController extends Controller
         if($PAPER_TYPE_CLEARANCE == "Barangay Business Permit"){
             $application_form = DB::Table('t_application_form')
                 ->insert(array(
-                    'FORM_NUMBER' => 'XXXX-XXX'
+                    'FORM_NUMBER' => 'SSSS-SSSS'
                     ,'PAPER_TYPE_ID' => $form_type_id->PAPER_TYPE_ID
                     ,'STATUS' => 'Pending'
                     ,'BUSINESS_ID' => $BUSINESS_ID
                     ,'RECEIVED_BY' => 'Shiela Mae A. Velga'
                     ,'REQUESTED_PAPER_TYPE_ID' => $clearance_type_id->PAPER_TYPE_ID
+                    ,'APPLICANT_NAME' => $APPLICANT_NAME
                 ));
 
             $latest_form_id = DB::table('t_application_form')->select('FORM_ID')->latest('FORM_ID')->first();
@@ -470,6 +472,8 @@ class RequestController extends Controller
             $PAPER_TYPE_CLEARANCE = $request->PAPER_TYPE_CLEARANCE;
             $PAPER_TYPE_FORM = $request->PAPER_TYPE_FORM;
             $BUSINESS_ID = $request->BUSINESS_ID;
+            $APPLICANT_NAME = $request->APPLICANT_NAME;
+
 
         $clearance_type_id = DB::table('r_paper_type')
             ->where('PAPER_TYPE_NAME', $PAPER_TYPE_CLEARANCE)
@@ -483,12 +487,14 @@ class RequestController extends Controller
         if($PAPER_TYPE_CLEARANCE == "Barangay Business Permit"){
             $application_form = DB::Table('t_application_form')
                 ->insert(array(
-                    'FORM_NUMBER' => 'XXXX-XXX'
+                    'FORM_NUMBER' => 'SSS-SSS'
                     ,'PAPER_TYPE_ID' => $form_type_id->PAPER_TYPE_ID
                     ,'STATUS' => 'Pending'
                     ,'BUSINESS_ID' => $BUSINESS_ID
                     ,'RECEIVED_BY' => 'Shiela Mae A. Velga'
                     ,'REQUESTED_PAPER_TYPE_ID' => $clearance_type_id->PAPER_TYPE_ID
+                    ,'APPLICANT_NAME' => $APPLICANT_NAME
+
                 ));
 
             $latest_form_id = DB::table('t_application_form')->select('FORM_ID')->latest('FORM_ID')->first();
@@ -503,9 +509,10 @@ class RequestController extends Controller
                     ,'CTC' => $CTC
                     ,'BUSINESS_TAX' => $BUSINESS_TAX
                     ,'FORM_ID' => $latest_form_id->FORM_ID
+
                 ));
 
-            return response()->json(['message' => $latest_form_id] );
+            return response()->json(['message' => $latest_form_id, 'applicant_name' => $APPLICANT_NAME] );
         }
         else if ($PAPER_TYPE_CLEARANCE == "Barangay Clearance Building"){
          $application_form = DB::Table('t_application_form')

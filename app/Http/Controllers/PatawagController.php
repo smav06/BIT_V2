@@ -49,7 +49,13 @@ class PatawagController extends Controller
                                         'patawag_sched_datetime' => $date.' '.$time,
                                         'patawag_sched_place' => $request->input('addScheduledPlace')
                                         ]);
-
+        //  update number of patawag
+        db::table('t_blotter')
+            ->where('BLOTTER_ID', $request->input('EditBlotterIDH'))
+            ->update([
+                "NO_OF_PATAWAG" =>   db::table('t_patawag')->where('BLOTTER_ID',$request->input('EditBlotterIDH'))->count()
+            ]);
+                            
         // $insertPatawag->blotter_id = $request->input('EditBlotterIDH');
 
         // $insertPatawag->patawag_sched_datetime = $datetime;

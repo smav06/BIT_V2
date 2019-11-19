@@ -107,6 +107,9 @@
                         <h4>Ordinances</h4>
                         <p>{{$get_total_ordinances}}</p>
                     </div>
+                    <div class="stats-link">
+                    <a href="{{route('Ordinance')}}" >View Ordinances <i class="fa fa-arrow-alt-circle-right"></i></a>
+                   </div>
                     {{-- <div class="stats-link">
                       <a href="javascript:;" data-toggle='modal' data-target='#OrdinancesModal'>View Details <i class="fa fa-arrow-alt-circle-right"></i></a> 
                     </div> --}}

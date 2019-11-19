@@ -12,7 +12,7 @@ class OrdinanceController extends Controller
         $barangay_id = session('session_brgy_id');
 
         $ordinances = COLLECT(\DB::SELECT("SELECT O.ORDINANCE_ID,
-                                            O.ORDINANCE_AUTHOR, O.ORDINANCE_TITLE, O.ORDINANCE_SANCTION, O.ORDINANCE_REMARKS, O.FILE_NAME,   O.ORDINANCE_DESCRIPTION, O.ACTIVE_FLAG
+                                            O.ORDINANCE_AUTHOR, O.ORDINANCE_TITLE, O.ORDINANCE_SANCTION, O.ORDINANCE_REMARKS,    O.ORDINANCE_DESCRIPTION, O.ACTIVE_FLAG
                                             FROM T_ORDINANCE AS O                                            
                                             "));
 
@@ -35,21 +35,32 @@ class OrdinanceController extends Controller
     {
 
         $ordinance_file = request()->file('file');
-            \DB::TABLE('T_ORDINANCE')
-            ->INSERT(
+        $get_id = \DB::TABLE('T_ORDINANCE')
+            ->INSERTGETID(
                 [
                     'ORDINANCE_TITLE'      => request('title'),
                     'ORDINANCE_DESCRIPTION'=> request('description'),
                     'ORDINANCE_AUTHOR'     => request('author'),
                     'ORDINANCE_SANCTION'   => request('santion'),
 
-                    'ORDINANCE_REMARKS'    => request('remarks'),
-                    // 'BARANGAY_OFFICIAL_ID' => db::table('t_barangay_official')->where('BARANGAY_ID',session('session_user_id'))->value(''),
-                    "FILE_NAME" => $ordinance_file->getClientOriginalName(),
+                    'ORDINANCE_REMARKS'    => request('remarks'),                    
+                    
                     'ACTIVE_FLAG' => 1
                 ]
             );
-            $ordinance_file->move(public_path('ordinances'), $ordinance_file->getClientOriginalName());
+            foreach($ordinance_file as $value)
+            {   
+                \DB::TABLE('T_ORDINANCE_IMAGES')
+                ->INSERT(
+                    [
+                        'ORDINANCE_ID'      => $get_id,
+                        'FILE_NAME'         => $value->getClientOriginalName(),
+                       
+                    ]
+                );
+                $value->move(public_path('ordinances'), $value->getClientOriginalName());  
+            }   
+            
             echo "good";
     }
 
@@ -58,6 +69,7 @@ class OrdinanceController extends Controller
     public function update()
     {
 
+        $ordinance_file = request()->file('file');
         $ordinance_id = request('ordinance_id');
             \DB::TABLE('T_ORDINANCE')
             ->where('ORDINANCE_ID',$ordinance_id)
@@ -69,10 +81,34 @@ class OrdinanceController extends Controller
                     'ORDINANCE_SANCTION'   => request('santion'),
 
                     'ORDINANCE_REMARKS'    => request('remarks'),
-                    'ORDINANCE_CATEGORY_ID'=> request('category'),
-                    'BARANGAY_OFFICIAL_ID' => request('assignoff'),                                    
+                    
+                    
                 ]
-            );            
+            );          
+            foreach($ordinance_file as $value)
+            {   
+                \DB::TABLE('T_ORDINANCE_IMAGES')
+                ->INSERT(
+                    [
+                        'ORDINANCE_ID'      => $ordinance_id,
+                        'FILE_NAME'         => $value->getClientOriginalName(),
+                       
+                    ]
+                );
+                $value->move(public_path('ordinances'), $value->getClientOriginalName());  
+            }   
+            
             echo "good";
+    }
+
+
+    public function remove()
+    {
+       $ordinance_id =  request('ordinance_id');
+
+       db::table('T_ORDINANCE')
+            ->where('ORDINANCE_ID', $ordinance_id)
+            ->update(['ACTIVE_FLAG' => 0]);
+                  
     }
 }

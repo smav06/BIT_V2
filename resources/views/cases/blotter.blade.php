@@ -710,11 +710,11 @@
         
         $(".remove-btn").click(function()
             {
-
+                
                 var blotterID = $(this).closest("tr").find("td").first().text();
                 swal({
                     title: "Wait!",
-                    text: "Are you sure you want to remove this?",
+                    text: "Are you sure you want to remove blotter code"+$(this).closest("tbody tr").find("td:eq(1)").html()+" ?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -752,9 +752,19 @@
     <script type="text/javascript">
         $(document).ready(function()
         {
-            $(".addHearing").click(function()
+            $("#data-table-default").on("click",".addHearing",function()
             {
                 $("#EditBlotterIDH").val($(this).closest("tbody tr").find("td:eq(0)").html());
+                $("#ViewPatawagBlotterCode").text($(this).closest("tbody tr").find("td:eq(1)").html());
+                
+                no_of_patawag = $(this).closest("tbody tr").find("td:eq(11)").html();
+             
+                if(no_of_patawag == 3)
+                {      alert(no_of_patawag);
+                    $("#ScheduleBTN").prop('disabled',true);
+                }else{
+                    $("#ScheduleBTN").prop('disabled',false);
+                }
             });
 
         });
@@ -852,10 +862,20 @@
                                 <td hidden>{{$blotter->resolution}}</td>
                                 <td hidden>{{$blotter->status}}</td>
 <<<<<<< HEAD
+<<<<<<< HEAD
                                 <td style="width: 39%">
                                     <button type='button' class='btn btn-warning viewCategory form-control' data-toggle='modal' data-target='#ViewModal' >
 =======
                                 <td class = "{{$blotter->NO_OF_PATAWAG == 2 ? 'alert alert-danger ' : $blotter->NO_OF_PATAWAG == 2 ? 'alert alert-yellow ' : '' }} ">{{$blotter->NO_OF_PATAWAG}}</td>
+=======
+                                @if($blotter->NO_OF_PATAWAG == 2)
+                                <td style="background-color: #fff4b2">{{$blotter->NO_OF_PATAWAG}}</td>
+                                @elseif($blotter->NO_OF_PATAWAG == 3)
+                                <td style="background-color: #ffcdcb" class="alert-danger">{{$blotter->NO_OF_PATAWAG}}</td>
+                                @else
+                                <td >{{$blotter->NO_OF_PATAWAG}}</td>
+                                @endif
+>>>>>>> 94dd4179ea2197ff2f5a0235981294bc049286a3
                                 <td>
                                     <button type='button' class='btn btn-warning viewCategory' data-toggle='modal' data-target='#ViewModal' >
 >>>>>>> a9637468a36fc04b64e9619a3023c7362d8cbfe0
@@ -1236,7 +1256,9 @@
                                        {{--modal body start--}}
                                             <label class="form-label hide">Blotter ID</label>
                                                 <input type="text" id="EditBlotterIDH" name="EditBlotterIDH" type="text" class="form-control hide"/>
-
+                                                <input type="text" id="no-patawag-txt" name="no-patawag-txt" type="text" class="form-control hide"/>
+                                             <h2 id="ViewPatawagBlotterCode" align="center"></h2>
+                                            <label style="display: block; text-align: center">Blotter Code</label>
                                             <div class="col-lg-12">
                                                 <div class="row">
                                                     <div class="col-md-4">
@@ -1276,7 +1298,7 @@
                                         <div class="modal-footer">
                                             <a id="CloseBTN" href="javascript:;" class="btn btn-white" data-dismiss="modal">Close</a>
                                            <!--  <a id="EditPatawagBTN" href="javascript:;" class="btn btn-success">Edit</a> -->
-                                            <a id="ScheduleBTN" href="javascript:;" class="btn btn-yellow">Add Schedule</a>
+                                            <button id="ScheduleBTN" class="btn btn-yellow">Add Schedule</button>
 
                                           <!--   <a id="CancelBTN" href="javascript:;" class="btn btn-white">Cancel</a>
                                             <a id="SaveBTN" href="javascript:;" class="btn btn-lime">Save</a> -->

@@ -187,7 +187,7 @@ $('#AddBtn').click(function(e) {
     sanction = $('#sanction_txt').val();
     description = $('#desc_txt').val();
     remarks = $('#remarks_txt').val();
-    file = $('#file_txt')[0].files[0];
+    file = $('#file_txt')[0].files;
 
     var fd = new FormData();
     fd.append('title',title);
@@ -197,9 +197,14 @@ $('#AddBtn').click(function(e) {
     fd.append('santion',sanction);
     fd.append('description',description);
     fd.append('remarks',remarks);
-    fd.append('file',file);
-    fd.append('_token', "{{ csrf_token() }}")
+    
+    for(i=0;i<file.length;i++){
+        fd.append('file[]',file[i]);
+    }
+    
 
+    fd.append('_token', "{{ csrf_token() }}")
+    
     $.ajax({
 
         url:"{{route('OrdinanceStore')}}",
@@ -223,7 +228,7 @@ $('#AddBtn').click(function(e) {
 
 
 
-
+//  Update Btn
 $('#UpdateOrdinanceBtn').click(function(e) {
 
 
@@ -236,6 +241,9 @@ category = $('#CategoryViewTxt').children(":selected").attr("id");
 sanction = $('#SanctioNViewTxt').val();
 description = $('#DescriptionViewTxt').val();
 remarks = $('#RemarksViewTxt').val();
+file = $('#file_update_txt')[0].files;
+
+
 
 
 var fd = new FormData();
@@ -247,6 +255,11 @@ fd.append('category',category);
 fd.append('santion',sanction);
 fd.append('description',description);
 fd.append('remarks',remarks);
+
+for(i=0;i<file.length;i++){
+        fd.append('file[]',file[i]);
+}
+    
 
 fd.append('_token', "{{ csrf_token() }}")
 
@@ -283,6 +296,52 @@ function SuccessAlert() {
 
 </script>
 
+
+    {{-- REMOVE BTN --}}
+    <script>
+        
+        $(".remove-btn").click(function()
+            {
+
+                var ordinance_id =$(this).closest('table tr').find('td:eq(0)').html();
+                swal({
+                    title: "Wait!",
+                    text: "Are you sure you want to remove this?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                    .then((willResolve) => {
+                        if (willResolve) {
+                            swal("Data have been successfully removed!", {
+                                icon: "success",
+
+                            });
+
+                            $.ajax({
+                                    url:'RemoveOrdinance',
+                                    type:'POST',                                    
+                                    data:{ordinance_id : ordinance_id,
+                                        _token       : '{{csrf_token()}}'
+                                    },
+                                    success:function()
+                                    {
+                                       location.reload();
+                                    }
+
+                                })  
+                        } 
+                        else {
+                           swal("Operation Cancelled.", {
+                               icon: "error",
+                           });
+                       }
+                    });
+            });
+    </script>
+
+{{--  View Btn --}}
+
 <script type="text/javascript">
 $(document).ready(function()
 {
@@ -292,18 +351,19 @@ $(document).ready(function()
     $("#data-table-default").on('click','.ViewModal',function()
     {
         $("#ordinance_id_txt").val($(this).closest('table tr').find('td:eq(0)').html());
-        $("#OfficialAssignedViewTxt").val($(this).closest('table tr').find('td:eq(1)').html());
-        $("#AuthorViewTxt").val($(this).closest('table tr').find('td:eq(2)').html());
-        var title = $(this).closest('table tr').find('td:eq(3)').html();
+        // $("#OfficialAssignedViewTxt").val($(this).closest('table tr').find('td:eq(1)').html());
+        $("#AuthorViewTxt").val($(this).closest('table tr').find('td:eq(1)').html());
+        var title = $(this).closest('table tr').find('td:eq(2)').html();
         $('#TitleViewTxt').val(title);
         
-        $("#CategoryViewTxt").val($(this).closest('table tr').find('td:eq(4)').html());
+        // $("#CategoryViewTxt").val($(this).closest('table tr').find('td:eq(4)').html());
        
-        $("#RemarksViewTxt").val($(this).closest('table tr').find('td:eq(5)').html());
-        $("#SanctionViewTxt").val($(this).closest('table tr').find('td:eq(6)').html());        
-        var image_src = '{!!asset("ordinances/'+$(this).closest('table tr').find('td:eq(7)').html()+'")!!}';
+        $("#RemarksViewTxt").val($(this).closest('table tr').find('td:eq(3)').html());
+        $("#SanctionViewTxt").val($(this).closest('table tr').find('td:eq(4)').html());        
+        var image_src = '{!!asset("ordinances/'+$(this).closest('table tr').find('td:eq(5)').html()+'")!!}';
+        
         $("#FileViewTxt").attr('src',image_src);
-        $("#DescriptionViewTxt").val($(this).closest('table tr').find('td:eq(8)').html());
+        $("#DescriptionViewTxt").val($(this).closest('table tr').find('td:eq(6)').html());
         
         
     })
@@ -377,7 +437,10 @@ $(document).ready(function()
 
                             <div class="tab-content">
 
+                                
 
+                            
+                                <br>
                               <button type='button' class='btn btn-lime'data-toggle='modal' data-target='#OrdinanceModal' >
                                 <i class='fa fa-plus'></i> Add New
                             </button>
@@ -408,13 +471,13 @@ $(document).ready(function()
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_TITLE }}</td>                                        
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_REMARKS }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}">{{ $record->ORDINANCE_SANCTION }}</td>
-                                        <td hidden>{{ $record->FILE_NAME }}</td>
+                                        <td hidden>HIDDEN</td>
                                         <td hidden>{{ $record->ORDINANCE_DESCRIPTION }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}" >
-                                            <button type='button' class='btn btn-warning form-control ViewModal' data-toggle='modal' data-target='#ViewModal' id="" >
+                                            <button type='button' class='btn btn-warning form-control ViewModal' data-toggle='modal' data-target='#ViewModal'>
                                                 <i class='fa fa-eye'></i> View
                                             </button>
-                                            <button type='button' class='btn btn-danger form-control remove-btn' data-toggle='modal' data-target='#ViewModal' id="" >
+                                            <button type='button' class='btn btn-danger form-control remove-btn'>
                                                 <i class='fa fa-times'></i> Remove
                                             </button>
                                         </td>
@@ -518,7 +581,7 @@ $(document).ready(function()
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <label style="display: block; text-align: left;">File</label>
-                                      <input type="file" id="file_txt" name="file_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" <input>
+                                      <input type="file" id="file_txt" name="file_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" multiple>
                                     </div>
                                 </div>
 
@@ -539,7 +602,7 @@ $(document).ready(function()
             
             <!-- #modal-view -->
             <div class="modal fade" id="ViewModal">
-                <div class="modal-dialog" style="max-width: 70%">
+                <div class="modal-dialog" style="max-width: 50%">
                     <form id="" method="post">
                         {{csrf_field()}}
 
@@ -565,7 +628,7 @@ $(document).ready(function()
                                         </div>
                                     </div>
 
-                                    <div class="col-lg-6 col-md-6">
+                                    {{-- <div class="col-lg-6 col-md-6">
                                         <div class="stats-content">
                                             <label style="display: block; text-align: left">&nbspAssigned official</label>
                                             
@@ -578,11 +641,11 @@ $(document).ready(function()
 
                                                     </select>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                 </div> <br>
                         
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-lg-12 col-md-6">
                                     <label style="display: block; text-align: left">&nbspCategory</label>
                                     
@@ -597,7 +660,8 @@ $(document).ready(function()
                                    
                                 </div>
 
-                            </div><br>
+                            </div> --}}
+                            <br>
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
                                     <label style="display: block; text-align: left">&nbspRemarks</label>
@@ -625,7 +689,7 @@ $(document).ready(function()
                         <div class="row">
                             <div class="col-lg-12">
                                 <label style="display: block; text-align: left;">Image Upload</label>
-                                <input type="file" id="file_update_txt" name="file_update_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" <input>
+                                <input type="file" id="file_update_txt" name="file_update_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" multiple>
                             </div>
                         </div>
 
