@@ -580,7 +580,6 @@ Route::currentRouteName() == 'DisplayResidentElderly'
 @yield('content')
 
 
-
 <!-- end #content -->
 
 

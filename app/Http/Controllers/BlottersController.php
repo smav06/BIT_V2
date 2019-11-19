@@ -197,7 +197,9 @@ class BlottersController extends Controller
                             ->where('t_patawag.blotter_id', $getBlotterID)
                             ->orderBy('t_patawag.patawag_sched_datetime', 'desc')
                             ->get()->toArray();
-                            
+
+        
+        
         return response()->json(['result' => $disppatawag]);
     }
 

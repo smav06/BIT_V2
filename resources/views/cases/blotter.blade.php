@@ -855,6 +855,8 @@
                                 <td style="background-color: #fff4b2">{{$blotter->NO_OF_PATAWAG}}</td>
                                 @elseif($blotter->NO_OF_PATAWAG == 3)
                                 <td style="background-color: #ffcdcb" class="alert-danger">{{$blotter->NO_OF_PATAWAG}}</td>
+                                @else
+                                <td >{{$blotter->NO_OF_PATAWAG}}</td>
                                 @endif
                                 <td>
                                     <button type='button' class='btn btn-warning viewCategory' data-toggle='modal' data-target='#ViewModal' >
