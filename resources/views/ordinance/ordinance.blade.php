@@ -187,7 +187,7 @@ $('#AddBtn').click(function(e) {
     sanction = $('#sanction_txt').val();
     description = $('#desc_txt').val();
     remarks = $('#remarks_txt').val();
-    file = $('#file_txt')[0].files[0];
+    file = $('#file_txt')[0].files;
 
     var fd = new FormData();
     fd.append('title',title);
@@ -197,9 +197,14 @@ $('#AddBtn').click(function(e) {
     fd.append('santion',sanction);
     fd.append('description',description);
     fd.append('remarks',remarks);
-    fd.append('file',file);
-    fd.append('_token', "{{ csrf_token() }}")
+    alert(file);
+    for(i=0;i<file.length;i++){
+        fd.append('file[]',file[i]);
+    }
+    
 
+    fd.append('_token', "{{ csrf_token() }}")
+    
     $.ajax({
 
         url:"{{route('OrdinanceStore')}}",
@@ -570,7 +575,7 @@ $(document).ready(function()
                                 <div class="row">
                                     <div class="col-lg-12">
                                         <label style="display: block; text-align: left;">File</label>
-                                      <input type="file" id="file_txt" name="file_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" <input>
+                                      <input type="file" id="file_txt" name="file_txt" style="display: block; text-align: left; color:black; background-color:white" accept="image/*"  placeholder='' class="form-control" multiple>
                                     </div>
                                 </div>
 

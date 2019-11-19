@@ -710,11 +710,11 @@
         
         $(".remove-btn").click(function()
             {
-
+                
                 var blotterID = $(this).closest("tr").find("td").first().text();
                 swal({
                     title: "Wait!",
-                    text: "Are you sure you want to remove this?",
+                    text: "Are you sure you want to remove blotter code"+$(this).closest("tbody tr").find("td:eq(1)").html()+" ?",
                     icon: "warning",
                     buttons: true,
                     dangerMode: true,
@@ -752,9 +752,19 @@
     <script type="text/javascript">
         $(document).ready(function()
         {
-            $(".addHearing").click(function()
+            $("#data-table-default").on("click",".addHearing",function()
             {
                 $("#EditBlotterIDH").val($(this).closest("tbody tr").find("td:eq(0)").html());
+                $("#ViewPatawagBlotterCode").text($(this).closest("tbody tr").find("td:eq(1)").html());
+                
+                no_of_patawag = $(this).closest("tbody tr").find("td:eq(11)").html();
+             
+                if(no_of_patawag == 3)
+                {      alert(no_of_patawag);
+                    $("#ScheduleBTN").prop('disabled',true);
+                }else{
+                    $("#ScheduleBTN").prop('disabled',false);
+                }
             });
 
         });
@@ -1237,7 +1247,9 @@
                                        {{--modal body start--}}
                                             <label class="form-label hide">Blotter ID</label>
                                                 <input type="text" id="EditBlotterIDH" name="EditBlotterIDH" type="text" class="form-control hide"/>
-
+                                                <input type="text" id="no-patawag-txt" name="no-patawag-txt" type="text" class="form-control hide"/>
+                                             <h2 id="ViewPatawagBlotterCode" align="center"></h2>
+                                            <label style="display: block; text-align: center">Blotter Code</label>
                                             <div class="col-lg-12">
                                                 <div class="row">
                                                     <div class="col-md-4">
@@ -1277,7 +1289,7 @@
                                         <div class="modal-footer">
                                             <a id="CloseBTN" href="javascript:;" class="btn btn-white" data-dismiss="modal">Close</a>
                                            <!--  <a id="EditPatawagBTN" href="javascript:;" class="btn btn-success">Edit</a> -->
-                                            <a id="ScheduleBTN" href="javascript:;" class="btn btn-yellow">Add Schedule</a>
+                                            <button id="ScheduleBTN" class="btn btn-yellow">Add Schedule</button>
 
                                           <!--   <a id="CancelBTN" href="javascript:;" class="btn btn-white">Cancel</a>
                                             <a id="SaveBTN" href="javascript:;" class="btn btn-lime">Save</a> -->

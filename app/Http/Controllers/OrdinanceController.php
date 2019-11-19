@@ -35,21 +35,32 @@ class OrdinanceController extends Controller
     {
 
         $ordinance_file = request()->file('file');
-            \DB::TABLE('T_ORDINANCE')
-            ->INSERT(
+        $get_id = \DB::TABLE('T_ORDINANCE')
+            ->INSERTGETID(
                 [
                     'ORDINANCE_TITLE'      => request('title'),
                     'ORDINANCE_DESCRIPTION'=> request('description'),
                     'ORDINANCE_AUTHOR'     => request('author'),
                     'ORDINANCE_SANCTION'   => request('santion'),
 
-                    'ORDINANCE_REMARKS'    => request('remarks'),
-                    // 'BARANGAY_OFFICIAL_ID' => db::table('t_barangay_official')->where('BARANGAY_ID',session('session_user_id'))->value(''),
-                    "FILE_NAME" => $ordinance_file->getClientOriginalName(),
+                    'ORDINANCE_REMARKS'    => request('remarks'),                    
+                    
                     'ACTIVE_FLAG' => 1
                 ]
             );
-            $ordinance_file->move(public_path('ordinances'), $ordinance_file->getClientOriginalName());
+            foreach($ordinance_file as $value)
+            {   
+                \DB::TABLE('T_ORDINANCE_IMAGES')
+                ->INSERT(
+                    [
+                        'ORDINANCE_ID'      => $get_id,
+                        'FILE_NAME'         => $value->getClientOriginalName(),
+                       
+                    ]
+                );
+                $value->move(public_path('ordinances'), $value->getClientOriginalName());  
+            }   
+            
             echo "good";
     }
 
@@ -74,6 +85,7 @@ class OrdinanceController extends Controller
                     "FILE_NAME" => $ordinance_file->getClientOriginalName()
                 ]
             );          
+            
             $ordinance_file->move(public_path('ordinances'), $ordinance_file->getClientOriginalName());  
             echo "good";
     }
