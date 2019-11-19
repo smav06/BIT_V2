@@ -155,7 +155,7 @@
 								<h4>Select Permit:</h4>
 								<select class="form-control" id="sel_clearance_type" style="color: black;" hidden>
 									<option selected disabled value=""></option>
-									<option>Barangay Business Permit</option>
+									<option value="Barangay Business Permit">Barangay Business Permit</option>
 									<option>Permit Use of Barangay Property Facility</option>
 									<option>Display of Outdoor Advertisement</option>
 								</select>
@@ -272,7 +272,7 @@
 								<br><legend class="m-t-10"></legend>
 								<div class="col-md-10" id="divBusinessPermit">
 									<label>Applicant's Name</label>
-									<input type="text" id="" class="form-control">
+									<input type="text"  class="form-control" id="txt_applicant_name">
 
 								</div>
 							</div>
@@ -411,49 +411,57 @@
 
 	});
 
-	$('#sel_clearance_type').on('change', function(){
-		var clearance_type = $('#sel_clearance_type option:selected').text();
+	// $('#sel_clearance_type').on('change', function(){
+	// 	var clearance_type = $('#sel_clearance_type option:selected').text();
 
-		if(clearance_type == "Barangay Business Permit"){
-			$('#txt_form_type').val('Application Barangay Business Permit Form');
-			//show
+	// 	if(clearance_type == "Barangay Business Permit"){
+	// 		$('#txt_form_type').val('Application Barangay Business Permit Form');
+	// 		//show
 			
-			//if Retailer 
-			var ess, noness, total_gross, business_nature;
-			ess = Number($('#txt_gross_essential').val());
-			noness = Number($('#txt_gross_nonessential').val());
-			total_gross = ess + noness;
-			business_nature = $('#txt_business_nature').val();
+	// 		//if Retailer 
+	// 		var ess, noness, total_gross, business_nature;
+	// 		ess = Number($('#txt_gross_essential').val());
+	// 		noness = Number($('#txt_gross_nonessential').val());
+	// 		total_gross = ess + noness;
+	// 		business_nature = $('#txt_business_nature').val();
 
-			if(business_nature == "Retailer"){
-				if(total_gross < 30000 && total_gross >= 1){
-					$('#divBusinessPermit').show();
-					$('#divBusinessClearance').hide()
-				//	alert(total_gross)
-			}
-			else if(total_gross > 30000){
-				$('#divBusinessPermit').hide();
-				$('#divBusinessClearance').show()
-			}
-				// total gross = 0
-				else if (total_gross == 0){
-					$('#divBusinessPermit').show();
+	// 		if(business_nature == "Retailer"){
+	// 			if(total_gross < 30000 && total_gross >= 1){
+	// 				$('#divBusinessPermit').show();
+	// 				$('#divBusinessClearance').hide()
+	// 			//	alert(total_gross)
+	// 		}
+	// 		else if(total_gross > 30000){
+	// 			$('#divBusinessPermit').hide();
+	// 			$('#divBusinessClearance').show()
+	// 		}
+	// 			// total gross = 0
+	// 			else if (total_gross == 0){
+	// 				$('#divBusinessPermit').show();
 					
 
-				}
-			}
-			else{
-				$('#divBusinessPermit').show();
+	// 			}
+	// 		}
+	// 		else{
+	// 			$('#divBusinessPermit').show();
 
-			}
+	// 		}
 
 			
-		}
+	// 	}
 		
-	});
+	// });
 
 	$('#btnRequest').on('click', function(){
-		var clearance_type = $('#sel_clearance_type option:selected').text();
+
+		var clearance_type;
+		if($('#radioBusinessPermit').is(':checked')){
+			clearance_type = "Barangay Business Permit"
+		}
+		else if($('#radioPropertyFacility').is(':checked')){alert('Permit Use of Barangay Property Facility');}
+		// else if($('#radioBusinessPermit').is(':checked')){alert('radioPropertyFacility');}
+
+		// var clearance_type = $('#sel_clearance_type option:selected').text();
 		var form_type = $('#txt_form_type').val();
 		var business_id = $('#txt_business_id').val();
 		// Business Permit Requirement
@@ -464,8 +472,10 @@
 		, signboard = $('#txt_signboard').val()
 		, ctc = $('#txt_ctc').val()
 		, business_tax = $('#txt_business_tax').val()
+		, applicant_name = $('#txt_applicant_name').val()
 		;
 		// console.log(quarter);
+		alert(applicant_name);
 		
 		let data = {
 			'_token' : " {{ csrf_token() }}"
@@ -481,6 +491,8 @@
 			,'BUSINESS_ID' : business_id
 			,'PAPER_TYPE_CLEARANCE' : clearance_type
 			,'PAPER_TYPE_FORM' : form_type
+			, 'APPLICANT_NAME' : applicant_name
+			// , ''
 		};
 
 		console.log(data);
@@ -502,6 +514,7 @@
 				console.log("error: " + error);
 			}
 		});	
+		
 	});
 
 

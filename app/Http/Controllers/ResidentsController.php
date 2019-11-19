@@ -139,10 +139,15 @@ class ResidentsController extends Controller
     
     public function rbi_store(Request $request)
     {
-        $multi_rbi_first_name     = strtoupper(request('multi_rbi_first_name'));
-        $multi_rbi_middle_name    = strtoupper(request('multi_rbi_middle_name'));
-        $multi_rbi_last_name      = strtoupper(request('multi_rbi_last_name'));
-        $multi_rbi_qualifier      = strtoupper(request('multi_rbi_qualifier'));
+        // $multi_rbi_first_name     = strtoupper(request('multi_rbi_first_name'));
+        // $multi_rbi_middle_name    = strtoupper(request('multi_rbi_middle_name'));
+        // $multi_rbi_last_name      = strtoupper(request('multi_rbi_last_name'));
+        // $multi_rbi_qualifier      = strtoupper(request('multi_rbi_qualifier'));
+
+        $multi_rbi_first_name     = request('multi_rbi_first_name');
+        $multi_rbi_middle_name    = request('multi_rbi_middle_name');
+        $multi_rbi_last_name      = request('multi_rbi_last_name');
+        $multi_rbi_qualifier      = request('multi_rbi_qualifier');
         $multi_rbi_sex            = request('multi_rbi_sex');
         $multi_rbi_date_of_birth  = request('multi_rbi_date_of_birth');
         $multi_rbi_age            = request('multi_rbi_age');

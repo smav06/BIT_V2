@@ -290,7 +290,7 @@
 							<div class="form-group row m-b-10">
 								<label class="col-sm-3 col-form-label">Approved By</label>
 								<div class="col-sm-9">
-									<input type="text" class="form-control" placeholder="Full Name" id="txt_evaluate_by">
+									<input type="text" class="form-control" placeholder="Full Name" id="txt_evaluate_by" value="">
 								</div>
 							</div>
 						</form>
@@ -442,7 +442,7 @@
 							<div class="form-group row m-b-10">
 								<label class="col-sm-3 col-form-label">Approved By</label>
 								<div class="col-sm-9">
-									<input type="text" class="form-control" placeholder="" id="txt_evaluate_by_issuance">
+									<input type="text" class="form-control" placeholder="" id="txt_evaluate_by_issuance" value="{{session('session_full_name')}}" readonly>
 								</div>
 							</div>
 
