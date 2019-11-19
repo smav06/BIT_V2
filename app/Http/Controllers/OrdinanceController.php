@@ -58,6 +58,7 @@ class OrdinanceController extends Controller
     public function update()
     {
 
+        $ordinance_file = request()->file('file');
         $ordinance_id = request('ordinance_id');
             \DB::TABLE('T_ORDINANCE')
             ->where('ORDINANCE_ID',$ordinance_id)
@@ -69,10 +70,11 @@ class OrdinanceController extends Controller
                     'ORDINANCE_SANCTION'   => request('santion'),
 
                     'ORDINANCE_REMARKS'    => request('remarks'),
-                    'ORDINANCE_CATEGORY_ID'=> request('category'),
-                    'BARANGAY_OFFICIAL_ID' => request('assignoff'),                                    
+                    
+                    "FILE_NAME" => $ordinance_file->getClientOriginalName()
                 ]
-            );            
+            );          
+            $ordinance_file->move(public_path('ordinances'), $ordinance_file->getClientOriginalName());  
             echo "good";
     }
 }

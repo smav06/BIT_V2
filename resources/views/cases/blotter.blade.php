@@ -851,7 +851,11 @@
                                 <td hidden>{{$blotter->complaint_statement}}</td>
                                 <td hidden>{{$blotter->resolution}}</td>
                                 <td hidden>{{$blotter->status}}</td>
-                                <td class = "{{$blotter->NO_OF_PATAWAG == 2 ? 'alert alert-danger ' : $blotter->NO_OF_PATAWAG == 2 ? 'alert alert-yellow ' : '' }} ">{{$blotter->NO_OF_PATAWAG}}</td>
+                                @if($blotter->NO_OF_PATAWAG == 2)
+                                <td style="background-color: #fff4b2">{{$blotter->NO_OF_PATAWAG}}</td>
+                                @elseif($blotter->NO_OF_PATAWAG == 3)
+                                <td style="background-color: #ffcdcb" class="alert-danger">{{$blotter->NO_OF_PATAWAG}}</td>
+                                @endif
                                 <td>
                                     <button type='button' class='btn btn-warning viewCategory' data-toggle='modal' data-target='#ViewModal' >
                                         <i class='fa fa-eye'></i> View

@@ -236,6 +236,7 @@ category = $('#CategoryViewTxt').children(":selected").attr("id");
 sanction = $('#SanctioNViewTxt').val();
 description = $('#DescriptionViewTxt').val();
 remarks = $('#RemarksViewTxt').val();
+file = $('#file_update_txt')[0].files[0];
 
 
 var fd = new FormData();
@@ -247,6 +248,7 @@ fd.append('category',category);
 fd.append('santion',sanction);
 fd.append('description',description);
 fd.append('remarks',remarks);
+fd.append('file',file);
 
 fd.append('_token', "{{ csrf_token() }}")
 
@@ -292,18 +294,19 @@ $(document).ready(function()
     $("#data-table-default").on('click','.ViewModal',function()
     {
         $("#ordinance_id_txt").val($(this).closest('table tr').find('td:eq(0)').html());
-        $("#OfficialAssignedViewTxt").val($(this).closest('table tr').find('td:eq(1)').html());
-        $("#AuthorViewTxt").val($(this).closest('table tr').find('td:eq(2)').html());
-        var title = $(this).closest('table tr').find('td:eq(3)').html();
+        // $("#OfficialAssignedViewTxt").val($(this).closest('table tr').find('td:eq(1)').html());
+        $("#AuthorViewTxt").val($(this).closest('table tr').find('td:eq(1)').html());
+        var title = $(this).closest('table tr').find('td:eq(2)').html();
         $('#TitleViewTxt').val(title);
         
-        $("#CategoryViewTxt").val($(this).closest('table tr').find('td:eq(4)').html());
+        // $("#CategoryViewTxt").val($(this).closest('table tr').find('td:eq(4)').html());
        
-        $("#RemarksViewTxt").val($(this).closest('table tr').find('td:eq(5)').html());
-        $("#SanctionViewTxt").val($(this).closest('table tr').find('td:eq(6)').html());        
-        var image_src = '{!!asset("ordinances/'+$(this).closest('table tr').find('td:eq(7)').html()+'")!!}';
+        $("#RemarksViewTxt").val($(this).closest('table tr').find('td:eq(3)').html());
+        $("#SanctionViewTxt").val($(this).closest('table tr').find('td:eq(4)').html());        
+        var image_src = '{!!asset("ordinances/'+$(this).closest('table tr').find('td:eq(5)').html()+'")!!}';
+        
         $("#FileViewTxt").attr('src',image_src);
-        $("#DescriptionViewTxt").val($(this).closest('table tr').find('td:eq(8)').html());
+        $("#DescriptionViewTxt").val($(this).closest('table tr').find('td:eq(6)').html());
         
         
     })
@@ -539,7 +542,7 @@ $(document).ready(function()
             
             <!-- #modal-view -->
             <div class="modal fade" id="ViewModal">
-                <div class="modal-dialog" style="max-width: 70%">
+                <div class="modal-dialog" style="max-width: 50%">
                     <form id="" method="post">
                         {{csrf_field()}}
 
@@ -565,7 +568,7 @@ $(document).ready(function()
                                         </div>
                                     </div>
 
-                                    <div class="col-lg-6 col-md-6">
+                                    {{-- <div class="col-lg-6 col-md-6">
                                         <div class="stats-content">
                                             <label style="display: block; text-align: left">&nbspAssigned official</label>
                                             
@@ -578,11 +581,11 @@ $(document).ready(function()
 
                                                     </select>
                                         </div>
-                                    </div>
+                                    </div> --}}
 
                                 </div> <br>
                         
-                            <div class="row">
+                            {{-- <div class="row">
                                 <div class="col-lg-12 col-md-6">
                                     <label style="display: block; text-align: left">&nbspCategory</label>
                                     
@@ -597,7 +600,8 @@ $(document).ready(function()
                                    
                                 </div>
 
-                            </div><br>
+                            </div> --}}
+                            <br>
                             <div class="row">
                                 <div class="col-lg-12 col-md-6">
                                     <label style="display: block; text-align: left">&nbspRemarks</label>
