@@ -53,7 +53,8 @@ class BlottersController extends Controller
                                 , 'R.resident_id'
                                 , 'R.lastname'
                                 , 'R.middlename'
-                                , 'R.firstname')
+                                , 'R.firstname'
+                                , 'b.NO_OF_PATAWAG')
                             ->where(['B.status' => 'Pending'])
                             ->where(['B.ACTIVE_FLAG' => 1])
                             ->orderBy('B.complaint_date', 'desc')

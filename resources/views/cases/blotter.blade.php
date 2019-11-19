@@ -827,6 +827,7 @@
                                 <th hidden>Complain Statement </th>
                                 <th hidden>Resolution</th>
                                 <th hidden>Status</th>
+                                <th>Number of Patawag</th>
                                 <th style="width: 26%">Actions </th>
                             </tr>
                             </thead>
@@ -850,8 +851,14 @@
                                 <td hidden>{{$blotter->complaint_statement}}</td>
                                 <td hidden>{{$blotter->resolution}}</td>
                                 <td hidden>{{$blotter->status}}</td>
+<<<<<<< HEAD
                                 <td style="width: 39%">
                                     <button type='button' class='btn btn-warning viewCategory form-control' data-toggle='modal' data-target='#ViewModal' >
+=======
+                                <td class = "{{$blotter->NO_OF_PATAWAG == 2 ? 'alert alert-danger ' : $blotter->NO_OF_PATAWAG == 2 ? 'alert alert-yellow ' : '' }} ">{{$blotter->NO_OF_PATAWAG}}</td>
+                                <td>
+                                    <button type='button' class='btn btn-warning viewCategory' data-toggle='modal' data-target='#ViewModal' >
+>>>>>>> a9637468a36fc04b64e9619a3023c7362d8cbfe0
                                         <i class='fa fa-eye'></i> View
                                     </button>
 

@@ -1338,7 +1338,6 @@ function validatedate(value,fd) {
     else if (value == "editdisplay") {
 
     }
-    else
         if ( value == "forajax" ) {
 
             if (age==0 || age<0) {
@@ -3357,8 +3356,8 @@ $("#register-btn").click(function(e){
                         val['CITIZEN_STATUS'],
                         val['ADDRESS_UNIT_NO'],
                         val['ADDRESS_SUBDIVISION'],
-                        val['ADDRESS_BUILDING'],
-                        '<button type="button" class="btn btn-success edit-modal-btn" data-toggle="modal" data-target="#UpdateModal"><i class="fas fa-edit"></i> Edit</button>'
+                        val['ADDRESS_BUILDING']
+                        ,"<button type='button' class='btn btn-warning view-btn' onClick=\"viewResident('" + val['RESIDENT_ID'] +"')\"><i class='fas fa-eye'></i> View</button><button type='button' class='btn btn-success edit-modal-btn' data-toggle='modal' data-target='#UpdateModal'><i class='fas fa-edit'></i> Edit&nbsp</button>"
                         ]).draw();
 
 
@@ -3478,6 +3477,15 @@ $('.record_class').click(function() {
     //alert('hello')
 });
 
+function viewResident(id) {
+    $id = id;
+    if ($id == "null" || $id == "") {
+        $id = 0;  
+    }
+           
+    location.href = "{{asset('')}}" + "ViewResident/"+$id;
+
+}
 
 </script>
 

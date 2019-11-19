@@ -94,6 +94,9 @@ ROUTE::GROUP(['prefix' => ''], function (){
         ->NAME('RBIAdd');
 
 
+    ROUTE::GET('/ViewResident/{id}', 'ResidentsController@viewresident')
+    ->NAME('ViewResident');
+
 });
 ROUTE::GROUP(['prefix' => ''], function (){
    

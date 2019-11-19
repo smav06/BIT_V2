@@ -19,9 +19,15 @@ class ResidentsController extends Controller
         $resident_type = DB::TABLE('R_RESIDENT_TYPE AS RT')
                             ->PLUCK('RT.TYPE_NAME','RT.TYPE_ID');
         return view('resident.basicinfo', compact('resident_type')); 
-        //$display_data = db::select("call sp_resident_info(?)",['cerv']);
-        //dd($display_data);
-      
+        // $result = db::select('call sp_view_resident(?)',[3785]);
+        // return view('resident.residentinformation', compact('result'));
+        
+    }
+
+    public function viewresident($id)
+    {
+        $result = db::select('call sp_view_resident(?)',[$id]);
+        return view('resident.residentinformation', compact('result'));
     }
 
     public function searchresident()
