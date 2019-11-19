@@ -77,4 +77,15 @@ class OrdinanceController extends Controller
             $ordinance_file->move(public_path('ordinances'), $ordinance_file->getClientOriginalName());  
             echo "good";
     }
+
+
+    public function remove()
+    {
+       $ordinance_id =  request('ordinance_id');
+
+       db::table('T_ORDINANCE')
+            ->where('ORDINANCE_ID', $ordinance_id)
+            ->update(['ACTIVE_FLAG' => 0]);
+                  
+    }
 }

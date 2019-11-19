@@ -208,11 +208,6 @@ class BlottersController extends Controller
        db::table('t_blotter')
             ->where('blotter_id', $blotter_id)
             ->update(['ACTIVE_FLAG' => 0]);
-
-            
-
-        
-                            
-        
+                  
     }
 }

@@ -223,7 +223,7 @@ $('#AddBtn').click(function(e) {
 
 
 
-
+//  Update Btn
 $('#UpdateOrdinanceBtn').click(function(e) {
 
 
@@ -284,6 +284,52 @@ function SuccessAlert() {
 
 
 </script>
+
+
+    {{-- REMOVE BTN --}}
+    <script>
+        
+        $(".remove-btn").click(function()
+            {
+
+                var ordinance_id =$(this).closest('table tr').find('td:eq(0)').html();
+                swal({
+                    title: "Wait!",
+                    text: "Are you sure you want to remove this?",
+                    icon: "warning",
+                    buttons: true,
+                    dangerMode: true,
+                })
+                    .then((willResolve) => {
+                        if (willResolve) {
+                            swal("Data have been successfully removed!", {
+                                icon: "success",
+
+                            });
+
+                            $.ajax({
+                                    url:'RemoveOrdinance',
+                                    type:'POST',                                    
+                                    data:{ordinance_id : ordinance_id,
+                                        _token       : '{{csrf_token()}}'
+                                    },
+                                    success:function()
+                                    {
+                                       location.reload();
+                                    }
+
+                                })  
+                        } 
+                        else {
+                           swal("Operation Cancelled.", {
+                               icon: "error",
+                           });
+                       }
+                    });
+            });
+    </script>
+
+{{--  View Btn --}}
 
 <script type="text/javascript">
 $(document).ready(function()
@@ -414,10 +460,10 @@ $(document).ready(function()
                                         <td hidden>{{ $record->FILE_NAME }}</td>
                                         <td hidden>{{ $record->ORDINANCE_DESCRIPTION }}</td>
                                         <td style="background-color: {{ $record->ACTIVE_FLAG == 1 ? '#ddefc9' : '#ffcdcc'}}" >
-                                            <button type='button' class='btn btn-warning form-control ViewModal' data-toggle='modal' data-target='#ViewModal' id="" >
+                                            <button type='button' class='btn btn-warning form-control ViewModal' data-toggle='modal' data-target='#ViewModal'>
                                                 <i class='fa fa-eye'></i> View
                                             </button>
-                                            <button type='button' class='btn btn-danger form-control remove-btn' data-toggle='modal' data-target='#ViewModal' id="" >
+                                            <button type='button' class='btn btn-danger form-control remove-btn'>
                                                 <i class='fa fa-times'></i> Remove
                                             </button>
                                         </td>

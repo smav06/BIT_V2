@@ -372,6 +372,8 @@ ROUTE::GROUP(['' => ''], function (){
         ->NAME('OrdinanceStore');
     ROUTE::post('/OrdinanceUpdate', 'OrdinanceController@update')
         ->NAME('OrdinanceUpdate');
+    ROUTE::post('/RemoveOrdinance', 'OrdinanceController@remove')
+        ->NAME('RemoveOrdinance');
 });
   ROUTE::GET('/VerifyEmail', 'Email@VerifyEmail')
         ->NAME('VerifyEmail');
